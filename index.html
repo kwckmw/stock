@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NOBLE STOCK AGENT CO - 2D AI 가상 오피스</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #020617;
+      color: #f1f5f9;
+      font-family: 'Pretendard', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .font-pixel { font-family: 'Press Start 2P', monospace; }
+    .font-mono { font-family: monospace; }
+    .pixelated { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+    .main-frame { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* 1. 상단 전광판 헤더 */
+    .header-box {
+      border: 2px solid #334155;
+      background-color: rgba(15, 23, 42, 0.95);
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    @keyframes neonGlow {
+      0%, 100% { text-shadow: 0 0 4px #38bdf8, 0 0 10px #0284c7; }
+      50% { text-shadow: 0 0 2px #0284c7, 0 0 5px #0369a1; }
+    }
+    .neon-sign { color: #38bdf8; font-size: 13px; letter-spacing: 1px; animation: neonGlow 2.5s infinite; }
+    .header-sub { font-size: 10px; color: #94a3b8; margin-top: 4px; font-family: monospace; }
+
+    .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
+    .btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn-run { background-color: #0891b2; color: #ffffff; border: 1px solid #67e8f9; }
+    .btn-run:hover { background-color: #06b6d4; }
+    .btn-portfolio { background-color: #4338ca; color: #ffffff; border: 1px solid #818cf8; }
+    .btn-portfolio:hover { background-color: #4f46e5; }
+    .btn-active { background-color: #6366f1 !important; box-shadow: 0 0 8px #818cf8; }
+
+    /* 2. 가상 오피스 룸 (직원 6인 3x3 그리드) */
+    .section-card {
+      border: 2px solid #334155;
+      background-color: #0f172a;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+    }
+    .card-topbar {
+      background-color: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #94a3b8;
+      font-family: monospace;
+    }
+    .office-floor {
+      background-color: #0b1120;
+      background-image: 
+        linear-gradient(to right, #1e293b 1px, transparent 1px),
+        linear-gradient(to bottom, #1e293b 1px, transparent 1px);
+      background-size: 20px 20px;
+      padding: 10px;
+    }
+    .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .desk-card {
+      background-color: rgba(30, 41, 59, 0.85);
+      border: 1px solid #334155;
+      padding: 8px 4px 6px 4px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 7px;
+      font-family: monospace;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background-color: #334155;
+      color: #cbd5e1;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .desk-title { font-family: 'Press Start 2P', monospace; font-size: 7.5px; margin-top: 4px; text-align: center; }
+    .desk-name { font-size: 8.5px; color: #94a3b8; margin-top: 2px; text-align: center; white-space: nowrap; }
+
+    @keyframes typingArm { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+    .anim-typing { animation: typingArm 0.2s infinite; }
+    @keyframes screenGlow { 0%, 100% { fill: #38bdf8; opacity: 0.9; } 50% { fill: #818cf8; opacity: 0.6; } }
+    .screen-active { animation: screenGlow 0.8s infinite; }
+
+    /* 3. 표 컨테이너 */
+    #portfolio-container {
+      border-top: 2px solid #312e81;
+      background-color: #020617;
+      padding: 12px;
+    }
+    .table-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .table-scroll { overflow-x: auto; border: 1px solid #1e293b; border-radius: 6px; }
+    table { width: 100%; font-size: 11px; font-family: monospace; border-collapse: collapse; white-space: nowrap; text-align: right; }
+    th { background-color: #0f172a; color: #cbd5e1; padding: 7px 10px; border-bottom: 1px solid #1e293b; font-weight: 600; }
+    td { padding: 7px 10px; border-bottom: 1px solid rgba(30, 41, 59, 0.7); }
+    tr:hover { background-color: rgba(15, 23, 42, 0.6); }
+    .stock-link { color: #f1f5f9; text-decoration: none; display: flex; align-items: center; gap: 4px; font-weight: 500; }
+    .stock-link:hover { color: #38bdf8; text-decoration: underline; }
+
+    /* 4. 시스템 터미널 로그 */
+    .terminal-box {
+      background-color: rgba(0, 0, 0, 0.95);
+      border-top: 1px solid #1e293b;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      height: 96px;
+    }
+    .terminal-header { display: flex; justify-content: space-between; font-size: 10px; font-family: monospace; color: #38bdf8; padding-bottom: 4px; border-bottom: 1px solid #1e293b; }
+    .terminal-body { overflow-y: auto; font-family: monospace; font-size: 11px; color: #cbd5e1; margin-top: 6px; line-height: 1.4; }
+
+    /* 5. 뉴스 브리핑 영역 */
+    .briefing-box { padding: 12px 14px 16px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+    .kosPI-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+      border: 1px solid #38bdf8;
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: monospace;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    .kospi-title { font-size: 10px; color: #94a3b8; }
+    .kospi-value { font-size: 14px; font-weight: bold; color: #f8fafc; margin-top: 2px; }
+    .kospi-diff { font-size: 11px; font-weight: bold; text-align: right; }
+
+    .summary-card {
+      background-color: rgba(8, 47, 73, 0.4);
+      border: 1px dashed #0284c7;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+    .summary-title { font-weight: bold; color: #38bdf8; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+
+    .news-card {
+      background-color: rgba(30, 41, 59, 0.9);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .news-card a { color: #f1f5f9; text-decoration: none; font-size: 12px; font-weight: 600; line-height: 1.45; display: block; margin: 5px 0; }
+    .news-card a:hover { color: #38bdf8; }
+    .news-card p { font-size: 11px; color: #94a3b8; line-height: 1.5; margin: 5px 0 0; }
+    .news-meta { font-size: 9px; color:#64748b; font-family:monospace; margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+  <div class="main-frame">
+
+    <!-- 1. 상단 전광판 헤더 -->
+    <header class="header-box">
+      <h1 class="neon-sign font-pixel">NOBLE STOCK AGENT CO</h1>
+      <p class="header-sub">24H AUTONOMOUS MULTI-AGENT MARKET DESK</p>
+      
+      <div class="btn-group">
+        <button id="btn-run" onclick="startWorkPipeline()" class="btn btn-run">
+          <span>▶</span> 업무 가동
+        </button>
+        <button id="btn-portfolio-toggle" onclick="togglePortfolioTable()" class="btn btn-portfolio">
+          <span>📈</span> 내 종목 보기
+        </button>
+      </div>
+      <div id="gemini-status" style="display:none; margin-top:8px; font-size:10px; font-family:monospace; color:#67e8f9; background:#082f49; padding:4px 8px; border-radius:4px; border:1px solid #0284c7;">
+        실시간 시세 동기화 진행 중...
+      </div>
+    </header>
+
+    <!-- 2. 가상 오피스 룸 (직원 6인 3x3 그리드) -->
+    <section class="section-card">
+      <div class="card-topbar">
+        <span>FLOOR 01: STOCK RESEARCH DEPT</span>
+        <span style="color:#38bdf8;">● AGENTS ACTIVE: 6</span>
+      </div>
+
+      <div class="office-floor">
+        <div class="agent-grid">
+          
+          <!-- Agent 1: Macro Scout (루시) -->
+          <div class="desk-card">
+            <span id="badge-scout-macro" class="badge">대기중</span>
+            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
+              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
+              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
+              <rect x="22" y="22" width="20" height="15" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+              <rect id="screen-scout-macro" x="24" y="24" width="16" height="11" fill="#0f172a"/>
+              <g id="body-scout-macro">
+                <rect x="26" y="8" width="12" height="12" fill="#fbcfe8"/>
+                <rect x="24" y="6" width="16" height="5" fill="#701a75"/>
+                <rect x="29" y="12" width="2" height="2" fill="#1e1b4b"/>
+                <rect x="33" y="12" width="2" height="2" fill="#1e1b4b"/>
+                <rect x="24" y="20" width="16" height="14" fill="#0284c7"/>
+                <circle cx="23" cy="30" r="2" fill="#fbcfe8"/>
+                <circle cx="41" cy="30" r="2" fill="#fbcfe8"/>
+              </g>
+            </svg>
+            <div class="desk-title" style="color:#7dd3fc;">매크로 스카우트</div>
+            <div class="desk-name">루시 (거시/지수)</div>
+          </div>
+
+          <!-- Agent 2: Sector Scout (레오) -->
+          <div class="desk-card">
+            <span id="badge-scout-sector" class="badge">대기중</span>
+            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
+              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
+              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
+              <rect x="22" y="22" width="20" height="15" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+              <rect id="screen-scout-sector" x="24" y="24" width="16" height="11" fill="#0f172a"/>
+              <g id="body-scout-sector">
+                <rect x="26" y="8" width="12" height="12" fill="#fed7aa"/>
+                <rect x="24" y="6" width="16" height="5" fill="#065f46"/>
+                <rect x="29" y="12" width="2" height="2" fill="#1e1b4b"/>
+                <rect x="33" y="12" width="2" height="2" fill="#1e1b4b"/>
+                <rect x="24" y="20" width="16" height="14" fill="#059669"/>
+                <circle cx="23" cy="30" r="2" fill="#fed7aa"/>
+                <circle cx="41" cy="30" r="2" fill="#fed7aa"/>
+              </g>
+            </svg>
+            <div class="desk-title" style="color:#6ee7b7;">섹터 스카우트</div>
+            <div class="desk-name">레오 (방산/중공업)</div>
+          </div>
+
+          <!-- Agent 3: Tech Scout (미아) -->
+          <div class="desk-card">
+            <span id="badge-scout-tech" class="badge">대기중</span>
+            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
+              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
+              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
+              <rect x="22" y="22" width="20" height="15" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+              <rect id="screen-scout-tech" x="24" y="24" width="16" height="11" fill="#0f172a"/>
+              <g id="body-scout-tech">
+                <rect x="26" y="8" width="12" height="12" fill="#fce7f3"/>
+                <rect x="24" y="6" width="16" height="5" fill="#581c87"/>
+                <rect x="29" y="12" width="2" height="2" fill="#1e1b4b"/>
+                <rect x="33" y="12" width="2" height="2" fill="#1e1b4b"/>
+                <rect x="24" y="20" width="16" height="14" fill="#7c3aed"/>
+                <circle cx="23" cy="30" r="2" fill="#fce7f3"/>
+                <circle cx="41" cy="30" r="2" fill="#fce7f3"/>
+              </g>
+            </svg>
+            <div class="desk-title" style="color:#c084fc;">테크 스카우트</div>
+            <div class="desk-name">미아 (반도체/AI)</div>
+          </div>
+
+          <!-- Agent 4: Analyst (카이) -->
+          <div class="desk-card">
+            <span id="badge-analyst" class="badge">대기중</span>
+            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
+              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
+              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
+              <rect x="16" y="24" width="14" height="13" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+              <rect id="screen-analyst-1" x="18" y="26" width="10" height="9" fill="#0f172a"/>
+              <rect x="34" y="24" width="14" height="13" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+              <rect id="screen-analyst-2" x="36" y="26" width="10" height="9" fill="#0f172a"/>
+              <g id="body-analyst">
+                <rect x="26" y="8" width="12" height="12" fill="#fed7aa"/>
+                <rect x="25" y="5" width="14" height="5" fill="#312e81"/>
+                <rect x="28" y="11" width="3" height="3" fill="#4338ca"/>
+                <rect x="33" y="11" width="3" height="3" fill="#4338ca"/>
+                <rect x="24" y="20" width="16" height="14" fill="#6366f1"/>
+                <circle cx="32" cy="30" r="2" fill="#fed7aa"/>
+              </g>
+            </svg>
+            <div class="desk-title" style="color:#a5b4fc;">데이터 분석가</div>
+            <div class="desk-name">카이 (감성 분석)</div>
+          </div>
+
+          <!-- Agent 5: Editor (엘레나) -->
+          <div class="desk-card">
+            <span id="badge-editor" class="badge">대기중</span>
+            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
+              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
+              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
+              <rect x="22" y="22" width="20" height="15" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+              <rect id="screen-editor" x="24" y="24" width="16" height="11" fill="#0f172a"/>
+              <g id="body-editor">
+                <rect x="26" y="8" width="12" height="12" fill="#fde68a"/>
+                <rect x="23" y="6" width="18" height="5" fill="#065f46"/>
+                <rect x="28" y="13" width="2" height="2" fill="#022c22"/>
+                <rect x="34" y="13" width="2" height="2" fill="#022c22"/>
+                <rect x="24" y="20" width="16" height="14" fill="#10b981"/>
+                <circle cx="22" cy="30" r="2" fill="#fde68a"/>
+                <circle cx="42" cy="30" r="2" fill="#fde68a"/>
+              </g>
+            </svg>
+            <div class="desk-title" style="color:#6ee7b7;">리포트 에디터</div>
+            <div class="desk-name">엘레나 (브리핑 작성)</div>
+          </div>
+
+          <!-- Agent 6: Manager (아서) -->
+          <div class="desk-card" style="border: 1.5px solid #b45309;">
+            <span id="badge-manager" class="badge">대기중</span>
+            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
+              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
+              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
+              <rect x="20" y="22" width="24" height="15" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+              <rect id="screen-manager" x="22" y="24" width="20" height="11" fill="#0f172a"/>
+              <g id="body-manager">
+                <rect x="26" y="7" width="12" height="12" fill="#fed7aa"/>
+                <rect x="24" y="4" width="16" height="5" fill="#b45309"/>
+                <rect x="27" y="11" width="10" height="3" fill="#1e293b"/>
+                <rect x="24" y="19" width="16" height="15" fill="#d97706"/>
+                <circle cx="32" cy="29" r="2.5" fill="#fed7aa"/>
+              </g>
+            </svg>
+            <div class="desk-title" style="color:#fcd34d;">총괄 매니저</div>
+            <div class="desk-name">아서 (검수/승인)</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 3. [내 종목 보기] 토글 표 -->
+      <div id="portfolio-container" style="display: none;">
+        <div class="table-header-flex">
+          <span style="font-size: 11px; font-weight: bold; color: #818cf8; font-family: monospace;">
+            📊 보유 종목 평가 현황 (실시간 시세 연동)
+          </span>
+          <span id="stock-source-status" style="font-size: 10px; color: #38bdf8; font-family: monospace;">시세: Naver Finance · 60초 갱신</span>
+        </div>
+        <div id="stock-data-note" style="font-size:9px;color:#64748b;margin-bottom:6px;">※ 네이버 금융 공개 시세 엔드포인트에서 조회합니다. 장중 현재가는 지연 시세일 수 있습니다.</div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align: left;">종목(출처확인)</th>
+                <th>주식수</th>
+                <th>전일종가</th>
+                <th>전일금액</th>
+                <th>현재가</th>
+                <th>현재금액</th>
+                <th>증감단가</th>
+                <th>증감금액</th>
+              </tr>
+            </thead>
+            <tbody id="portfolio-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. 실시간 시스템 터미널 로그 -->
+      <div class="terminal-box">
+        <div class="terminal-header">
+          <span>● SYSTEM TERMINAL (LIVE WORK STREAM)</span>
+          <span id="log-clock" style="color: #64748b;">11:55:00 KST</span>
+        </div>
+        <div id="terminal-body" class="terminal-body">
+          <div style="color: #64748b;">[SYSTEM] 6인 가상 오피스 시스템 준비 완료. Naver Finance 시세 조회 대기 중...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 하단: 주식 주요 뉴스 일일 브리핑 -->
+    <section class="section-card">
+      <div class="card-topbar">
+        <div>
+          <span style="font-weight: bold; color: #f1f5f9;">📰 DAILY STOCK BRIEFING</span>
+          <span id="briefing-subtitle" style="display:block; font-size:10px; color:#64748b; margin-top:2px;">전체 시장 주요 증시 뉴스 · 대기 중</span>
+        </div>
+        <span id="report-tag" style="font-size:9px; background:#082f49; color:#38bdf8; padding:2px 6px; border-radius:4px; border:1px solid #0284c7;">
+          전체 시장 모드
+        </span>
+      </div>
+
+      <div id="briefing-container" class="briefing-box">
+        <div id="empty-state" style="text-align:center; padding: 24px 0; color: #64748b; font-size: 11px;">
+          상단 [업무 가동] 버튼을 누르면 6인의 AI 요원들이 전문 섹터별 뉴스를 수집·분석합니다.
+        </div>
+        
+        <!-- KOSPI 변동 카드 -->
+        <div id="kospi-banner" class="kosPI-card" style="display:none;">
+          <div>
+            <div class="kospi-title" id="kospi-period-label">KOSPI 종합 지수 (실시간)</div>
+            <div class="kospi-value" id="kospi-current-val">-</div>
+          </div>
+          <div class="kospi-diff" id="kospi-diff-val">
+            <span style="color:#94a3b8;">-</span>
+          </div>
+        </div>
+
+        <!-- AI 핵심 종합 요약 블록 -->
+        <div id="period-summary" class="summary-card" style="display:none;">
+          <div class="summary-title">
+            <span>✨</span> <span id="summary-badge-title">AI 브리핑 종합 요약</span>
+          </div>
+          <p id="summary-content">뉴스 데이터를 수집 중입니다.</p>
+        </div>
+
+        <!-- 뉴스 리스트 피드 -->
+        <div id="news-list" style="display:none; display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // 10개 보유 종목 (요청 수량 반영)
+    const MY_HOLDINGS = [
+      { code: "267270", symbol: "267270.KS", name: "HD건설기계", shares: 1352, prevClose: null, currentPrice: null, loaded: false },
+      { code: "009540", symbol: "009540.KS", name: "HD한국조선해양", shares: 151, prevClose: null, currentPrice: null, loaded: false },
+      { code: "267250", symbol: "267250.KS", name: "HD현대", shares: 255, prevClose: null, currentPrice: null, loaded: false },
+      { code: "005930", symbol: "005930.KS", name: "삼성전자", shares: 150, prevClose: null, currentPrice: null, loaded: false },
+      { code: "000660", symbol: "000660.KS", name: "SK하이닉스", shares: 3, prevClose: null, currentPrice: null, loaded: false },
+      { code: "035420", symbol: "035420.KS", name: "NAVER", shares: 115, prevClose: null, currentPrice: null, loaded: false },
+      { code: "105560", symbol: "105560.KS", name: "KB금융", shares: 200, prevClose: null, currentPrice: null, loaded: false },
+      { code: "068270", symbol: "068270.KS", name: "셀트리온", shares: 79, prevClose: null, currentPrice: null, loaded: false },
+      { code: "041510", symbol: "041510.KQ", name: "에스엠", shares: 101, prevClose: null, currentPrice: null, loaded: false },
+      { code: "103140", symbol: "103140.KS", name: "풍산", shares: 81, prevClose: null, currentPrice: null, loaded: false }
+    ];
+
+    let KOSPI_STATE = {
+      currentPrice: 7003.74,
+      prevClose: 6971.35,
+      loaded: false
+    };
+
+    let isPortfolioOpen = false;
+    const PORTFOLIO_PASSWORD = "790809";
+    let isSyncRunning = false;
+    let isPipelineRunning = false;
+    let hasRunOnce = false;
+
+    let CURRENT_NEWS_ITEMS = [];
+    let CURRENT_SUMMARY_TEXT = "";
+
+    // 분담 수집 대상 RSS 피드
+    const FEEDS_REGISTRY = {
+      MACRO: [
+        { name: "연합뉴스 경제", url: "https://www.yonhapnewstv.co.kr/category/news/economy/feed/" },
+        { name: "이데일리 증시", url: "https://rss.edaily.co.kr/edaily_news.xml" }
+      ],
+      SECTOR: [
+        { name: "한국경제 금융", url: "https://www.hankyung.com/feed/finance" }
+      ],
+      TECH: [
+        { name: "매일경제 증시", url: "https://www.mk.co.kr/rss/30100041/" }
+      ]
+    };
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('log-clock').textContent = now.toTimeString().split(' ')[0] + ' KST';
+    }
+    setInterval(updateClock, 1000);
+
+    function appendTerminalLog(sender, message, color = "#cbd5e1") {
+      const terminal = document.getElementById('terminal-body');
+      const row = document.createElement('div');
+      const now = new Date().toTimeString().split(' ')[0];
+      row.style.color = color;
+      row.innerHTML = `<span style="color:#64748b;">[${now}]</span> <span style="color:#38bdf8; font-weight:bold;">[${sender}]</span> ${message}`;
+      terminal.appendChild(row);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function sanitizeText(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.innerHTML = str;
+      return (div.textContent || div.innerText || '').trim();
+    }
+
+    // ==========================================
+    // [기존 정상 작동했던 시세 전용 CORS Fallback 파이프라인 복원]
+    // ==========================================
+    async function fetchJsonWithCorsFallback(targetUrl) {
+      const urls = [
+        `https://proxy.cors.dev/${targetUrl}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+        `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
+        targetUrl
+      ];
+
+      let lastError = null;
+      for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 8000);
+          const response = await fetch(url, {
+            method: "GET",
+            cache: "no-store",
+            signal: controller.signal,
+            headers: { "Accept": "application/json,text/plain,*/*" }
+          });
+          clearTimeout(timeout);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const text = await response.text();
+          if (!text || text.trim().startsWith('<')) throw new Error("HTML 오류 페이지 응답");
+          try {
+            return JSON.parse(text);
+          } catch {
+            return JSON.parse(text.trim().replace(/^\uFEFF/, ''));
+          }
+        } catch (err) {
+          lastError = err;
+          if (i < urls.length - 1) {
+            appendTerminalLog("API_RETRY", `시세 경로 ${i + 1} 실패 → 다음 경로 시도`, "#64748b");
+          }
+        }
+      }
+      throw lastError || new Error("모든 시세 경로 실패");
+    }
+
+    async function fetchRawWithCors(targetUrl) {
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+        `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
+        `https://proxy.cors.dev/${targetUrl}`
+      ];
+
+      for (const proxy of proxies) {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 6000);
+          const res = await fetch(proxy, {
+            method: 'GET',
+            signal: controller.signal,
+            headers: { 'Accept': 'application/xml,text/xml,*/*' }
+          });
+          clearTimeout(timeout);
+          if (res.ok) {
+            const text = await res.text();
+            if (text && text.length > 200) return text;
+          }
+        } catch (_) {
+          continue;
+        }
+      }
+      throw new Error("Proxy Feed Fail");
+    }
+
+    // ==========================================
+    // [기존 보유종목 실시간 시세 조회 및 파싱 로직 원본 복원]
+    // ==========================================
+    function toNumber(value) {
+      if (value === null || value === undefined || value === '') return NaN;
+      const n = Number(String(value).replace(/,/g, '').trim());
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function parseNaverDomesticRealtime(data) {
+      const map = new Map();
+      const datas = Array.isArray(data?.datas)
+        ? data.datas
+        : Array.isArray(data?.result?.datas)
+          ? data.result.datas
+          : Array.isArray(data?.result?.areas)
+            ? data.result.areas.flatMap(a => Array.isArray(a?.datas) ? a.datas : [])
+            : [];
+
+      for (const item of datas) {
+        const code = String(item?.itemCode || item?.cd || item?.code || '');
+        if (!/^\d{6}$/.test(code)) continue;
+
+        const currentPrice = toNumber(item?.closePrice ?? item?.nv);
+        const compare = toNumber(item?.compareToPreviousClosePrice ?? item?.cv);
+        let prevClose = toNumber(item?.lastClosePrice ?? item?.sv ?? item?.pcv);
+
+        if (!Number.isFinite(prevClose) && Number.isFinite(currentPrice) && Number.isFinite(compare)) {
+          prevClose = currentPrice - compare;
+        }
+
+        if (!Number.isFinite(currentPrice) || !Number.isFinite(prevClose)) continue;
+
+        map.set(code, {
+          currentPrice,
+          prevClose,
+          marketState: item?.marketStatus || item?.ms || "UNKNOWN",
+          lastUpdated: item?.localTradedAt || new Date().toISOString()
+        });
+      }
+
+      if (map.size === 0) throw new Error("네이버 응답에 유효한 시세가 없습니다");
+      return map;
+    }
+
+    async function fetchNaverRealtimeBatch(codes) {
+      const query = codes.map(code => `SERVICE_ITEM:${code}`).join('|');
+      const url = `https://polling.finance.naver.com/api/realtime?query=${encodeURIComponent(query)}`;
+      const data = await fetchJsonWithCorsFallback(url);
+      return parseNaverDomesticRealtime(data);
+    }
+
+    async function fetchNaverRealtimeOne(code) {
+      const query = `SERVICE_ITEM:${code}`;
+      const url = `https://polling.finance.naver.com/api/realtime?query=${encodeURIComponent(query)}`;
+      const data = await fetchJsonWithCorsFallback(url);
+      const map = parseNaverDomesticRealtime(data);
+      return map.get(String(code));
+    }
+
+    async function fetchYahooQuote(symbol) {
+      const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1d&events=history`;
+      const data = await fetchJsonWithCorsFallback(yahooUrl);
+      return parseYahooQuote(data);
+    }
+
+    function parseYahooQuote(data) {
+      const result = data?.chart?.result?.[0];
+      if (!result) throw new Error("Yahoo 시세 응답 형식 오류");
+
+      const meta = result.meta || {};
+      const quote = result.indicators?.quote?.[0] || {};
+      const closes = Array.isArray(quote.close) ? quote.close.filter(v => Number.isFinite(v)) : [];
+      const currentPrice = Number.isFinite(meta.regularMarketPrice) ? Number(meta.regularMarketPrice) : (closes.length ? Number(closes[closes.length - 1]) : NaN);
+      let prevClose = Number(meta.previousClose);
+      if (!Number.isFinite(prevClose) && closes.length >= 2) prevClose = Number(closes[closes.length - 2]);
+      if (!Number.isFinite(currentPrice) || !Number.isFinite(prevClose)) throw new Error("전일종가/현재가 확인 실패");
+
+      return {
+        currentPrice,
+        prevClose,
+        marketState: meta.marketState || "UNKNOWN",
+        lastUpdated: meta.regularMarketTime ? new Date(meta.regularMarketTime * 1000).toISOString() : new Date().toISOString()
+      };
+    }
+
+    function applyQuote(stock, quote) {
+      const prevClose = Number(quote.prevClose);
+      const currentPrice = Number(quote.currentPrice);
+      if (!Number.isFinite(prevClose) || !Number.isFinite(currentPrice)) {
+        throw new Error("가격 숫자 변환 실패");
+      }
+      stock.prevClose = Math.round(prevClose);
+      stock.currentPrice = Math.round(currentPrice);
+      stock.lastUpdated = quote.lastUpdated || new Date().toISOString();
+      stock.marketState = quote.marketState || "UNKNOWN";
+      stock.loaded = true;
+    }
+
+    function shortError(err) {
+      const msg = String(err?.message || err || "알 수 없는 오류");
+      return msg.length > 90 ? msg.slice(0, 90) + "…" : msg;
+    }
+
+    async function fetchKospiIndexWithSilentFailover() {
+      try {
+        const url = `https://polling.finance.naver.com/api/realtime?query=SERVICE_INDEX:KOSPI`;
+        const data = await fetchJsonWithCorsFallback(url);
+        const datas = data?.datas || data?.result?.datas || [];
+        const item = datas.find(d => String(d?.itemCode || d?.cd || d?.code).toUpperCase() === 'KOSPI');
+        
+        if (item) {
+          const currentPrice = toNumber(item?.closePrice ?? item?.nv);
+          const compare = toNumber(item?.compareToPreviousClosePrice ?? item?.cv);
+          let prevClose = toNumber(item?.lastClosePrice ?? item?.sv ?? item?.pcv);
+          if (!Number.isFinite(prevClose) && Number.isFinite(currentPrice) && Number.isFinite(compare)) {
+            prevClose = currentPrice - compare;
+          }
+          if (Number.isFinite(currentPrice) && Number.isFinite(prevClose)) {
+            KOSPI_STATE.currentPrice = currentPrice;
+            KOSPI_STATE.prevClose = prevClose;
+            KOSPI_STATE.loaded = true;
+            appendTerminalLog("KOSPI_API", `KOSPI 실시간 수신: ${currentPrice.toFixed(2)}pt (Naver)`, "#6ee7b7");
+            return;
+          }
+        }
+        throw new Error("유효한 KOSPI 시세 없음");
+      } catch (err) {
+        try {
+          const yahooQuote = await fetchYahooQuote("^KS11");
+          KOSPI_STATE.currentPrice = yahooQuote.currentPrice;
+          KOSPI_STATE.prevClose = yahooQuote.prevClose;
+          KOSPI_STATE.loaded = true;
+          appendTerminalLog("KOSPI_API", `KOSPI 실시간 수신: ${yahooQuote.currentPrice.toFixed(2)}pt (Yahoo 보조)`, "#6ee7b7");
+        } catch (yahooErr) {
+          appendTerminalLog("KOSPI_WARN", `KOSPI 실시간 통신 지연 → 기준 시세(7,003.74pt) 유지`, "#fbbf24");
+        }
+      }
+    }
+
+    async function fetchStockDataWithSilentFailover() {
+      if (isSyncRunning) return;
+      isSyncRunning = true;
+
+      const banner = document.getElementById('gemini-status');
+      banner.style.display = 'block';
+      banner.textContent = "네이버 금융 실시간 시세 및 KOSPI 연결 중...";
+      appendTerminalLog("STOCK_API", "보유종목 및 KOSPI 지수 시세 조회 시작...", "#38bdf8");
+
+      fetchKospiIndexWithSilentFailover().then(() => {
+        if (hasRunOnce) renderKospiBanner();
+      });
+
+      let successCount = 0;
+
+      try {
+        const codes = MY_HOLDINGS.map(stock => stock.code);
+        const quoteMap = await fetchNaverRealtimeBatch(codes);
+
+        for (const stock of MY_HOLDINGS) {
+          const quote = quoteMap.get(stock.code);
+          if (quote) {
+            applyQuote(stock, quote);
+            successCount++;
+            appendTerminalLog("QUOTE_OK", `${stock.name}: ${stock.currentPrice.toLocaleString()}원`, "#6ee7b7");
+          }
+        }
+      } catch (err) {
+        appendTerminalLog("NAVER_BATCH_FAIL", `일괄 조회 실패 → 개별 조회로 전환 (${err.message})`, "#fbbf24");
+      }
+
+      for (const stock of MY_HOLDINGS.filter(s => !s.loaded)) {
+        try {
+          const quote = await fetchNaverRealtimeOne(stock.code);
+          if (!quote) throw new Error("유효한 네이버 시세 없음");
+          applyQuote(stock, quote);
+          successCount++;
+          appendTerminalLog("QUOTE_OK", `${stock.name}: ${stock.currentPrice.toLocaleString()}원`, "#6ee7b7");
+        } catch (naverError) {
+          appendTerminalLog("NAVER_FAIL", `${stock.name}: ${shortError(naverError)}`, "#fbbf24");
+
+          try {
+            const yahooQuote = await fetchYahooQuote(stock.symbol);
+            applyQuote(stock, yahooQuote);
+            successCount++;
+            appendTerminalLog("QUOTE_OK", `${stock.name}: ${stock.currentPrice.toLocaleString()}원 (Yahoo 보조)`, "#6ee7b7");
+          } catch (yahooError) {
+            appendTerminalLog("QUOTE_FAIL", `${stock.name}: Naver/Yahoo 모두 실패 · ${shortError(yahooError)}`, "#fb7185");
+          }
+        }
+      }
+
+      renderPortfolioRows();
+
+      if (successCount === MY_HOLDINGS.length) {
+        banner.textContent = `시세 동기화 완료: ${successCount}/10개`;
+        appendTerminalLog("STOCK_API", "10개 종목 및 지수 조회 완료", "#6ee7b7");
+      } else if (successCount > 0) {
+        banner.textContent = `부분 동기화: ${successCount}/10개`;
+        appendTerminalLog("STOCK_API_WARN", `${successCount}/10개 성공.`, "#fbbf24");
+      } else {
+        banner.textContent = "시세 서버 연결 실패";
+        appendTerminalLog("STOCK_API_ERROR", "외부 시세 서버 통신 지연. 기본 상태 유지.", "#fb7185");
+      }
+
+      setTimeout(() => { banner.style.display = 'none'; }, 3000);
+      isSyncRunning = false;
+    }
+
+    let stockRefreshTimer = null;
+    function startStockRefreshTimer() {
+      if (stockRefreshTimer) clearInterval(stockRefreshTimer);
+      stockRefreshTimer = setInterval(() => {
+        if (isPortfolioOpen) fetchStockDataWithSilentFailover();
+      }, 60000);
+    }
+
+    // ==========================================
+    // [News Triad 수집 및 브리핑 엔진]
+    // ==========================================
+    async function parseRssFeedItems(feedList, targetKeywords = [], defaultTag = "증시") {
+      const items = [];
+      for (const feed of feedList) {
+        try {
+          const rawXml = await fetchRawWithCors(feed.url);
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(rawXml, "text/xml");
+          const nodes = xmlDoc.querySelectorAll("item");
+
+          nodes.forEach(node => {
+            const title = sanitizeText(node.querySelector("title")?.textContent);
+            const link = (node.querySelector("link")?.textContent || "").trim();
+            const desc = sanitizeText(node.querySelector("description")?.textContent || title);
+            const pubDateStr = (node.querySelector("pubDate")?.textContent || "").trim();
+
+            if (!title || !link || !link.startsWith("http")) return;
+            if (link.includes("search.naver.com")) return;
+
+            let matchedTag = defaultTag;
+            if (targetKeywords.length > 0) {
+              const matched = targetKeywords.find(k => title.includes(k) || desc.includes(k));
+              if (matched) matchedTag = matched;
+            }
+
+            const pubDate = pubDateStr ? new Date(pubDateStr) : new Date();
+            const dateStr = `${pubDate.getFullYear()}.${String(pubDate.getMonth()+1).padStart(2,'0')}.${String(pubDate.getDate()).padStart(2,'0')} ${String(pubDate.getHours()).padStart(2,'0')}:${String(pubDate.getMinutes()).padStart(2,'0')}`;
+
+            items.push({
+              stockName: matchedTag,
+              sentiment: (title.includes('하락') || title.includes('급락') || title.includes('우려') || title.includes('약세')) ? 'NEGATIVE' : 'POSITIVE',
+              title,
+              summary: desc.length > 110 ? desc.slice(0, 110) + '...' : desc,
+              source: feed.name.split(' ')[0],
+              publishedAt: dateStr,
+              url: link
+            });
+          });
+        } catch (_) {}
+      }
+      return items;
+    }
+
+    async function fetchTriadNewsPipeline(mode) {
+      const holdingNames = MY_HOLDINGS.map(h => h.name);
+      const sectorKeywords = ["방산", "풍산", "조선", "HD현대", "HD한국조선해양", "건설기계", "원자재", "철강", "해운", "제조업"];
+      const techKeywords = ["삼성전자", "SK하이닉스", "반도체", "NAVER", "네이버", "셀트리온", "바이오", "에스엠", "AI", "HBM"];
+
+      const macroPromise = parseRssFeedItems(FEEDS_REGISTRY.MACRO, ["코스피", "환율", "금리", "증시", "외국인", "기관"], "거시 시황");
+      const sectorPromise = parseRssFeedItems(FEEDS_REGISTRY.SECTOR, sectorKeywords, "중공업/방산");
+      const techPromise = parseRssFeedItems(FEEDS_REGISTRY.TECH, techKeywords, "테크/반도체");
+
+      const [macroItems, sectorItems, techItems] = await Promise.all([macroPromise, sectorPromise, techPromise]);
+
+      appendTerminalLog("LUCY", `거시 시황 뉴스 ${macroItems.length}건 선별 완료.`, "#38bdf8");
+      appendTerminalLog("LEO", `제조·방산·조선 섹터 뉴스 ${sectorItems.length}건 선별 완료.`, "#34d399");
+      appendTerminalLog("MIA", `테크·반도체 섹터 뉴스 ${techItems.length}건 선별 완료.`, "#c084fc");
+
+      let combined = [];
+      if (mode === 'HOLDINGS') {
+        const isHoldingNews = (item) => holdingNames.some(name => item.title.includes(name) || item.stockName.includes(name));
+        const holdingList = [...techItems, ...sectorItems, ...macroItems].filter(isHoldingNews);
+        const restList = [...techItems, ...sectorItems, ...macroItems].filter(i => !isHoldingNews(i));
+        combined = [...holdingList, ...restList];
+      } else {
+        const maxLen = Math.max(macroItems.length, sectorItems.length, techItems.length);
+        for (let i = 0; i < maxLen; i++) {
+          if (macroItems[i]) combined.push(macroItems[i]);
+          if (sectorItems[i]) combined.push(sectorItems[i]);
+          if (techItems[i]) combined.push(techItems[i]);
+        }
+      }
+
+      const unique = [];
+      combined.forEach(item => {
+        if (!unique.some(u => u.title === item.title || u.url === item.url)) {
+          unique.push(item);
+        }
+      });
+
+      return unique.slice(0, 10);
+    }
+
+    function generateDynamicSummary(items, mode) {
+      if (!items || items.length === 0) {
+        return "현재 수신된 최신 증시 뉴스가 없습니다. 잠시 후 [업무 가동]을 다시 시도해주세요.";
+      }
+
+      const positiveCount = items.filter(i => i.sentiment === 'POSITIVE').length;
+      const negativeCount = items.length - positiveCount;
+      const headlines = items.slice(0, 3).map(i => i.title.replace(/\[.*?\]/g, '').trim()).join(' / ');
+
+      let tone = positiveCount >= negativeCount
+        ? "전반적으로 긍정적인 실적 기대감과 핵심 수급 흐름이 확인되고 있습니다."
+        : "시장 매크로 변동성과 관망세가 혼재되어 신중한 접근이 필요한 구간입니다.";
+
+      if (mode === 'HOLDINGS') {
+        return `[보유종목 AI 데스크 리포트] 트라이어드 요원들이 교차 검증한 ${items.length}건(긍정 ${positiveCount}건, 신중 ${negativeCount}건) 분석 결과, '${headlines}' 등의 이슈가 집중 조명되었습니다. ${tone}`;
+      } else {
+        return `[시장 전체 6인 데스크 브리핑] 총 ${items.length}건의 주요 증시 속보(긍정 ${positiveCount}건, 신중 ${negativeCount}건) 종합 결과, 핵심 헤드라인은 '${headlines}' 등입니다. ${tone}`;
+      }
+    }
+
+    async function togglePortfolioTable() {
+      const container = document.getElementById('portfolio-container');
+      const btn = document.getElementById('btn-portfolio-toggle');
+      const modeTag = document.getElementById('report-tag');
+      const subtitle = document.getElementById('briefing-subtitle');
+      
+      if (!isPortfolioOpen) {
+        const enteredPassword = window.prompt("내 종목을 보려면 비밀번호를 입력하세요.");
+        if (enteredPassword === null) return;
+        if (enteredPassword !== PORTFOLIO_PASSWORD) {
+          alert("비밀번호가 올바르지 않습니다.");
+          appendTerminalLog("SECURITY", "포트폴리오 접근 실패: 비밀번호 불일치", "#fb7185");
+          return;
+        }
+      }
+
+      isPortfolioOpen = !isPortfolioOpen;
+
+      if (isPortfolioOpen) {
+        container.style.display = 'block';
+        btn.classList.add('btn-active');
+        btn.innerHTML = `<span>📉</span> 내 종목 닫기`;
+        
+        modeTag.textContent = "내 보유종목 모드";
+        modeTag.style.background = "#064e3b";
+        modeTag.style.color = "#6ee7b7";
+        modeTag.style.borderColor = "#047857";
+        subtitle.textContent = "보유 10개 종목 맞춤형 리포트";
+
+        renderPortfolioRows();
+        appendTerminalLog("SYSTEM", "보유 10개 종목 테이블 전개 완료 (증감단가 및 증감금액 열 포함).", "#818cf8");
+        
+        fetchStockDataWithSilentFailover();
+        startStockRefreshTimer();
+
+        if (hasRunOnce) updateBriefingDisplay();
+      } else {
+        container.style.display = 'none';
+        btn.classList.remove('btn-active');
+        btn.innerHTML = `<span>📈</span> 내 종목 보기`;
+
+        modeTag.textContent = "전체 시장 모드";
+        modeTag.style.background = "#082f49";
+        modeTag.style.color = "#38bdf8";
+        modeTag.style.borderColor = "#0284c7";
+        subtitle.textContent = "전체 시장 주요 증시 뉴스";
+
+        appendTerminalLog("SYSTEM", "보유 종목 테이블 닫음. 전체 시장 모드 전환.", "#94a3b8");
+
+        if (hasRunOnce) updateBriefingDisplay();
+      }
+    }
+
+    function renderKospiBanner() {
+      const kospiBanner = document.getElementById('kospi-banner');
+      kospiBanner.style.display = 'flex';
+
+      const curVal = KOSPI_STATE.currentPrice;
+      const prevClose = KOSPI_STATE.prevClose;
+
+      const diffVal = curVal - prevClose;
+      const rateVal = prevClose ? (diffVal / prevClose) * 100 : 0;
+
+      document.getElementById('kospi-period-label').textContent = "KOSPI 종합 지수 (실시간)";
+      document.getElementById('kospi-current-val').textContent = curVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      
+      const arrow = diffVal > 0 ? "▲" : diffVal < 0 ? "▼" : "─";
+      const color = diffVal > 0 ? "#fb7185" : diffVal < 0 ? "#38bdf8" : "#94a3b8";
+      const sign = diffVal > 0 ? "+" : "";
+
+      document.getElementById('kospi-diff-val').innerHTML = `
+        <span style="color:${color};">${arrow} ${sign}${diffVal.toFixed(2)} (${sign}${rateVal.toFixed(2)}%)</span>
+      `;
+    }
+
+    function updateBriefingDisplay() {
+      renderKospiBanner();
+
+      const summaryCard = document.getElementById('period-summary');
+      summaryCard.style.display = 'block';
+      document.getElementById('summary-badge-title').textContent = isPortfolioOpen 
+        ? "보유종목 실시간 AI 종합 요약" 
+        : "시장 전체 실시간 AI 브리핑";
+      document.getElementById('summary-content').textContent = CURRENT_SUMMARY_TEXT;
+
+      const subtitle = document.getElementById('briefing-subtitle');
+      subtitle.textContent = `${isPortfolioOpen ? "보유 10개 종목 맞춤형 리포트" : "전체 시장 주요 증시 뉴스"} · ${CURRENT_NEWS_ITEMS.length}건`;
+
+      renderNewsCards(CURRENT_NEWS_ITEMS);
+    }
+
+    function renderNewsCards(items) {
+      document.getElementById('empty-state').style.display = 'none';
+      const newsList = document.getElementById('news-list');
+      newsList.innerHTML = '';
+      newsList.style.display = 'flex';
+
+      if (!items || items.length === 0) {
+        newsList.innerHTML = `<div style="text-align:center; padding:16px; color:#64748b; font-size:11px;">수신된 뉴스가 없습니다. 상단 [업무 가동]을 다시 시도해주세요.</div>`;
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "news-card";
+        const sentimentColor = item.sentiment === 'POSITIVE' ? '#6ee7b7' : item.sentiment === 'NEGATIVE' ? '#fb7185' : '#cbd5e1';
+        const sentimentBg = item.sentiment === 'POSITIVE' ? '#064e3b' : item.sentiment === 'NEGATIVE' ? '#4c0519' : '#1e293b';
+
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11px; font-weight:bold; color:#e2e8f0;">${item.stockName}</span>
+            <span style="font-size:8px; font-family:monospace; padding:2px 6px; border-radius:4px; background:${sentimentBg}; color:${sentimentColor};">${item.sentiment}</span>
+          </div>
+          <a href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title} ↗</a>
+          <p>${item.summary}</p>
+          <div class="news-meta">
+            <span style="color:#38bdf8;">${item.source}</span> · <span style="color:#94a3b8;">${item.publishedAt}</span>
+          </div>
+        `;
+        newsList.appendChild(card);
+      });
+    }
+
+    // [8개 컬럼 표 렌더링: 증감단가 + 증감금액 포함 완전 복원]
+    function renderPortfolioRows() {
+      const tbody = document.getElementById('portfolio-tbody');
+      tbody.innerHTML = '';
+
+      let totalPrevAmount = 0;
+      let totalCurrAmount = 0;
+      let loadedCount = 0;
+
+      MY_HOLDINGS.forEach(stock => {
+        const loaded = stock.loaded && Number.isFinite(stock.prevClose) && Number.isFinite(stock.currentPrice);
+        const prevAmount = loaded ? stock.shares * stock.prevClose : null;
+        const currAmount = loaded ? stock.shares * stock.currentPrice : null;
+
+        if (loaded) {
+          loadedCount++;
+          totalPrevAmount += prevAmount;
+          totalCurrAmount += currAmount;
+        }
+
+        const priceDiff = loaded ? stock.currentPrice - stock.prevClose : null;
+        const priceRate = loaded && stock.prevClose !== 0 ? (priceDiff / stock.prevClose) * 100 : null;
+        const amountDiff = loaded ? currAmount - prevAmount : null;
+
+        const diffColor = !loaded ? "#64748b" : priceDiff > 0 ? "#fb7185" : priceDiff < 0 ? "#38bdf8" : "#94a3b8";
+        const arrow = !loaded ? "" : priceDiff > 0 ? "▲" : priceDiff < 0 ? "▼" : "─";
+        const naverTotalUrl = `https://m.stock.naver.com/domestic/stock/${stock.code}/total?domesticStockExchange=KRX`;
+        const priceText = value => Number.isFinite(value) ? value.toLocaleString() : "-";
+        const signedNumber = value => {
+          if (!Number.isFinite(value)) return "-";
+          return `${value > 0 ? "+" : ""}${value.toLocaleString()}`;
+        };
+
+        const changePriceText = loaded
+          ? `<span style="font-size:12px;">${arrow}</span> ${signedNumber(priceDiff)} <span style="font-size:9px;">(${priceRate >= 0 ? "+" : ""}${priceRate.toFixed(2)}%)</span>`
+          : "-";
+
+        const changeAmountText = loaded ? `${signedNumber(amountDiff)}` : "-";
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align: left;">
+            <a href="${naverTotalUrl}" target="_blank" rel="noopener noreferrer" class="stock-link">
+              <span>${stock.name}</span> <span style="font-size:9px; color:#64748b;">↗</span>
+            </a>
+          </td>
+          <td style="color:#cbd5e1;">${stock.shares.toLocaleString()}주</td>
+          <td style="color:#94a3b8;">${priceText(stock.prevClose)}</td>
+          <td style="color:#cbd5e1;">${priceText(prevAmount)}</td>
+          <td style="color:${diffColor}; font-weight:bold;">${priceText(stock.currentPrice)}</td>
+          <td style="color:${diffColor}; font-weight:bold;">${priceText(currAmount)}</td>
+          <td style="color:${diffColor}; font-weight:bold;">${changePriceText}</td>
+          <td style="color:${diffColor}; font-weight:bold;">${changeAmountText}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const allLoaded = loadedCount === MY_HOLDINGS.length;
+      const totalDiff = allLoaded ? totalCurrAmount - totalPrevAmount : null;
+      const totalRate = allLoaded && totalPrevAmount !== 0 ? (totalDiff / totalPrevAmount) * 100 : null;
+      const totalColor = !allLoaded ? "#64748b" : totalDiff > 0 ? "#fb7185" : totalDiff < 0 ? "#38bdf8" : "#94a3b8";
+      const totalArrow = !allLoaded ? "" : totalDiff > 0 ? "▲" : totalDiff < 0 ? "▼" : "─";
+      const totalSign = allLoaded && totalDiff > 0 ? "+" : "";
+
+      const totalTr = document.createElement('tr');
+      totalTr.style.backgroundColor = "#0f172a";
+      totalTr.style.fontWeight = "bold";
+      totalTr.style.borderTop = "2px solid rgba(99, 102, 241, 0.5)";
+      totalTr.innerHTML = `
+        <td style="text-align:left;color:#a5b4fc;">합계</td>
+        <td style="color:#64748b;">-</td>
+        <td style="color:#64748b;">-</td>
+        <td style="color:${totalColor};">${allLoaded ? totalPrevAmount.toLocaleString() : "-"}</td>
+        <td style="color:#64748b;">-</td>
+        <td style="color:${totalColor};">${allLoaded ? totalCurrAmount.toLocaleString() : "-"}</td>
+        <td style="color:${totalColor};">${allLoaded ? `<span style="font-size:12px;">${totalArrow}</span> ${totalSign}${totalDiff.toLocaleString()} <span style="font-size:9px;">(${totalRate >= 0 ? "+" : ""}${totalRate.toFixed(2)}%)</span>` : "-"}</td>
+        <td style="color:${totalColor};">${allLoaded ? `${totalSign}${totalDiff.toLocaleString()}` : "-"}</td>
+      `;
+      tbody.appendChild(totalTr);
+    }
+
+    function setAgentState(agentId, stateText, bgColor, isWorking = false) {
+      const badge = document.getElementById(`badge-${agentId}`);
+      if (badge) {
+        badge.textContent = stateText;
+        badge.style.backgroundColor = bgColor;
+      }
+
+      const screen = document.getElementById(`screen-${agentId}`) || document.getElementById(`screen-${agentId}-1`);
+      if (screen) {
+        if (isWorking) screen.classList.add('screen-active');
+        else screen.classList.remove('screen-active');
+      }
+    }
+
+    function resetAllAgentsToWaiting() {
+      ['scout-macro', 'scout-sector', 'scout-tech', 'analyst', 'editor', 'manager'].forEach(agentId => {
+        setAgentState(agentId, '대기중', '#334155', false);
+      });
+    }
+
+    function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+    // [6인 AI 가상 오피스 통합 오케스트레이션 파이프라인]
+    async function startWorkPipeline() {
+      if (isPipelineRunning) return;
+      isPipelineRunning = true;
+
+      const btnRun = document.getElementById('btn-run');
+      btnRun.disabled = true;
+      btnRun.style.opacity = "0.5";
+
+      resetAllAgentsToWaiting();
+      appendTerminalLog("SYSTEM", "업무 가동: 6인 AI 가상 오피스 데스크 통합 파이프라인 시작.", "#94a3b8");
+      await delay(250);
+
+      // 1. 트라이어드 스카우트 3인 병렬 가동
+      appendTerminalLog("ARTHUR", "루시, 레오, 미아 요원! 전문 섹터별 실시간 뉴스 수집을 가동하세요.");
+      setAgentState('scout-macro', '수집 중', '#0891b2', true);
+      setAgentState('scout-sector', '수집 중', '#059669', true);
+      setAgentState('scout-tech', '수집 중', '#7c3aed', true);
+
+      const mode = isPortfolioOpen ? 'HOLDINGS' : 'MARKET';
+      CURRENT_NEWS_ITEMS = await fetchTriadNewsPipeline(mode);
+      
+      setAgentState('scout-macro', '완료', '#064e3b', false);
+      setAgentState('scout-sector', '완료', '#064e3b', false);
+      setAgentState('scout-tech', '완료', '#064e3b', false);
+
+      // 2. 카이 (데이터 분석가) - 시세 연동 및 감성 스코어링
+      appendTerminalLog("ARTHUR", "카이 분석관, KOSPI 실시간 시세 연동 및 3인 수집본 감성 분석을 시작하세요.");
+      setAgentState('analyst', '분석 중', '#312e81', true);
+      
+      await fetchKospiIndexWithSilentFailover();
+
+      setAgentState('analyst', '완료', '#064e3b', false);
+      appendTerminalLog("KAI", "KOSPI 지수 연동 및 종합 기사 감성 분석 완료.", "#818cf8");
+
+      // 3. 엘레나 (리포트 에디터) - AI 종합 요약문 작성
+      appendTerminalLog("ARTHUR", "엘레나 에디터, 수집 기사 헤드라인을 기반으로 실시간 브리핑을 완성하세요.");
+      setAgentState('editor', '작성 중', '#064e3b', true);
+      
+      CURRENT_SUMMARY_TEXT = generateDynamicSummary(CURRENT_NEWS_ITEMS, mode);
+      
+      await delay(350);
+      setAgentState('editor', '완료', '#064e3b', false);
+      appendTerminalLog("ELENA", "기사 원문 링크 바인딩 및 종합 AI 요약 작성 완료.", "#6ee7b7");
+
+      // 4. 아서 (총괄 매니저) - 검수 및 승인
+      setAgentState('manager', '검수 중', '#78350f', true);
+      await delay(300);
+      setAgentState('manager', '승인 완료', '#064e3b', false);
+      appendTerminalLog("ARTHUR", "6인 오피스 검수 완료: [PASS 승인]. 브리핑 발행!", "#fcd34d");
+
+      hasRunOnce = true;
+      updateBriefingDisplay();
+
+      isPipelineRunning = false;
+      btnRun.disabled = false;
+      btnRun.style.opacity = "1";
+    }
+  </script>
+</body>
+</html>
