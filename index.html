@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>NOBLE STOCK AGENT CO - 2D AI 가상 오피스</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -21,22 +21,21 @@
     }
     .font-pixel { font-family: 'Press Start 2P', monospace; }
     .font-mono { font-family: monospace; }
-    .pixelated { image-rendering: pixelated; image-rendering: crisp-edges; }
 
     .main-frame { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
 
     /* 1. 상단 전광판 헤더 */
     .header-box {
       border: 2px solid #334155;
-      background-color: rgba(15, 23, 42, 0.95);
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.95));
       padding: 16px;
       border-radius: 12px;
       text-align: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
     }
     @keyframes neonGlow {
-      0%, 100% { text-shadow: 0 0 4px #38bdf8, 0 0 10px #0284c7; }
-      50% { text-shadow: 0 0 2px #0284c7, 0 0 5px #0369a1; }
+      0%, 100% { text-shadow: 0 0 4px #38bdf8, 0 0 12px #0284c7; }
+      50% { text-shadow: 0 0 2px #0284c7, 0 0 6px #0369a1; }
     }
     .neon-sign { color: #38bdf8; font-size: 13px; letter-spacing: 1px; animation: neonGlow 2.5s infinite; }
     .header-sub { font-size: 10px; color: #94a3b8; margin-top: 4px; font-family: monospace; }
@@ -81,43 +80,115 @@
       font-family: monospace;
     }
     .office-floor {
-      background-color: #0b1120;
+      background-color: #090e1a;
       background-image: 
-        linear-gradient(to right, #1e293b 1px, transparent 1px),
-        linear-gradient(to bottom, #1e293b 1px, transparent 1px);
-      background-size: 20px 20px;
-      padding: 10px;
+        radial-gradient(circle at 50% 30%, rgba(30, 41, 59, 0.4) 0%, transparent 70%),
+        linear-gradient(to right, rgba(30, 41, 59, 0.3) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
+      background-size: 100% 100%, 20px 20px, 20px 20px;
+      padding: 12px 10px;
     }
-    .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .desk-card {
-      background-color: rgba(30, 41, 59, 0.85);
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
       border: 1px solid #334155;
-      padding: 8px 4px 6px 4px;
-      border-radius: 8px;
+      padding: 10px 4px 8px 4px;
+      border-radius: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
       position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 10px rgba(0,0,0,0.3);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .desk-card.active-work {
+      border-color: #38bdf8;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255,255,255,0.1);
     }
     .badge {
       position: absolute;
-      top: 4px;
-      right: 4px;
-      font-size: 7px;
+      top: 6px;
+      right: 6px;
+      font-size: 7.5px;
       font-family: monospace;
-      padding: 1px 4px;
+      padding: 2px 5px;
       border-radius: 4px;
       background-color: #334155;
       color: #cbd5e1;
       transition: background-color 0.2s ease, color 0.2s ease;
+      z-index: 5;
     }
-    .desk-title { font-family: 'Press Start 2P', monospace; font-size: 7.5px; margin-top: 4px; text-align: center; }
-    .desk-name { font-size: 8.5px; color: #94a3b8; margin-top: 2px; text-align: center; white-space: nowrap; }
+    .desk-title { font-family: 'Press Start 2P', monospace; font-size: 7.5px; margin-top: 6px; text-align: center; }
+    .desk-name { font-size: 8.5px; color: #94a3b8; margin-top: 3px; text-align: center; white-space: nowrap; }
 
-    @keyframes typingArm { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
-    .anim-typing { animation: typingArm 0.2s infinite; }
-    @keyframes screenGlow { 0%, 100% { fill: #38bdf8; opacity: 0.9; } 50% { fill: #818cf8; opacity: 0.6; } }
-    .screen-active { animation: screenGlow 0.8s infinite; }
+    /* 캐릭터 일러스트 & 애니메이션 */
+    .character-container {
+      width: 76px;
+      height: 70px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .agent-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* 상시 잔잔한 호흡/끄덕임 모션 */
+    @keyframes idleBreathing {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-0.8px); }
+    }
+    .anim-idle-head {
+      animation: idleBreathing 3.2s ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+
+    /* 집중 타이핑 모션 */
+    @keyframes fastTypingL {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2.2px); }
+    }
+    @keyframes fastTypingR {
+      0%, 100% { transform: translateY(-2px); }
+      50% { transform: translateY(0.4px); }
+    }
+    @keyframes headFocusNod {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(0.8px) rotate(-0.5deg); }
+      75% { transform: translateY(-0.5px) rotate(0.5deg); }
+    }
+    
+    .working-state .hand-l {
+      animation: fastTypingL 0.22s ease-in-out infinite !important;
+    }
+    .working-state .hand-r {
+      animation: fastTypingR 0.22s ease-in-out infinite !important;
+    }
+    .working-state .character-head {
+      animation: headFocusNod 0.7s ease-in-out infinite !important;
+    }
+
+    /* 모니터 및 작업 스포트라이트 발광 효과 */
+    @keyframes screenGlowBeam {
+      0%, 100% { opacity: 0.35; fill: #38bdf8; }
+      50% { opacity: 0.85; fill: #67e8f9; }
+    }
+    .screen-beam {
+      opacity: 0.15;
+      transition: opacity 0.3s ease;
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+    .screen-working .screen-beam {
+      animation: screenGlowBeam 1s infinite alternate;
+    }
+    .screen-working .monitor-display {
+      fill: #38bdf8 !important;
+      filter: drop-shadow(0 0 3px #38bdf8);
+    }
 
     /* 3. 표 컨테이너 */
     #portfolio-container {
@@ -209,7 +280,7 @@
       </div>
     </header>
 
-    <!-- 2. 가상 오피스 룸 (직원 6인 3x3 그리드) -->
+    <!-- 2. 가상 오피스 룸 (직원 6인 일러스트 애니메이션) -->
     <section class="section-card">
       <div class="card-topbar">
         <span>FLOOR 01: STOCK RESEARCH DEPT</span>
@@ -219,133 +290,331 @@
       <div class="office-floor">
         <div class="agent-grid">
           
-          <!-- Agent 1: Macro Scout (루시) -->
-          <div class="desk-card">
+          <!-- Agent 1: Macro Scout (루시 - 동영상 속 하늘색 머리 주인공) -->
+          <div class="desk-card" id="card-scout-macro">
             <span id="badge-scout-macro" class="badge">대기중</span>
-            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
-              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
-              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
-              <rect x="22" y="22" width="20" height="15" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
-              <rect id="screen-scout-macro" x="24" y="24" width="16" height="11" fill="#0f172a"/>
-              <g id="body-scout-macro">
-                <rect x="26" y="8" width="12" height="12" fill="#fbcfe8"/>
-                <rect x="24" y="6" width="16" height="5" fill="#701a75"/>
-                <rect x="29" y="12" width="2" height="2" fill="#1e1b4b"/>
-                <rect x="33" y="12" width="2" height="2" fill="#1e1b4b"/>
-                <rect x="24" y="20" width="16" height="14" fill="#0284c7"/>
-                <circle cx="23" cy="30" r="2" fill="#fbcfe8"/>
-                <circle cx="41" cy="30" r="2" fill="#fbcfe8"/>
-              </g>
-            </svg>
+            <div class="character-container" id="container-scout-macro">
+              <svg class="agent-svg" viewBox="0 0 100 90">
+                <defs>
+                  <linearGradient id="deskGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#cbd5e1"/>
+                    <stop offset="100%" stop-color="#94a3b8"/>
+                  </linearGradient>
+                  <linearGradient id="beamGradLucy" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <!-- 그림자 & 바닥 -->
+                <ellipse cx="50" cy="82" rx="42" ry="7" fill="#030712" opacity="0.45"/>
+                <!-- 책상 바디 & 상판 (아이소메트릭) -->
+                <polygon points="12,58 88,58 78,82 22,82" fill="#64748b"/>
+                <polygon points="12,58 88,58 84,54 16,54" fill="#94a3b8"/>
+                <rect x="22" y="78" width="56" height="5" fill="#475569" rx="1"/>
+                <line x1="24" y1="82" x2="24" y2="87" stroke="#334155" stroke-width="2.5"/>
+                <line x1="76" y1="82" x2="76" y2="87" stroke="#334155" stroke-width="2.5"/>
+                <!-- 서류/노트 -->
+                <polygon points="68,64 80,62 82,73 70,75" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.6"/>
+                <line x1="71" y1="66" x2="78" y2="65" stroke="#38bdf8" stroke-width="0.8"/>
+                <line x1="72" y1="69" x2="79" y2="68" stroke="#94a3b8" stroke-width="0.8"/>
+                <!-- 모니터 빛 투사 영역 -->
+                <polygon class="screen-beam" points="36,44 64,44 74,72 26,72" fill="url(#beamGradLucy)"/>
+                <!-- 모니터 (정면/대각) -->
+                <rect x="36" y="34" width="28" height="20" rx="2" fill="#1e293b" stroke="#475569" stroke-width="1.2"/>
+                <rect class="monitor-display" id="screen-scout-macro" x="38" y="36" width="24" height="16" rx="1" fill="#0f172a"/>
+                <rect x="47" y="54" width="6" height="6" fill="#334155"/>
+                <rect x="44" y="59" width="12" height="2.5" fill="#475569" rx="1"/>
+                <!-- 키보드 -->
+                <rect x="38" y="65" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
+                <!-- 캐릭터 루시 (몸체 + 머리) -->
+                <g class="character-group">
+                  <!-- 상체/옷 (흰색 셔츠 + 청록 타이) -->
+                  <path d="M38,42 C38,36 62,36 62,42 L65,58 L35,58 Z" fill="#f8fafc"/>
+                  <!-- 넥타이 -->
+                  <polygon points="48,42 52,42 51,52 49,52" fill="#0284c7"/>
+                  <!-- 머리 & 얼굴 -->
+                  <g class="character-head anim-idle-head">
+                    <circle cx="50" cy="28" r="11" fill="#fde68a" opacity="0.95"/> <!-- 얼굴 -->
+                    <!-- 눈 (귀여운 웹툰 스타일) -->
+                    <ellipse cx="46.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
+                    <circle cx="46" cy="27.5" r="0.6" fill="#ffffff"/>
+                    <ellipse cx="53.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
+                    <circle cx="53" cy="27.5" r="0.6" fill="#ffffff"/>
+                    <!-- 볼터치 -->
+                    <ellipse cx="44.5" cy="31" rx="1.6" ry="0.9" fill="#f43f5e" opacity="0.45"/>
+                    <ellipse cx="55.5" cy="31" rx="1.6" ry="0.9" fill="#f43f5e" opacity="0.45"/>
+                    <!-- 입 -->
+                    <path d="M49,32 Q50,33 51,32" stroke="#e11d48" stroke-width="0.8" fill="none"/>
+                    <!-- 동영상 시그니처: 시안/하늘색 헤어 & 앞머리 바보털 -->
+                    <path d="M38,27 C37,17 44,14 50,14 C56,14 63,17 62,27 C62,29 60,32 59,32 C58,26 57,22 55,22 C53,22 52,25 50,25 C48,25 47,22 45,22 C43,22 42,26 41,32 C40,32 38,29 38,27 Z" fill="#38bdf8"/>
+                    <!-- 정수리 귀여운 꽁지/바보털 (동영상 느낌) -->
+                    <path d="M50,14 Q53,8 48,6 Q52,10 50,14" fill="#38bdf8"/>
+                  </g>
+                  <!-- 손 (타이핑 모션) -->
+                  <ellipse class="hand-l" cx="42" cy="67" rx="2.5" ry="2" fill="#fde68a"/>
+                  <ellipse class="hand-r" cx="58" cy="67" rx="2.5" ry="2" fill="#fde68a"/>
+                </g>
+              </svg>
+            </div>
             <div class="desk-title" style="color:#7dd3fc;">매크로 스카우트</div>
             <div class="desk-name">루시 (거시/지수)</div>
           </div>
 
-          <!-- Agent 2: Sector Scout (레오) -->
-          <div class="desk-card">
+          <!-- Agent 2: Sector Scout (레오 - 카키/그린 재킷의 차분한 분석가) -->
+          <div class="desk-card" id="card-scout-sector">
             <span id="badge-scout-sector" class="badge">대기중</span>
-            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
-              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
-              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
-              <rect x="22" y="22" width="20" height="15" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
-              <rect id="screen-scout-sector" x="24" y="24" width="16" height="11" fill="#0f172a"/>
-              <g id="body-scout-sector">
-                <rect x="26" y="8" width="12" height="12" fill="#fed7aa"/>
-                <rect x="24" y="6" width="16" height="5" fill="#065f46"/>
-                <rect x="29" y="12" width="2" height="2" fill="#1e1b4b"/>
-                <rect x="33" y="12" width="2" height="2" fill="#1e1b4b"/>
-                <rect x="24" y="20" width="16" height="14" fill="#059669"/>
-                <circle cx="23" cy="30" r="2" fill="#fed7aa"/>
-                <circle cx="41" cy="30" r="2" fill="#fed7aa"/>
-              </g>
-            </svg>
+            <div class="character-container" id="container-scout-sector">
+              <svg class="agent-svg" viewBox="0 0 100 90">
+                <defs>
+                  <linearGradient id="beamGradLeo" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#34d399" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="50" cy="82" rx="42" ry="7" fill="#030712" opacity="0.45"/>
+                <!-- 책상 -->
+                <polygon points="12,58 88,58 78,82 22,82" fill="#475569"/>
+                <polygon points="12,58 88,58 84,54 16,54" fill="#64748b"/>
+                <rect x="22" y="78" width="56" height="5" fill="#334155" rx="1"/>
+                <line x1="24" y1="82" x2="24" y2="87" stroke="#1e293b" stroke-width="2.5"/>
+                <line x1="76" y1="82" x2="76" y2="87" stroke="#1e293b" stroke-width="2.5"/>
+                <!-- 커피잔 -->
+                <circle cx="25" cy="65" r="3.5" fill="#f1f5f9"/>
+                <circle cx="25" cy="65" r="2.2" fill="#78350f"/>
+                <!-- 모니터 빛 & 바디 -->
+                <polygon class="screen-beam" points="36,44 64,44 74,72 26,72" fill="url(#beamGradLeo)"/>
+                <rect x="36" y="34" width="28" height="20" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1.2"/>
+                <rect class="monitor-display" id="screen-scout-sector" x="38" y="36" width="24" height="16" rx="1" fill="#0f172a"/>
+                <rect x="47" y="54" width="6" height="6" fill="#334155"/>
+                <rect x="44" y="59" width="12" height="2.5" fill="#475569" rx="1"/>
+                <rect x="38" y="65" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
+                <!-- 캐릭터 레오 (다크 그린 셔츠 + 단정한 브라운 헤어) -->
+                <g class="character-group">
+                  <path d="M37,42 C37,36 63,36 63,42 L66,58 L34,58 Z" fill="#065f46"/>
+                  <polygon points="49,42 51,42 51,50 49,50" fill="#34d399"/>
+                  <g class="character-head anim-idle-head">
+                    <circle cx="50" cy="28" r="11" fill="#fed7aa"/>
+                    <!-- 눈 -->
+                    <ellipse cx="46.5" cy="28.5" rx="1.5" ry="2" fill="#0f172a"/>
+                    <circle cx="46" cy="27.8" r="0.5" fill="#ffffff"/>
+                    <ellipse cx="53.5" cy="28.5" rx="1.5" ry="2" fill="#0f172a"/>
+                    <circle cx="53" cy="27.8" r="0.5" fill="#ffffff"/>
+                    <path d="M49,32.5 Q50,33.5 51,32.5" stroke="#78350f" stroke-width="0.7" fill="none"/>
+                    <!-- 브라운 숏컷 헤어 -->
+                    <path d="M38,26 C37,16 44,13 50,13 C56,13 63,16 62,26 C61,28 60,30 58,26 C55,20 52,22 49,22 C46,22 44,20 42,26 C40,30 39,28 38,26 Z" fill="#334155"/>
+                  </g>
+                  <ellipse class="hand-l" cx="42" cy="67" rx="2.5" ry="2" fill="#fed7aa"/>
+                  <ellipse class="hand-r" cx="58" cy="67" rx="2.5" ry="2" fill="#fed7aa"/>
+                </g>
+              </svg>
+            </div>
             <div class="desk-title" style="color:#6ee7b7;">섹터 스카우트</div>
             <div class="desk-name">레오 (방산/중공업)</div>
           </div>
 
-          <!-- Agent 3: Tech Scout (미아) -->
-          <div class="desk-card">
+          <!-- Agent 3: Tech Scout (미아 - 퍼플 투톤 헤어 & 헤드셋 테크 스타일) -->
+          <div class="desk-card" id="card-scout-tech">
             <span id="badge-scout-tech" class="badge">대기중</span>
-            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
-              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
-              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
-              <rect x="22" y="22" width="20" height="15" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
-              <rect id="screen-scout-tech" x="24" y="24" width="16" height="11" fill="#0f172a"/>
-              <g id="body-scout-tech">
-                <rect x="26" y="8" width="12" height="12" fill="#fce7f3"/>
-                <rect x="24" y="6" width="16" height="5" fill="#581c87"/>
-                <rect x="29" y="12" width="2" height="2" fill="#1e1b4b"/>
-                <rect x="33" y="12" width="2" height="2" fill="#1e1b4b"/>
-                <rect x="24" y="20" width="16" height="14" fill="#7c3aed"/>
-                <circle cx="23" cy="30" r="2" fill="#fce7f3"/>
-                <circle cx="41" cy="30" r="2" fill="#fce7f3"/>
-              </g>
-            </svg>
+            <div class="character-container" id="container-scout-tech">
+              <svg class="agent-svg" viewBox="0 0 100 90">
+                <defs>
+                  <linearGradient id="beamGradMia" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#c084fc" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#c084fc" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="50" cy="82" rx="42" ry="7" fill="#030712" opacity="0.45"/>
+                <polygon points="12,58 88,58 78,82 22,82" fill="#475569"/>
+                <polygon points="12,58 88,58 84,54 16,54" fill="#64748b"/>
+                <rect x="22" y="78" width="56" height="5" fill="#334155" rx="1"/>
+                <line x1="24" y1="82" x2="24" y2="87" stroke="#1e293b" stroke-width="2.5"/>
+                <line x1="76" y1="82" x2="76" y2="87" stroke="#1e293b" stroke-width="2.5"/>
+                <!-- 펜꽂이 -->
+                <rect x="74" y="62" width="6" height="8" rx="1" fill="#334155"/>
+                <line x1="76" y1="60" x2="76" y2="64" stroke="#c084fc" stroke-width="1.5"/>
+                <line x1="78" y1="58" x2="78" y2="64" stroke="#38bdf8" stroke-width="1.5"/>
+                <polygon class="screen-beam" points="36,44 64,44 74,72 26,72" fill="url(#beamGradMia)"/>
+                <rect x="36" y="34" width="28" height="20" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1.2"/>
+                <rect class="monitor-display" id="screen-scout-tech" x="38" y="36" width="24" height="16" rx="1" fill="#0f172a"/>
+                <rect x="47" y="54" width="6" height="6" fill="#334155"/>
+                <rect x="44" y="59" width="12" height="2.5" fill="#475569" rx="1"/>
+                <rect x="38" y="65" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
+                <!-- 캐릭터 미아 (보라색 보브컷 헤어 + 헤드폰) -->
+                <g class="character-group">
+                  <path d="M37,42 C37,36 63,36 63,42 L66,58 L34,58 Z" fill="#581c87"/>
+                  <g class="character-head anim-idle-head">
+                    <circle cx="50" cy="28" r="11" fill="#fce7f3"/>
+                    <ellipse cx="46.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
+                    <circle cx="46" cy="27.5" r="0.6" fill="#ffffff"/>
+                    <ellipse cx="53.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
+                    <circle cx="53" cy="27.5" r="0.6" fill="#ffffff"/>
+                    <ellipse cx="45" cy="31.2" rx="1.5" ry="0.8" fill="#e879f9" opacity="0.4"/>
+                    <ellipse cx="55" cy="31.2" rx="1.5" ry="0.8" fill="#e879f9" opacity="0.4"/>
+                    <path d="M49,32.2 Q50,33 51,32.2" stroke="#a21caf" stroke-width="0.7" fill="none"/>
+                    <!-- 보라색 헤어 & 헤드폰 -->
+                    <path d="M37,28 C36,16 43,13 50,13 C57,13 64,16 63,28 C63,33 60,34 59,28 C57,21 54,23 50,23 C46,23 43,21 41,28 C40,34 37,33 37,28 Z" fill="#9333ea"/>
+                    <!-- 헤드폰 -->
+                    <path d="M36,25 C36,15 64,15 64,25" fill="none" stroke="#2e1065" stroke-width="2.5"/>
+                    <rect x="35" y="23" width="3" height="7" rx="1.5" fill="#c084fc"/>
+                    <rect x="62" y="23" width="3" height="7" rx="1.5" fill="#c084fc"/>
+                  </g>
+                  <ellipse class="hand-l" cx="42" cy="67" rx="2.5" ry="2" fill="#fce7f3"/>
+                  <ellipse class="hand-r" cx="58" cy="67" rx="2.5" ry="2" fill="#fce7f3"/>
+                </g>
+              </svg>
+            </div>
             <div class="desk-title" style="color:#c084fc;">테크 스카우트</div>
             <div class="desk-name">미아 (반도체/AI)</div>
           </div>
 
-          <!-- Agent 4: Analyst (카이) -->
-          <div class="desk-card">
+          <!-- Agent 4: Analyst (카이 - 안경 + 듀얼 모니터 데스크) -->
+          <div class="desk-card" id="card-analyst">
             <span id="badge-analyst" class="badge">대기중</span>
-            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
-              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
-              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
-              <rect x="16" y="24" width="14" height="13" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
-              <rect id="screen-analyst-1" x="18" y="26" width="10" height="9" fill="#0f172a"/>
-              <rect x="34" y="24" width="14" height="13" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
-              <rect id="screen-analyst-2" x="36" y="26" width="10" height="9" fill="#0f172a"/>
-              <g id="body-analyst">
-                <rect x="26" y="8" width="12" height="12" fill="#fed7aa"/>
-                <rect x="25" y="5" width="14" height="5" fill="#312e81"/>
-                <rect x="28" y="11" width="3" height="3" fill="#4338ca"/>
-                <rect x="33" y="11" width="3" height="3" fill="#4338ca"/>
-                <rect x="24" y="20" width="16" height="14" fill="#6366f1"/>
-                <circle cx="32" cy="30" r="2" fill="#fed7aa"/>
-              </g>
-            </svg>
+            <div class="character-container" id="container-analyst">
+              <svg class="agent-svg" viewBox="0 0 100 90">
+                <defs>
+                  <linearGradient id="beamGradKai" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#818cf8" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="50" cy="82" rx="44" ry="7" fill="#030712" opacity="0.45"/>
+                <polygon points="8,58 92,58 80,82 20,82" fill="#475569"/>
+                <polygon points="8,58 92,58 87,54 13,54" fill="#64748b"/>
+                <rect x="20" y="78" width="60" height="5" fill="#334155" rx="1"/>
+                <line x1="22" y1="82" x2="22" y2="87" stroke="#1e293b" stroke-width="2.5"/>
+                <line x1="78" y1="82" x2="78" y2="87" stroke="#1e293b" stroke-width="2.5"/>
+                <!-- 듀얼 모니터 (좌/우) -->
+                <!-- 좌측 모니터 -->
+                <polygon class="screen-beam" points="22,46 42,46 46,68 18,68" fill="url(#beamGradKai)"/>
+                <rect x="20" y="38" width="22" height="17" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+                <rect class="monitor-display" id="screen-analyst-1" x="22" y="40" width="18" height="13" rx="1" fill="#0f172a"/>
+                <!-- 우측 모니터 -->
+                <polygon class="screen-beam" points="58,46 78,46 82,68 54,68" fill="url(#beamGradKai)"/>
+                <rect x="58" y="38" width="22" height="17" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+                <rect class="monitor-display" id="screen-analyst-2" x="60" y="40" width="18" height="13" rx="1" fill="#0f172a"/>
+                <!-- 키보드 -->
+                <rect x="38" y="66" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
+                <!-- 캐릭터 카이 (지적인 네이비 셔츠 + 안경) -->
+                <g class="character-group">
+                  <path d="M37,42 C37,36 63,36 63,42 L66,58 L34,58 Z" fill="#312e81"/>
+                  <polygon points="49,42 51,42 51,52 49,52" fill="#818cf8"/>
+                  <g class="character-head anim-idle-head">
+                    <circle cx="50" cy="27" r="11" fill="#fed7aa"/>
+                    <!-- 안경 프레임 -->
+                    <rect x="43" y="26" width="6" height="5" rx="1.5" fill="none" stroke="#60a5fa" stroke-width="0.9"/>
+                    <rect x="51" y="26" width="6" height="5" rx="1.5" fill="none" stroke="#60a5fa" stroke-width="0.9"/>
+                    <line x1="49" y1="28" x2="51" y2="28" stroke="#60a5fa" stroke-width="0.9"/>
+                    <!-- 눈 -->
+                    <ellipse cx="46" cy="28.5" rx="1.2" ry="1.6" fill="#0f172a"/>
+                    <ellipse cx="54" cy="28.5" rx="1.2" ry="1.6" fill="#0f172a"/>
+                    <!-- 짙은 남색 댄디 헤어 -->
+                    <path d="M38,25 C37,15 44,12 50,12 C56,12 63,15 62,25 C60,24 57,20 50,20 C43,20 40,24 38,25 Z" fill="#1e1b4b"/>
+                  </g>
+                  <ellipse class="hand-l" cx="42" cy="68" rx="2.5" ry="2" fill="#fed7aa"/>
+                  <ellipse class="hand-r" cx="58" cy="68" rx="2.5" ry="2" fill="#fed7aa"/>
+                </g>
+              </svg>
+            </div>
             <div class="desk-title" style="color:#a5b4fc;">데이터 분석가</div>
             <div class="desk-name">카이 (감성 분석)</div>
           </div>
 
-          <!-- Agent 5: Editor (엘레나) -->
-          <div class="desk-card">
+          <!-- Agent 5: Editor (엘레나 - 따뜻한 에메랄드 니트 & 서류 검토) -->
+          <div class="desk-card" id="card-editor">
             <span id="badge-editor" class="badge">대기중</span>
-            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
-              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
-              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
-              <rect x="22" y="22" width="20" height="15" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
-              <rect id="screen-editor" x="24" y="24" width="16" height="11" fill="#0f172a"/>
-              <g id="body-editor">
-                <rect x="26" y="8" width="12" height="12" fill="#fde68a"/>
-                <rect x="23" y="6" width="18" height="5" fill="#065f46"/>
-                <rect x="28" y="13" width="2" height="2" fill="#022c22"/>
-                <rect x="34" y="13" width="2" height="2" fill="#022c22"/>
-                <rect x="24" y="20" width="16" height="14" fill="#10b981"/>
-                <circle cx="22" cy="30" r="2" fill="#fde68a"/>
-                <circle cx="42" cy="30" r="2" fill="#fde68a"/>
-              </g>
-            </svg>
+            <div class="character-container" id="container-editor">
+              <svg class="agent-svg" viewBox="0 0 100 90">
+                <defs>
+                  <linearGradient id="beamGradElena" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#34d399" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="50" cy="82" rx="42" ry="7" fill="#030712" opacity="0.45"/>
+                <polygon points="12,58 88,58 78,82 22,82" fill="#475569"/>
+                <polygon points="12,58 88,58 84,54 16,54" fill="#64748b"/>
+                <rect x="22" y="78" width="56" height="5" fill="#334155" rx="1"/>
+                <line x1="24" y1="82" x2="24" y2="87" stroke="#1e293b" stroke-width="2.5"/>
+                <line x1="76" y1="82" x2="76" y2="87" stroke="#1e293b" stroke-width="2.5"/>
+                <!-- 리포트 파일철 -->
+                <polygon points="20,64 30,62 33,74 23,76" fill="#fef08a" stroke="#ca8a04" stroke-width="0.7"/>
+                <polygon class="screen-beam" points="36,44 64,44 74,72 26,72" fill="url(#beamGradElena)"/>
+                <rect x="36" y="34" width="28" height="20" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1.2"/>
+                <rect class="monitor-display" id="screen-editor" x="38" y="36" width="24" height="16" rx="1" fill="#0f172a"/>
+                <rect x="47" y="54" width="6" height="6" fill="#334155"/>
+                <rect x="44" y="59" width="12" height="2.5" fill="#475569" rx="1"/>
+                <rect x="38" y="65" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
+                <!-- 캐릭터 엘레나 (금발 웨이브 헤어 + 에메랄드 니트) -->
+                <g class="character-group">
+                  <path d="M37,42 C37,36 63,36 63,42 L66,58 L34,58 Z" fill="#059669"/>
+                  <g class="character-head anim-idle-head">
+                    <circle cx="50" cy="28" r="11" fill="#fde68a" opacity="0.95"/>
+                    <ellipse cx="46.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
+                    <circle cx="46" cy="27.5" r="0.6" fill="#ffffff"/>
+                    <ellipse cx="53.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
+                    <circle cx="53" cy="27.5" r="0.6" fill="#ffffff"/>
+                    <ellipse cx="45" cy="31.2" rx="1.5" ry="0.9" fill="#f43f5e" opacity="0.4"/>
+                    <ellipse cx="55" cy="31.2" rx="1.5" ry="0.9" fill="#f43f5e" opacity="0.4"/>
+                    <path d="M49,32.2 Q50,33.2 51,32.2" stroke="#b91c1c" stroke-width="0.7" fill="none"/>
+                    <!-- 웜 블론드 롱 헤어 -->
+                    <path d="M36,28 C35,16 43,12 50,12 C57,12 65,16 64,28 C64,36 61,38 60,30 C58,21 54,23 50,23 C46,23 42,21 40,30 C39,38 36,36 36,28 Z" fill="#d97706"/>
+                  </g>
+                  <ellipse class="hand-l" cx="42" cy="67" rx="2.5" ry="2" fill="#fde68a"/>
+                  <ellipse class="hand-r" cx="58" cy="67" rx="2.5" ry="2" fill="#fde68a"/>
+                </g>
+              </svg>
+            </div>
             <div class="desk-title" style="color:#6ee7b7;">리포트 에디터</div>
             <div class="desk-name">엘레나 (브리핑 작성)</div>
           </div>
 
-          <!-- Agent 6: Manager (아서) -->
-          <div class="desk-card" style="border: 1.5px solid #b45309;">
+          <!-- Agent 6: Manager (아서 - 묵직한 가죽 의자 & 골드 테마 총괄 관리자) -->
+          <div class="desk-card" id="card-manager" style="border: 1.5px solid #b45309;">
             <span id="badge-manager" class="badge">대기중</span>
-            <svg class="pixelated" width="40" height="40" viewBox="0 0 64 64">
-              <rect x="8" y="38" width="48" height="18" fill="#78350f" rx="1"/>
-              <rect x="10" y="38" width="44" height="3" fill="#92400e"/>
-              <rect x="20" y="22" width="24" height="15" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
-              <rect id="screen-manager" x="22" y="24" width="20" height="11" fill="#0f172a"/>
-              <g id="body-manager">
-                <rect x="26" y="7" width="12" height="12" fill="#fed7aa"/>
-                <rect x="24" y="4" width="16" height="5" fill="#b45309"/>
-                <rect x="27" y="11" width="10" height="3" fill="#1e293b"/>
-                <rect x="24" y="19" width="16" height="15" fill="#d97706"/>
-                <circle cx="32" cy="29" r="2.5" fill="#fed7aa"/>
-              </g>
-            </svg>
+            <div class="character-container" id="container-manager">
+              <svg class="agent-svg" viewBox="0 0 100 90">
+                <defs>
+                  <linearGradient id="beamGradArthur" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="50" cy="82" rx="43" ry="7" fill="#030712" opacity="0.45"/>
+                <!-- 매니저 전용 와이드 데스크 -->
+                <polygon points="10,58 90,58 80,82 20,82" fill="#78350f"/>
+                <polygon points="10,58 90,58 85,54 15,54" fill="#92400e"/>
+                <rect x="20" y="78" width="60" height="5" fill="#451a03" rx="1"/>
+                <line x1="22" y1="82" x2="22" y2="87" stroke="#292524" stroke-width="2.5"/>
+                <line x1="78" y1="82" x2="78" y2="87" stroke="#292524" stroke-width="2.5"/>
+                <!-- 명패 (Manager) -->
+                <polygon points="20,68 32,68 30,73 18,73" fill="#fcd34d" stroke="#b45309" stroke-width="0.6"/>
+                <polygon class="screen-beam" points="34,42 66,42 76,72 24,72" fill="url(#beamGradArthur)"/>
+                <!-- 대형 곡면 모니터 -->
+                <rect x="34" y="32" width="32" height="22" rx="2" fill="#1e293b" stroke="#b45309" stroke-width="1.2"/>
+                <rect class="monitor-display" id="screen-manager" x="36" y="34" width="28" height="18" rx="1" fill="#0f172a"/>
+                <rect x="47" y="54" width="6" height="6" fill="#334155"/>
+                <rect x="44" y="59" width="12" height="2.5" fill="#475569" rx="1"/>
+                <rect x="38" y="65" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
+                <!-- 캐릭터 아서 (브라운 정장 + 단정한 포마드 헤어) -->
+                <g class="character-group">
+                  <path d="M36,40 C36,34 64,34 64,40 L67,58 L33,58 Z" fill="#451a03"/>
+                  <polygon points="48,40 52,40 51,52 49,52" fill="#f59e0b"/>
+                  <g class="character-head anim-idle-head">
+                    <circle cx="50" cy="27" r="11" fill="#fed7aa"/>
+                    <ellipse cx="46.5" cy="28" rx="1.5" ry="2" fill="#0f172a"/>
+                    <circle cx="46" cy="27.3" r="0.5" fill="#ffffff"/>
+                    <ellipse cx="53.5" cy="28" rx="1.5" ry="2" fill="#0f172a"/>
+                    <circle cx="53" cy="27.3" r="0.5" fill="#ffffff"/>
+                    <path d="M48.5,32 Q50,33 51.5,32" stroke="#78350f" stroke-width="0.8" fill="none"/>
+                    <!-- 포마드 헤어 -->
+                    <path d="M37,25 C37,14 44,11 50,11 C57,11 63,14 63,25 C61,24 58,21 51,21 C44,21 40,23 37,25 Z" fill="#292524"/>
+                  </g>
+                  <ellipse class="hand-l" cx="42" cy="67" rx="2.5" ry="2" fill="#fed7aa"/>
+                  <ellipse class="hand-r" cx="58" cy="67" rx="2.5" ry="2" fill="#fed7aa"/>
+                </g>
+              </svg>
+            </div>
             <div class="desk-title" style="color:#fcd34d;">총괄 매니저</div>
             <div class="desk-name">아서 (검수/승인)</div>
           </div>
@@ -437,7 +706,7 @@
   </div>
 
   <script>
-    // 10개 보유 종목 (요청 수량 반영)
+    // 10개 보유 종목
     const MY_HOLDINGS = [
       { code: "267270", symbol: "267270.KS", name: "HD건설기계", shares: 1352, prevClose: null, currentPrice: null, loaded: false },
       { code: "009540", symbol: "009540.KS", name: "HD한국조선해양", shares: 151, prevClose: null, currentPrice: null, loaded: false },
@@ -466,7 +735,6 @@
     let CURRENT_NEWS_ITEMS = [];
     let CURRENT_SUMMARY_TEXT = "";
 
-    // 분담 수집 대상 RSS 피드
     const FEEDS_REGISTRY = {
       MACRO: [
         { name: "연합뉴스 경제", url: "https://www.yonhapnewstv.co.kr/category/news/economy/feed/" },
@@ -503,9 +771,6 @@
       return (div.textContent || div.innerText || '').trim();
     }
 
-    // ==========================================
-    // [기존 정상 작동했던 시세 전용 CORS Fallback 파이프라인 복원]
-    // ==========================================
     async function fetchJsonWithCorsFallback(targetUrl) {
       const urls = [
         `https://proxy.cors.dev/${targetUrl}`,
@@ -533,7 +798,7 @@
           try {
             return JSON.parse(text);
           } catch {
-            return JSON.parse(text.trim().replace(/^\uFEFF/, ''));
+            return JSON.parse(text.trim().replace(/^﻿/, ''));
           }
         } catch (err) {
           lastError = err;
@@ -573,9 +838,6 @@
       throw new Error("Proxy Feed Fail");
     }
 
-    // ==========================================
-    // [기존 보유종목 실시간 시세 조회 및 파싱 로직 원본 복원]
-    // ==========================================
     function toNumber(value) {
       if (value === null || value === undefined || value === '') return NaN;
       const n = Number(String(value).replace(/,/g, '').trim());
@@ -708,7 +970,7 @@
           KOSPI_STATE.loaded = true;
           appendTerminalLog("KOSPI_API", `KOSPI 실시간 수신: ${yahooQuote.currentPrice.toFixed(2)}pt (Yahoo 보조)`, "#6ee7b7");
         } catch (yahooErr) {
-          appendTerminalLog("KOSPI_WARN", `KOSPI 실시간 통신 지연 → 기준 시세(7,003.74pt) 유지`, "#fbbf24");
+          appendTerminalLog("KOSPI_WARN", `KOSPI 실시간 통신 지연 → 기준 시세 유지`, "#fbbf24");
         }
       }
     }
@@ -790,9 +1052,6 @@
       }, 60000);
     }
 
-    // ==========================================
-    // [News Triad 수집 및 브리핑 엔진]
-    // ==========================================
     async function parseRssFeedItems(feedList, targetKeywords = [], defaultTag = "증시") {
       const items = [];
       for (const feed of feedList) {
@@ -1018,7 +1277,6 @@
       });
     }
 
-    // [8개 컬럼 표 렌더링: 증감단가 + 증감금액 포함 완전 복원]
     function renderPortfolioRows() {
       const tbody = document.getElementById('portfolio-tbody');
       tbody.innerHTML = '';
@@ -1099,6 +1357,7 @@
       tbody.appendChild(totalTr);
     }
 
+    // [에이전트 상태 및 애니메이션 제어]
     function setAgentState(agentId, stateText, bgColor, isWorking = false) {
       const badge = document.getElementById(`badge-${agentId}`);
       if (badge) {
@@ -1106,10 +1365,21 @@
         badge.style.backgroundColor = bgColor;
       }
 
-      const screen = document.getElementById(`screen-${agentId}`) || document.getElementById(`screen-${agentId}-1`);
-      if (screen) {
-        if (isWorking) screen.classList.add('screen-active');
-        else screen.classList.remove('screen-active');
+      const card = document.getElementById(`card-${agentId}`);
+      const container = document.getElementById(`container-${agentId}`);
+      
+      if (isWorking) {
+        if (card) card.classList.add('active-work');
+        if (container) {
+          container.classList.add('working-state');
+          container.classList.add('screen-working');
+        }
+      } else {
+        if (card) card.classList.remove('active-work');
+        if (container) {
+          container.classList.remove('working-state');
+          container.classList.remove('screen-working');
+        }
       }
     }
 
