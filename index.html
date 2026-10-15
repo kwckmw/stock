@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PULSE 7 : ALPHA NEXUS - 3D AI 가상 오피스</title>
+  <title>PULSE 8 : ALPHA NEXUS - 8인 체제 3D AI 가상 오피스</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
   <!-- 단일 HTML 실행을 위한 Three.js 및 OrbitControls CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -25,7 +25,7 @@
     .font-pixel { font-family: 'Press Start 2P', monospace; }
     .font-mono { font-family: monospace; }
 
-    .main-frame { width: 100%; max-width: 840px; display: flex; flex-direction: column; gap: 12px; }
+    .main-frame { width: 100%; max-width: 860px; display: flex; flex-direction: column; gap: 12px; }
 
     /* 1. 상단 전광판 헤더 */
     .header-box {
@@ -110,11 +110,11 @@
       font-family: monospace;
     }
 
-    /* 요청 반영: 오피스 높이를 430px -> 310px로 컴팩트하게 축소 */
+    /* 컴팩트 와이드 비율 (320px) + 4x2 8인 전원 노출 최적화 */
     .office-3d-wrapper {
       position: relative;
       width: 100%;
-      height: 310px;
+      height: 320px;
       background: radial-gradient(circle at 50% 40%, #0f172a 0%, #020617 100%);
       overflow: hidden;
     }
@@ -139,7 +139,7 @@
       pointer-events: none;
     }
 
-    /* 3D 공간 위에 떠 있는 7인 홀로그램 네임태그 (컴팩트화) */
+    /* 3D 공간 위에 떠 있는 8인 홀로그램 네임태그 */
     .agent-label-3d {
       position: absolute;
       transform: translate(-50%, -100%);
@@ -178,7 +178,7 @@
       color: #cbd5e1;
     }
 
-    /* 5대 세분화 섹터 필터 바 */
+    /* 6대 세분화 섹터 필터 바 (1번: HD건설기계 전담 섹터 독립) */
     .sector-filter-bar {
       background-color: #0b1120;
       border-top: 1px solid #1e293b;
@@ -238,7 +238,7 @@
       padding: 8px 14px;
       display: flex;
       flex-direction: column;
-      height: 98px;
+      height: 102px;
     }
     .terminal-header { display: flex; justify-content: space-between; font-size: 10px; font-family: monospace; color: #38bdf8; padding-bottom: 4px; border-bottom: 1px solid #1e293b; }
     .terminal-body { overflow-y: auto; font-family: monospace; font-size: 11px; color: #cbd5e1; margin-top: 5px; line-height: 1.4; }
@@ -288,31 +288,31 @@
 
   <div class="main-frame">
 
-    <!-- 1. 상단 전광판 헤더 (신선한 브랜드 네이밍 + 실시간 변경 가능) -->
+    <!-- 1. 상단 전광판 헤더 -->
     <header class="header-box">
-      <h1 id="brand-title" class="neon-sign font-pixel">PULSE 7 : ALPHA NEXUS</h1>
-      <p id="brand-sub" class="header-sub">REALTIME 7-AGENT MARKET COMMAND · 5 SECTORS + 1 EDITOR + 1 MANAGER</p>
+      <h1 id="brand-title" class="neon-sign font-pixel">PULSE 8 : ALPHA NEXUS</h1>
+      <p id="brand-sub" class="header-sub">REALTIME 8-AGENT MARKET COMMAND · 6 SECTORS + 1 EDITOR + 1 MANAGER</p>
 
       <div class="brand-switcher">
         <span>✨ 오피스 이름 변경:</span>
         <select id="brand-select" onchange="changeBrandName(this.value)">
-          <option value="PULSE 7 : ALPHA NEXUS|REALTIME 7-AGENT MARKET COMMAND">① PULSE 7 : ALPHA NEXUS (추천)</option>
-          <option value="AETHER QUANT LAB|AUTONOMOUS 5-SECTOR INTELLIGENCE">② AETHER QUANT LAB</option>
+          <option value="PULSE 8 : ALPHA NEXUS|REALTIME 8-AGENT MARKET COMMAND">① PULSE 8 : ALPHA NEXUS (추천)</option>
+          <option value="AETHER QUANT LAB|AUTONOMOUS 6-SECTOR INTELLIGENCE">② AETHER QUANT LAB</option>
           <option value="HYPERION DESK|24H HIGH-CONVICTION STOCK RADAR">③ HYPERION DESK</option>
           <option value="ORBITAL ALPHA STUDIO|MULTI-AGENT SECTOR WATCHTOWER">④ ORBITAL ALPHA STUDIO</option>
-          <option value="VORTEX 7 TERMINAL|DEEP-SECTOR AI BRIEFING ENGINE">⑤ VORTEX 7 TERMINAL</option>
+          <option value="VORTEX 8 TERMINAL|DEEP-SECTOR AI BRIEFING ENGINE">⑤ VORTEX 8 TERMINAL</option>
         </select>
       </div>
       
       <div class="btn-group">
         <button id="btn-run" onclick="startWorkPipeline()" class="btn btn-run">
-          <span>▶</span> 7인 업무 가동
+          <span>▶</span> 8인 업무 가동
         </button>
         <button id="btn-portfolio-toggle" onclick="togglePortfolioTable()" class="btn btn-portfolio">
           <span>📈</span> 내 종목 보기
         </button>
         <button onclick="reset3DCamera()" class="btn btn-cam">
-          <span>🎥</span> 시점 초기화
+          <span>🎥</span> 8인 전체 시점 초기화
         </button>
       </div>
       <div id="gemini-status" style="display:none; margin-top:8px; font-size:10px; font-family:monospace; color:#67e8f9; background:#082f49; padding:4px 8px; border-radius:4px; border:1px solid #0284c7;">
@@ -320,39 +320,40 @@
       </div>
     </header>
 
-    <!-- 2. 3D 가상 오피스 룸 (슬림 와이드 비율 & 정교한 7인 3D 캐릭터) -->
+    <!-- 2. 3D 가상 오피스 룸 (4x2 그리드로 8인 전원 한눈에 표시) -->
     <section class="section-card">
       <div class="card-topbar">
-        <span>FLOOR 01: LOW-PROFILE 3D COMMAND DESK</span>
-        <span style="color:#38bdf8;">● HIGH-DETAIL 3D AGENTS: 7</span>
+        <span>FLOOR 01: 4x2 SYMMETRIC COMMAND DESK (ALL 8 AGENTS IN VIEW)</span>
+        <span style="color:#38bdf8;">● HIGH-DETAIL 3D AGENTS: 8</span>
       </div>
 
       <div class="office-3d-wrapper" id="office-3d-wrapper">
         <canvas id="office-3d-canvas"></canvas>
         <div id="labels-overlay"></div>
-        <div class="canvas-hint">🖱️ 드래그: 회전 · 휠: 줌 (인물 확대 가능) · 우클릭: 화면 이동</div>
+        <div class="canvas-hint">🖱️ 1열(맥스·레오·미아·루시) + 2열(카이·클로이·엘레나·아서) 8인 한눈에 보기 완료 · 드래그 회전/줌 가능</div>
       </div>
 
-      <!-- 세분화된 5대 섹터 필터 바 -->
+      <!-- 6대 세분화 섹터 필터 바 (1번 섹터: HD건설기계 전담 독립!) -->
       <div class="sector-filter-bar" id="sector-filter-bar">
-        <span style="font-size:10px; color:#64748b; font-family:monospace; margin-right:4px;">5대 섹터 필터:</span>
+        <span style="font-size:10px; color:#64748b; font-family:monospace; margin-right:2px;">6대 섹터:</span>
         <button class="sector-chip active" onclick="setSectorFilter('ALL', this)">전체 (All)</button>
-        <button class="sector-chip" onclick="setSectorFilter('SHIP_INFRA', this)">🚢 레오: 조선·중공업·인프라</button>
-        <button class="sector-chip" onclick="setSectorFilter('AI_SEMI_IT', this)">🤖 미아: AI·반도체·플랫폼</button>
-        <button class="sector-chip" onclick="setSectorFilter('DEFENSE_METAL', this)">🛡️ 루시: 방산·비철금속</button>
-        <button class="sector-chip" onclick="setSectorFilter('FIN_VALUE', this)">🏦 카이: 금융·밸류업</button>
-        <button class="sector-chip" onclick="setSectorFilter('BIO_ENT', this)">🧬 클로이: 바이오·K콘텐츠</button>
+        <button class="sector-chip" onclick="setSectorFilter('CONST_INFRA', this)">🚜 ① 맥스: 건설기계·인프라 (HD건설기계)</button>
+        <button class="sector-chip" onclick="setSectorFilter('SHIP_HOLDING', this)">🚢 ② 레오: 조선·해양·지주</button>
+        <button class="sector-chip" onclick="setSectorFilter('AI_SEMI_IT', this)">🤖 ③ 미아: AI·반도체·플랫폼</button>
+        <button class="sector-chip" onclick="setSectorFilter('DEFENSE_METAL', this)">🛡️ ④ 루시: 방산·비철금속</button>
+        <button class="sector-chip" onclick="setSectorFilter('FIN_VALUE', this)">🏦 ⑤ 카이: 금융·밸류업</button>
+        <button class="sector-chip" onclick="setSectorFilter('BIO_ENT', this)">🧬 ⑥ 클로이: 바이오·K콘텐츠</button>
       </div>
 
       <!-- 3. [내 종목 보기] 토글 표 -->
       <div id="portfolio-container" style="display: none;">
         <div class="table-header-flex">
           <span style="font-size: 11px; font-weight: bold; color: #818cf8; font-family: monospace;">
-            📊 보유 10종목 평가 현황 (5인의 전담 요원 섹터 매핑 & 실시간 시세)
+            📊 보유 10종목 평가 현황 (6인의 섹터 전담 요원 매핑 & 실시간 시세)
           </span>
           <span id="stock-source-status" style="font-size: 10px; color: #38bdf8; font-family: monospace;">시세: Naver Finance · 60초 갱신</span>
         </div>
-        <div id="stock-data-note" style="font-size:9px;color:#64748b;margin-bottom:6px;">※ 상단 5대 섹터 칩을 클릭하면 해당 전담 요원이 관리하는 보유 종목과 뉴스만 즉시 필터링됩니다.</div>
+        <div id="stock-data-note" style="font-size:9px;color:#64748b;margin-bottom:6px;">※ 1번 섹터(맥스)는 [HD건설기계] 단독 전담 섹터로 동작합니다. 상단 섹터 버튼을 누르면 종목과 뉴스가 즉시 연동됩니다.</div>
         <div class="table-scroll">
           <table>
             <thead>
@@ -375,11 +376,11 @@
       <!-- 4. 실시간 시스템 터미널 로그 -->
       <div class="terminal-box">
         <div class="terminal-header">
-          <span>● SYSTEM TERMINAL (7-AGENT LIVE WORK STREAM)</span>
+          <span>● SYSTEM TERMINAL (8-AGENT LIVE WORK STREAM)</span>
           <span id="log-clock" style="color: #64748b;">11:55:00 KST</span>
         </div>
         <div id="terminal-body" class="terminal-body">
-          <div style="color: #64748b;">[SYSTEM] PULSE 7 : ALPHA NEXUS 7인 체제 고디테일 3D 오피스 준비 완료.</div>
+          <div style="color: #64748b;">[SYSTEM] 8인 체제(6대 섹터 스카우트 + 엘레나 취합 + 아서 승인) 4x2 3D 오피스 가동 준비 완료.</div>
         </div>
       </div>
     </section>
@@ -389,7 +390,7 @@
       <div class="card-topbar">
         <div>
           <span style="font-weight: bold; color: #f1f5f9;">📰 DAILY STOCK BRIEFING</span>
-          <span id="briefing-subtitle" style="display:block; font-size:10px; color:#64748b; margin-top:2px;">5대 섹터 전담 수집 · 엘레나 취합 · 아서 승인 대기 중</span>
+          <span id="briefing-subtitle" style="display:block; font-size:10px; color:#64748b; margin-top:2px;">6대 섹터 전담 수집 · 엘레나 취합 · 아서 승인 대기 중</span>
         </div>
         <span id="report-tag" style="font-size:9px; background:#082f49; color:#38bdf8; padding:2px 6px; border-radius:4px; border:1px solid #0284c7;">
           전체 시장 모드
@@ -398,7 +399,7 @@
 
       <div id="briefing-container" class="briefing-box">
         <div id="empty-state" style="text-align:center; padding: 20px 0; color: #64748b; font-size: 11px;">
-          상단 [7인 업무 가동] 버튼을 누르면 5대 섹터 요원(레오·미아·루시·카이·클로이)이 정보를 수집하고, 엘레나가 취합·정리한 뒤 아서가 최종 승인합니다.
+          상단 [8인 업무 가동] 버튼을 누르면 6대 섹터 요원(맥스·레오·미아·루시·카이·클로이)이 동시에 정보를 수집하고, 엘레나가 취합·정리한 뒤 아서가 최종 승인합니다.
         </div>
         
         <!-- KOSPI 변동 카드 -->
@@ -429,17 +430,23 @@
 
   <script>
     // =========================================================================
-    // [1] 5대 세분화 섹터 정의 및 보유 10개 종목 매핑
+    // [1] 6대 세분화 섹터 정의 (1번 섹터: HD건설기계 단독 전담!) 및 보유 10개 종목 매핑
     // =========================================================================
-    let CURRENT_BRAND_NAME = "PULSE 7 : ALPHA NEXUS";
-    let CURRENT_BRAND_SUB = "5 SECTOR SCOUTS · 1 EDITOR · 1 MANAGER";
+    let CURRENT_BRAND_NAME = "PULSE 8 : ALPHA NEXUS";
+    let CURRENT_BRAND_SUB = "6 SECTOR SCOUTS · 1 EDITOR · 1 MANAGER";
 
     const SECTOR_META = {
-      SHIP_INFRA: {
-        label: "조선·중공업·인프라",
+      CONST_INFRA: {
+        label: "건설기계·글로벌인프라",
+        agentName: "맥스",
+        color: "#fb923c",
+        keywords: ["HD건설기계", "건설기계", "굴착기", "인프라", "재건", "광산", "중장비", "현대건설기계", "우크라이나", "북미"]
+      },
+      SHIP_HOLDING: {
+        label: "조선·해양·에너지지주",
         agentName: "레오",
         color: "#34d399",
-        keywords: ["조선", "HD한국조선해양", "HD현대", "HD건설기계", "선박", "LNG", "수주", "중공업", "건설기계", "굴착기", "인프라", "해양"]
+        keywords: ["HD한국조선해양", "HD현대", "조선", "선박", "LNG", "수주", "중공업", "해양", "함정", "MRO", "정유"]
       },
       AI_SEMI_IT: {
         label: "AI·반도체·플랫폼",
@@ -448,13 +455,13 @@
         keywords: ["삼성전자", "SK하이닉스", "반도체", "HBM", "엔비디아", "파운드리", "NAVER", "네이버", "AI", "클라우드", "플랫폼", "메모리"]
       },
       DEFENSE_METAL: {
-        label: "방산·비철금속",
+        label: "K-방산·비철금속",
         agentName: "루시",
         color: "#fbbf24",
-        keywords: ["풍산", "방산", "탄약", "구리", "비철금속", "원자재", "수출", "국방", "무기", "철강"]
+        keywords: ["풍산", "방산", "탄약", "구리", "비철금속", "원자재", "수출", "국방", "무기", "포탄"]
       },
       FIN_VALUE: {
-        label: "금융·밸류업",
+        label: "금융지주·밸류업",
         agentName: "카이",
         color: "#38bdf8",
         keywords: ["KB금융", "금융", "은행", "밸류업", "배당", "주주환원", "자사주", "금리", "환율", "코스피", "기관", "외국인"]
@@ -468,16 +475,22 @@
     };
 
     const MY_HOLDINGS = [
-      { code: "267270", symbol: "267270.KS", name: "HD건설기계", shares: 1352, sectorKey: "SHIP_INFRA", sectorLabel: "레오·건설기계", prevClose: null, currentPrice: null, loaded: false },
-      { code: "009540", symbol: "009540.KS", name: "HD한국조선해양", shares: 151, sectorKey: "SHIP_INFRA", sectorLabel: "레오·조선해양", prevClose: null, currentPrice: null, loaded: false },
-      { code: "267250", symbol: "267250.KS", name: "HD현대", shares: 255, sectorKey: "SHIP_INFRA", sectorLabel: "레오·중공업지주", prevClose: null, currentPrice: null, loaded: false },
-      { code: "005930", symbol: "005930.KS", name: "삼성전자", shares: 150, sectorKey: "AI_SEMI_IT", sectorLabel: "미아·반도체", prevClose: null, currentPrice: null, loaded: false },
-      { code: "000660", symbol: "000660.KS", name: "SK하이닉스", shares: 3, sectorKey: "AI_SEMI_IT", sectorLabel: "미아·HBM/AI", prevClose: null, currentPrice: null, loaded: false },
-      { code: "035420", symbol: "035420.KS", name: "NAVER", shares: 115, sectorKey: "AI_SEMI_IT", sectorLabel: "미아·AI플랫폼", prevClose: null, currentPrice: null, loaded: false },
-      { code: "105560", symbol: "105560.KS", name: "KB금융", shares: 200, sectorKey: "FIN_VALUE", sectorLabel: "카이·금융밸류업", prevClose: null, currentPrice: null, loaded: false },
-      { code: "068270", symbol: "068270.KS", name: "셀트리온", shares: 79, sectorKey: "BIO_ENT", sectorLabel: "클로이·바이오", prevClose: null, currentPrice: null, loaded: false },
-      { code: "041510", symbol: "041510.KQ", name: "에스엠", shares: 101, sectorKey: "BIO_ENT", sectorLabel: "클로이·K콘텐츠", prevClose: null, currentPrice: null, loaded: false },
-      { code: "103140", symbol: "103140.KS", name: "풍산", shares: 81, sectorKey: "DEFENSE_METAL", sectorLabel: "루시·방산/비철", prevClose: null, currentPrice: null, loaded: false }
+      // 1번 섹터(맥스 전담): HD건설기계 단독 배정
+      { code: "267270", symbol: "267270.KS", name: "HD건설기계", shares: 1352, sectorKey: "CONST_INFRA", sectorLabel: "①맥스·건설기계/인프라", prevClose: null, currentPrice: null, loaded: false },
+      // 2번 섹터(레오 전담): HD한국조선해양, HD현대
+      { code: "009540", symbol: "009540.KS", name: "HD한국조선해양", shares: 151, sectorKey: "SHIP_HOLDING", sectorLabel: "②레오·조선해양", prevClose: null, currentPrice: null, loaded: false },
+      { code: "267250", symbol: "267250.KS", name: "HD현대", shares: 255, sectorKey: "SHIP_HOLDING", sectorLabel: "②레오·중공업지주", prevClose: null, currentPrice: null, loaded: false },
+      // 3번 섹터(미아 전담): 삼성전자, SK하이닉스, NAVER
+      { code: "005930", symbol: "005930.KS", name: "삼성전자", shares: 150, sectorKey: "AI_SEMI_IT", sectorLabel: "③미아·반도체", prevClose: null, currentPrice: null, loaded: false },
+      { code: "000660", symbol: "000660.KS", name: "SK하이닉스", shares: 3, sectorKey: "AI_SEMI_IT", sectorLabel: "③미아·HBM/AI", prevClose: null, currentPrice: null, loaded: false },
+      { code: "035420", symbol: "035420.KS", name: "NAVER", shares: 115, sectorKey: "AI_SEMI_IT", sectorLabel: "③미아·AI플랫폼", prevClose: null, currentPrice: null, loaded: false },
+      // 4번 섹터(루시 전담): 풍산
+      { code: "103140", symbol: "103140.KS", name: "풍산", shares: 81, sectorKey: "DEFENSE_METAL", sectorLabel: "④루시·방산/비철", prevClose: null, currentPrice: null, loaded: false },
+      // 5번 섹터(카이 전담): KB금융
+      { code: "105560", symbol: "105560.KS", name: "KB금융", shares: 200, sectorKey: "FIN_VALUE", sectorLabel: "⑤카이·금융밸류업", prevClose: null, currentPrice: null, loaded: false },
+      // 6번 섹터(클로이 전담): 셀트리온, 에스엠
+      { code: "068270", symbol: "068270.KS", name: "셀트리온", shares: 79, sectorKey: "BIO_ENT", sectorLabel: "⑥클로이·바이오", prevClose: null, currentPrice: null, loaded: false },
+      { code: "041510", symbol: "041510.KQ", name: "에스엠", shares: 101, sectorKey: "BIO_ENT", sectorLabel: "⑥클로이·K콘텐츠", prevClose: null, currentPrice: null, loaded: false }
     ];
 
     let KOSPI_STATE = { currentPrice: 7003.74, prevClose: 6971.35, loaded: false };
@@ -498,19 +511,22 @@
     ];
 
     // =========================================================================
-    // [2] 고디테일 7인 캐릭터 설정 (성별, 헤어스타일, 안경, 헤드셋, 정장/타이 등)
+    // [2] 4x2 대칭 그리드 8인 캐릭터 배치 (처음 화면부터 8명 전원 100% 한눈에 들어옴)
     // =========================================================================
+    // X좌표: -3.9, -1.3, +1.3, +3.9 (좌우 폭을 컴팩트하게 모아 잘림 현상 완벽 해결)
+    // Z좌표: 1열(-1.25), 2열(+1.75)
     const AGENT_CONFIGS = [
-      // 1열 (전면 5인): 5대 섹터 전담 스카우트
-      { id: 'scout-ship', role: '① 조선·중공업', name: '레오', pos: [-5.8, -1.45], gender: 'M', hairStyle: 'parted', glasses: false, headset: true, tieColor: 0x34d399, hairColor: 0x451a03, clothesColor: 0x059669, skinColor: 0xfed7aa, monitors: 3, roleColor: '#34d399' },
-      { id: 'scout-tech', role: '② AI·반도체',   name: '미아', pos: [-2.9, -1.45], gender: 'F', hairStyle: 'ponytail', glasses: false, headset: true, tieColor: 0xe879f9, hairColor: 0x581c87, clothesColor: 0x7c3aed, skinColor: 0xfce7f3, monitors: 3, roleColor: '#c084fc' },
-      { id: 'scout-def',  role: '③ 방산·비철',   name: '루시', pos: [ 0.0, -1.45], gender: 'F', hairStyle: 'bob', glasses: false, headset: true, tieColor: 0xfde047, hairColor: 0xbe185d, clothesColor: 0xd97706, skinColor: 0xfbcfe8, monitors: 2, roleColor: '#fbbf24' },
-      { id: 'scout-fin',  role: '④ 금융·밸류업', name: '카이', pos: [ 2.9, -1.45], gender: 'M', hairStyle: 'parted', glasses: true, headset: false, tieColor: 0x38bdf8, hairColor: 0x0f172a, clothesColor: 0x0284c7, skinColor: 0xfed7aa, monitors: 3, roleColor: '#38bdf8' },
-      { id: 'scout-bio',  role: '⑤ 바이오·엔터', name: '클로이', pos: [ 5.8, -1.45], gender: 'F', hairStyle: 'ponytail', glasses: true, headset: false, tieColor: 0xf472b6, hairColor: 0x831843, clothesColor: 0xdb2777, skinColor: 0xfce7f3, monitors: 2, roleColor: '#f472b6' },
-      
-      // 2열 (후면 코어 데스크 2인): 1 취합/정리 에디터 + 1 최종 승인 매니저
-      { id: 'editor',     role: '⑥ 취합·정리',   name: '엘레나', pos: [-2.2, 1.95], gender: 'F', hairStyle: 'bob', glasses: true, headset: false, tieColor: 0x6ee7b7, hairColor: 0xd97706, clothesColor: 0x0d9488, skinColor: 0xfde68a, monitors: 4, roleColor: '#6ee7b7', isCore: true },
-      { id: 'manager',    role: '⑦ 최종 승인',   name: '아서',   pos: [ 2.2, 1.95], gender: 'M', hairStyle: 'parted', glasses: true, headset: false, tieColor: 0xef4444, hairColor: 0x94a3b8, clothesColor: 0x92400e, skinColor: 0xfed7aa, monitors: 4, roleColor: '#fcd34d', isBoss: true }
+      // 1열 (전면 4인: 섹터 ① ~ ④ 스카우트)
+      { id: 'scout-const', role: '① 건설기계·인프라', name: '맥스',   pos: [-3.9, -1.25], gender: 'M', hairStyle: 'parted',   glasses: false, headset: true,  tieColor: 0xfb923c, hairColor: 0x78350f, clothesColor: 0xea580c, skinColor: 0xfed7aa, monitors: 3, roleColor: '#fb923c' },
+      { id: 'scout-ship',  role: '② 조선·해양·지주',  name: '레오',   pos: [-1.3, -1.25], gender: 'M', hairStyle: 'parted',   glasses: false, headset: true,  tieColor: 0x34d399, hairColor: 0x3f2305, clothesColor: 0x059669, skinColor: 0xfed7aa, monitors: 3, roleColor: '#34d399' },
+      { id: 'scout-tech',  role: '③ AI·반도체·IT',   name: '미아',   pos: [ 1.3, -1.25], gender: 'F', hairStyle: 'ponytail', glasses: false, headset: true,  tieColor: 0xe879f9, hairColor: 0x581c87, clothesColor: 0x7c3aed, skinColor: 0xfce7f3, monitors: 3, roleColor: '#c084fc' },
+      { id: 'scout-def',   role: '④ 방산·비철금속',   name: '루시',   pos: [ 3.9, -1.25], gender: 'F', hairStyle: 'bob',      glasses: false, headset: true,  tieColor: 0xfde047, hairColor: 0xbe185d, clothesColor: 0xd97706, skinColor: 0xfbcfe8, monitors: 2, roleColor: '#fbbf24' },
+
+      // 2열 (후면 4인: 섹터 ⑤ ~ ⑥ 스카우트 + ⑦ 취합 에디터 + ⑧ 최종승인 매니저)
+      { id: 'scout-fin',   role: '⑤ 금융·밸류업',     name: '카이',   pos: [-3.9,  1.75], gender: 'M', hairStyle: 'parted',   glasses: true,  headset: false, tieColor: 0x38bdf8, hairColor: 0x0f172a, clothesColor: 0x0284c7, skinColor: 0xfed7aa, monitors: 3, roleColor: '#38bdf8' },
+      { id: 'scout-bio',   role: '⑥ 바이오·K콘텐츠',  name: '클로이', pos: [-1.3,  1.75], gender: 'F', hairStyle: 'ponytail', glasses: true,  headset: false, tieColor: 0xf472b6, hairColor: 0x831843, clothesColor: 0xdb2777, skinColor: 0xfce7f3, monitors: 2, roleColor: '#f472b6' },
+      { id: 'editor',      role: '⑦ 통합 취합·정리',  name: '엘레나', pos: [ 1.3,  1.75], gender: 'F', hairStyle: 'bob',      glasses: true,  headset: false, tieColor: 0x6ee7b7, hairColor: 0xd97706, clothesColor: 0x0d9488, skinColor: 0xfde68a, monitors: 4, roleColor: '#6ee7b7', isCore: true },
+      { id: 'manager',     role: '⑧ 최종 검수·승인',  name: '아서',   pos: [ 3.9,  1.75], gender: 'M', hairStyle: 'parted',   glasses: true,  headset: false, tieColor: 0xef4444, hairColor: 0x94a3b8, clothesColor: 0x92400e, skinColor: 0xfed7aa, monitors: 4, roleColor: '#fcd34d', isBoss: true }
     ];
 
     let scene, camera, renderer, controls;
@@ -524,7 +540,7 @@
       CURRENT_BRAND_NAME = name;
       CURRENT_BRAND_SUB = sub;
       document.getElementById('brand-title').textContent = name;
-      document.getElementById('brand-sub').textContent = `${sub} · 5 SECTORS + 1 EDITOR + 1 MANAGER`;
+      document.getElementById('brand-sub').textContent = `${sub} · 6 SECTORS + 1 EDITOR + 1 MANAGER`;
       document.title = `${name} - 3D AI 가상 오피스`;
       drawRearWallSign();
       appendTerminalLog("BRAND", `오피스 브랜드 네이밍 변경: [${name}]`, "#67e8f9");
@@ -533,19 +549,19 @@
     function drawRearWallSign() {
       if (!signCtx) return;
       signCtx.fillStyle = '#050b18';
-      signCtx.fillRect(0, 0, 1024, 220);
+      signCtx.fillRect(0, 0, 1024, 210);
       signCtx.strokeStyle = '#38bdf8';
       signCtx.lineWidth = 5;
-      signCtx.strokeRect(6, 6, 1012, 208);
+      signCtx.strokeRect(6, 6, 1012, 198);
 
       signCtx.fillStyle = '#f8fafc';
-      signCtx.font = 'bold 58px sans-serif';
+      signCtx.font = 'bold 56px sans-serif';
       signCtx.textAlign = 'center';
-      signCtx.fillText(CURRENT_BRAND_NAME, 512, 108);
+      signCtx.fillText(CURRENT_BRAND_NAME, 512, 102);
 
       signCtx.fillStyle = '#38bdf8';
-      signCtx.font = 'bold 28px monospace';
-      signCtx.fillText(CURRENT_BRAND_SUB, 512, 170);
+      signCtx.font = 'bold 27px monospace';
+      signCtx.fillText(CURRENT_BRAND_SUB, 512, 162);
       if (signTexture) signTexture.needsUpdate = true;
     }
 
@@ -582,7 +598,7 @@
     function initWallTickerTexture() {
       wallTickerCanvas = document.createElement('canvas');
       wallTickerCanvas.width = 1024;
-      wallTickerCanvas.height = 220;
+      wallTickerCanvas.height = 210;
       wallTickerCtx = wallTickerCanvas.getContext('2d');
       wallTickerTexture = new THREE.CanvasTexture(wallTickerCanvas);
       updateWallTickerCanvas();
@@ -592,49 +608,50 @@
       if (!wallTickerCtx) return;
       const ctx = wallTickerCtx;
       ctx.fillStyle = '#04091a';
-      ctx.fillRect(0, 0, 1024, 220);
+      ctx.fillRect(0, 0, 1024, 210);
 
       ctx.strokeStyle = '#0284c7';
       ctx.lineWidth = 4;
-      ctx.strokeRect(4, 4, 1016, 212);
+      ctx.strokeRect(4, 4, 1016, 202);
 
       ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 24px monospace';
-      ctx.fillText(`KOSPI ${KOSPI_STATE.currentPrice.toFixed(2)} ▲`, 24, 40);
+      ctx.font = 'bold 23px monospace';
+      ctx.fillText(`KOSPI ${KOSPI_STATE.currentPrice.toFixed(2)} ▲`, 20, 38);
 
       ctx.fillStyle = '#6ee7b7';
-      ctx.font = 'bold 18px sans-serif';
-      ctx.fillText('[7인 실시간 데스크] 레오(조선) · 미아(AI) · 루시(방산) · 카이(금융) · 클로이(바이오) → 엘레나(취합) → 아서(승인)', 310 - (tickerOffset % 360), 39);
+      ctx.font = 'bold 17px sans-serif';
+      ctx.fillText('[8인 가동] ①맥스(HD건설기계) · ②레오(조선) · ③미아(AI) · ④루시(방산) · ⑤카이(금융) · ⑥클로이(바이오) → ⑦엘레나 → ⑧아서', 295 - (tickerOffset % 360), 37);
 
       const cards = [
-        { title: '조선/중공업', val: '레오', color: '#34d399' },
-        { title: 'AI/반도체', val: '미아', color: '#c084fc' },
-        { title: '방산/비철', val: '루시', color: '#fbbf24' },
-        { title: '금융/밸류업', val: '카이', color: '#38bdf8' },
-        { title: '바이오/엔터', val: '클로이', color: '#f472b6' }
+        { title: '①HD건설기계', val: '맥스', color: '#fb923c' },
+        { title: '②조선/지주', val: '레오', color: '#34d399' },
+        { title: '③AI/반도체', val: '미아', color: '#c084fc' },
+        { title: '④방산/비철', val: '루시', color: '#fbbf24' },
+        { title: '⑤금융/밸류', val: '카이', color: '#38bdf8' },
+        { title: '⑥바이오/엔터', val: '클로이', color: '#f472b6' }
       ];
       cards.forEach((c, idx) => {
-        const bx = 22 + idx * 196;
+        const bx = 18 + idx * 165;
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(bx, 60, 184, 138);
+        ctx.fillRect(bx, 56, 155, 134);
         ctx.strokeStyle = c.color;
         ctx.lineWidth = 2;
-        ctx.strokeRect(bx, 60, 184, 138);
+        ctx.strokeRect(bx, 56, 155, 134);
 
         ctx.fillStyle = '#e2e8f0';
-        ctx.font = 'bold 16px sans-serif';
-        ctx.fillText(c.title, bx + 12, 88);
+        ctx.font = 'bold 14px sans-serif';
+        ctx.fillText(c.title, bx + 8, 82);
         ctx.fillStyle = c.color;
-        ctx.fillText(c.val, bx + 125, 88);
+        ctx.fillText(c.val, bx + 106, 82);
 
         ctx.beginPath();
         ctx.strokeStyle = c.color;
-        ctx.lineWidth = 3;
-        ctx.moveTo(bx + 14, 175);
-        ctx.lineTo(bx + 55, 148);
-        ctx.lineTo(bx + 95, 160);
-        ctx.lineTo(bx + 135, 126);
-        ctx.lineTo(bx + 168, 110);
+        ctx.lineWidth = 2.5;
+        ctx.moveTo(bx + 12, 168);
+        ctx.lineTo(bx + 45, 142);
+        ctx.lineTo(bx + 80, 154);
+        ctx.lineTo(bx + 115, 120);
+        ctx.lineTo(bx + 142, 105);
         ctx.stroke();
       });
 
@@ -642,11 +659,11 @@
     }
 
     // =========================================================================
-    // [정교한 3D 캐릭터 빌더 함수] - 이목구비, 헤어, 안경, 헤드셋, 정장/타이, 관절 팔/다리
+    // [정교한 3D 캐릭터 빌더 함수]
     // =========================================================================
     function createDetailedAgentCharacter(cfg) {
       const charGroup = new THREE.Group();
-      charGroup.position.set(0, 0, 0.68);
+      charGroup.position.set(0, 0, 0.64);
 
       const skinMat = new THREE.MeshStandardMaterial({ color: cfg.skinColor, roughness: 0.45 });
       const suitMat = new THREE.MeshStandardMaterial({ color: cfg.clothesColor, roughness: 0.5 });
@@ -656,192 +673,171 @@
       const tieMat = new THREE.MeshStandardMaterial({ color: cfg.tieColor, roughness: 0.3 });
       const darkMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.3, metalness: 0.6 });
 
-      // 1. 하체 (앉은 자세 골반 + 양쪽 허벅지 + 종아리 + 구두)
-      const pelvis = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.14, 0.32), pantsMat);
+      // 1. 하체
+      const pelvis = new THREE.Mesh(new THREE.BoxGeometry(0.40, 0.14, 0.30), pantsMat);
       pelvis.position.set(0, 0.56, 0);
       charGroup.add(pelvis);
 
-      [-0.12, 0.12].forEach(lx => {
-        // 허벅지 (앞으로 뻗음)
-        const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.068, 0.36, 12), pantsMat);
+      [-0.11, 0.11].forEach(lx => {
+        const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.065, 0.34, 12), pantsMat);
         thigh.rotation.x = Math.PI / 2;
-        thigh.position.set(lx, 0.56, -0.18);
+        thigh.position.set(lx, 0.56, -0.17);
         charGroup.add(thigh);
 
-        // 무릎 관절 구체
-        const knee = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10), pantsMat);
-        knee.position.set(lx, 0.56, -0.35);
+        const knee = new THREE.Mesh(new THREE.SphereGeometry(0.068, 10, 10), pantsMat);
+        knee.position.set(lx, 0.56, -0.33);
         charGroup.add(knee);
 
-        // 종아리 (아래로 내려감)
-        const calf = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.052, 0.44, 12), pantsMat);
-        calf.position.set(lx, 0.32, -0.35);
+        const calf = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.050, 0.42, 12), pantsMat);
+        calf.position.set(lx, 0.32, -0.33);
         charGroup.add(calf);
 
-        // 구두/스니커즈
-        const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.08, 0.20), darkMat);
-        shoe.position.set(lx, 0.08, -0.40);
+        const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.08, 0.19), darkMat);
+        shoe.position.set(lx, 0.08, -0.38);
         charGroup.add(shoe);
       });
 
-      // 2. 상체 몸통 (재킷 + 화이트 셔츠 V존 + 넥타이/스카프 + 어깨 라인)
+      // 2. 상체 몸통
       const upperBodyGroup = new THREE.Group();
       upperBodyGroup.position.set(0, 0.62, 0);
 
-      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.18, 0.50, 16), suitMat);
+      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.17, 0.48, 16), suitMat);
       torso.scale.set(1.15, 1, 0.72);
-      torso.position.y = 0.25;
+      torso.position.y = 0.24;
       torso.castShadow = true;
       upperBodyGroup.add(torso);
 
-      // 양쪽 어깨 볼륨
-      [-0.23, 0.23].forEach(sx => {
-        const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 12), suitMat);
-        shoulder.position.set(sx, 0.44, 0);
+      [-0.22, 0.22].forEach(sx => {
+        const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.082, 12, 12), suitMat);
+        shoulder.position.set(sx, 0.43, 0);
         upperBodyGroup.add(shoulder);
       });
 
-      // 앞면 셔츠 V존 & 넥타이(또는 스카프)
-      const shirtV = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.24, 0.02), shirtMat);
-      shirtV.position.set(0, 0.36, -0.145);
+      const shirtV = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.23, 0.02), shirtMat);
+      shirtV.position.set(0, 0.35, -0.14);
       upperBodyGroup.add(shirtV);
 
-      const tie = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.22, 0.025), tieMat);
-      tie.position.set(0, 0.34, -0.152);
+      const tie = new THREE.Mesh(new THREE.BoxGeometry(0.048, 0.21, 0.025), tieMat);
+      tie.position.set(0, 0.33, -0.148);
       upperBodyGroup.add(tie);
 
-      // 목 (Neck)
-      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.075, 0.12, 12), skinMat);
-      neck.position.set(0, 0.53, 0);
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.072, 0.12, 12), skinMat);
+      neck.position.set(0, 0.52, 0);
       upperBodyGroup.add(neck);
 
-      // 3. 머리 그룹 (얼굴, 귀, 눈/눈썹, 코, 헤어스타일, 안경, 헤드셋)
+      // 3. 머리 그룹
       const headGroup = new THREE.Group();
-      headGroup.position.set(0, 0.73, 0);
+      headGroup.position.set(0, 0.72, 0);
 
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.195, 24, 24), skinMat);
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.19, 24, 24), skinMat);
       head.scale.set(0.95, 1.05, 0.95);
       head.castShadow = true;
       headGroup.add(head);
 
-      // 양쪽 귀
-      [-0.185, 0.185].forEach(ex => {
-        const ear = new THREE.Mesh(new THREE.SphereGeometry(0.038, 10, 10), skinMat);
+      [-0.18, 0.18].forEach(ex => {
+        const ear = new THREE.Mesh(new THREE.SphereGeometry(0.036, 10, 10), skinMat);
         ear.position.set(ex, 0, 0);
         headGroup.add(ear);
       });
 
-      // 눈동자 & 눈썹 (전면 -Z 방향을 바라봄)
-      [-0.068, 0.068].forEach(eyeX => {
-        const eyeWhite = new THREE.Mesh(new THREE.SphereGeometry(0.026, 10, 10), shirtMat);
-        eyeWhite.position.set(eyeX, 0.02, -0.172);
+      [-0.065, 0.065].forEach(eyeX => {
+        const eyeWhite = new THREE.Mesh(new THREE.SphereGeometry(0.025, 10, 10), shirtMat);
+        eyeWhite.position.set(eyeX, 0.02, -0.168);
         headGroup.add(eyeWhite);
 
-        const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), darkMat);
-        pupil.position.set(eyeX, 0.02, -0.188);
+        const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.014, 8, 8), darkMat);
+        pupil.position.set(eyeX, 0.02, -0.184);
         headGroup.add(pupil);
 
-        const brow = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.012, 0.015), hairMat);
-        brow.position.set(eyeX, 0.065, -0.178);
+        const brow = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.012, 0.015), hairMat);
+        brow.position.set(eyeX, 0.062, -0.174);
         headGroup.add(brow);
       });
 
-      // 입체 코
-      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.05, 8), skinMat);
+      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.048, 8), skinMat);
       nose.rotation.x = -Math.PI / 2;
-      nose.position.set(0, -0.01, -0.195);
+      nose.position.set(0, -0.01, -0.19);
       headGroup.add(nose);
 
-      // 헤어스타일 분기 (정교한 볼륨감)
       const hairCap = new THREE.Mesh(
-        new THREE.SphereGeometry(0.208, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.60),
+        new THREE.SphereGeometry(0.202, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.60),
         hairMat
       );
       hairCap.position.y = 0.02;
       headGroup.add(hairCap);
 
       if (cfg.hairStyle === 'ponytail') {
-        // 뒷머리 포니테일 묶음
-        const tailBun = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 12), hairMat);
-        tailBun.position.set(0, 0.02, 0.21);
+        const tailBun = new THREE.Mesh(new THREE.SphereGeometry(0.072, 12, 12), hairMat);
+        tailBun.position.set(0, 0.02, 0.20);
         headGroup.add(tailBun);
-        const tailDrop = new THREE.Mesh(new THREE.ConeGeometry(0.065, 0.22, 12), hairMat);
+        const tailDrop = new THREE.Mesh(new THREE.ConeGeometry(0.062, 0.21, 12), hairMat);
         tailDrop.rotation.x = 0.35;
-        tailDrop.position.set(0, -0.08, 0.24);
+        tailDrop.position.set(0, -0.08, 0.23);
         headGroup.add(tailDrop);
       } else if (cfg.hairStyle === 'bob') {
-        // 단발 볼륨 사이드 헤어
-        [-0.16, 0.16].forEach(bx => {
-          const sideBob = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.22, 0.22), hairMat);
+        [-0.155, 0.155].forEach(bx => {
+          const sideBob = new THREE.Mesh(new THREE.BoxGeometry(0.068, 0.21, 0.21), hairMat);
           sideBob.position.set(bx, -0.03, 0.02);
           headGroup.add(sideBob);
         });
       } else {
-        // 남성 깔끔한 가르마 앞머리 볼륨
-        const frontVolume = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.065, 0.10), hairMat);
-        frontVolume.position.set(0.02, 0.14, -0.14);
+        const frontVolume = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.062, 0.095), hairMat);
+        frontVolume.position.set(0.02, 0.135, -0.135);
         frontVolume.rotation.z = -0.12;
         headGroup.add(frontVolume);
       }
 
-      // 안경 착용 캐릭터 (카이, 클로이, 엘레나, 아서)
       if (cfg.glasses) {
         const glassMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.8, roughness: 0.2 });
-        [-0.068, 0.068].forEach(gx => {
-          const rim = new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.006, 8, 16), glassMat);
-          rim.position.set(gx, 0.02, -0.185);
+        [-0.065, 0.065].forEach(gx => {
+          const rim = new THREE.Mesh(new THREE.TorusGeometry(0.036, 0.006, 8, 16), glassMat);
+          rim.position.set(gx, 0.02, -0.18);
           headGroup.add(rim);
         });
-        const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.006, 0.006), glassMat);
-        bridge.position.set(0, 0.02, -0.185);
+        const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.038, 0.006, 0.006), glassMat);
+        bridge.position.set(0, 0.02, -0.18);
         headGroup.add(bridge);
       }
 
-      // 트레이딩 헤드셋 착용 캐릭터 (레오, 미아, 루시)
       if (cfg.headset) {
-        const hsBand = new THREE.Mesh(
-          new THREE.TorusGeometry(0.215, 0.014, 8, 24, Math.PI),
-          darkMat
-        );
+        const hsBand = new THREE.Mesh(new THREE.TorusGeometry(0.21, 0.013, 8, 24, Math.PI), darkMat);
         headGroup.add(hsBand);
 
-        const earCup = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.03, 12), new THREE.MeshBasicMaterial({ color: cfg.roleColor }));
+        const earCup = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.028, 12), new THREE.MeshBasicMaterial({ color: cfg.roleColor }));
         earCup.rotation.z = Math.PI / 2;
-        earCup.position.set(-0.205, 0, 0);
+        earCup.position.set(-0.20, 0, 0);
         headGroup.add(earCup);
 
-        const micBoom = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.012, 0.16), darkMat);
-        micBoom.position.set(-0.18, -0.06, -0.09);
+        const micBoom = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.012, 0.15), darkMat);
+        micBoom.position.set(-0.175, -0.06, -0.085);
         micBoom.rotation.y = -0.35;
         headGroup.add(micBoom);
       }
 
       upperBodyGroup.add(headGroup);
 
-      // 4. 관절 양팔 (어깨 -> 상완 -> 팔꿈치 -> 전완 -> 손)
+      // 4. 관절 양팔
       function createArticulatedArm(isLeft) {
         const armRoot = new THREE.Group();
         const sign = isLeft ? -1 : 1;
-        armRoot.position.set(sign * 0.24, 0.42, 0);
+        armRoot.position.set(sign * 0.23, 0.41, 0);
 
-        // 상완 (아래+앞쪽으로 비스듬히)
-        const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.048, 0.25, 12), suitMat);
+        const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.045, 0.24, 12), suitMat);
         upperArm.position.set(0, -0.10, -0.06);
         upperArm.rotation.x = 0.45;
         armRoot.add(upperArm);
 
-        // 전완 + 손 그룹 (키보드 위에서 타이핑 모션 수행)
         const forearmGroup = new THREE.Group();
-        forearmGroup.position.set(0, -0.20, -0.12);
+        forearmGroup.position.set(0, -0.19, -0.11);
 
-        const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.046, 0.040, 0.26, 12), suitMat);
+        const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.044, 0.038, 0.25, 12), suitMat);
         forearm.rotation.x = Math.PI / 2 - 0.15;
-        forearm.position.set(sign * -0.03, -0.02, -0.12);
+        forearm.position.set(sign * -0.03, -0.02, -0.11);
         forearmGroup.add(forearm);
 
-        const hand = new THREE.Mesh(new THREE.SphereGeometry(0.044, 12, 12), skinMat);
+        const hand = new THREE.Mesh(new THREE.SphereGeometry(0.042, 12, 12), skinMat);
         hand.scale.set(1, 0.65, 1.25);
-        hand.position.set(sign * -0.05, -0.04, -0.25);
+        hand.position.set(sign * -0.05, -0.04, -0.24);
         forearmGroup.add(hand);
 
         armRoot.add(forearmGroup);
@@ -865,7 +861,7 @@
     }
 
     // =========================================================================
-    // [3] Three.js 3D 오피스 초기화 (낮아진 벽체 높이 & 밀착 카메라 뷰)
+    // [3] Three.js 3D 오피스 초기화 (4x2 8인 전원이 한 화면에 들어오는 카메라 세팅)
     // =========================================================================
     function init3DOffice() {
       const wrapper = document.getElementById('office-3d-wrapper');
@@ -873,11 +869,11 @@
       const overlay = document.getElementById('labels-overlay');
 
       scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0x020617, 0.024);
+      scene.fog = new THREE.FogExp2(0x020617, 0.022);
 
-      // 요청 반영: 오피스 높이가 낮고 인물 디테일이 잘 보이도록 FOV 및 카메라 고도 조정
-      camera = new THREE.PerspectiveCamera(34, wrapper.clientWidth / wrapper.clientHeight, 0.1, 120);
-      camera.position.set(9.2, 6.4, 10.8);
+      // 요청 반영: 8인(4x2 그리드)이 좌우 잘림 없이 처음부터 전부 보이도록 중앙 대칭 앵글 적용
+      camera = new THREE.PerspectiveCamera(36, wrapper.clientWidth / wrapper.clientHeight, 0.1, 120);
+      camera.position.set(0.0, 6.8, 11.2);
 
       renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
       renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
@@ -886,87 +882,91 @@
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
       controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.target.set(0, 0.75, 0.15);
+      controls.target.set(0, 0.75, 0.25);
       controls.enableDamping = true;
       controls.dampingFactor = 0.06;
       controls.maxPolarAngle = Math.PI / 2 - 0.04;
       controls.minDistance = 4.5;
       controls.maxDistance = 22;
 
-      // 조명 세팅
-      scene.add(new THREE.AmbientLight(0xe0f2fe, 0.72));
+      // 조명
+      scene.add(new THREE.AmbientLight(0xe0f2fe, 0.74));
 
       const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-      dirLight.position.set(8, 14, 10);
+      dirLight.position.set(6, 14, 10);
       dirLight.castShadow = true;
       dirLight.shadow.mapSize.width = 1024;
       dirLight.shadow.mapSize.height = 1024;
       scene.add(dirLight);
 
-      const neonBlueLight = new THREE.PointLight(0x38bdf8, 1.0, 20);
-      neonBlueLight.position.set(-6, 3.2, -2.5);
+      const neonBlueLight = new THREE.PointLight(0x38bdf8, 1.0, 18);
+      neonBlueLight.position.set(-5, 3.0, -2.0);
       scene.add(neonBlueLight);
 
-      const neonPurpleLight = new THREE.PointLight(0x818cf8, 0.85, 20);
-      neonPurpleLight.position.set(6, 3.2, 2);
+      const neonPurpleLight = new THREE.PointLight(0x818cf8, 0.85, 18);
+      neonPurpleLight.position.set(5, 3.0, 2.0);
       scene.add(neonPurpleLight);
 
-      // 오피스 바닥
+      // 오피스 바닥 (4x2 그리드에 딱 맞는 13.5m x 9.5m 컴팩트 플로어)
       const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(17.5, 10.5),
+        new THREE.PlaneGeometry(13.5, 9.5),
         new THREE.MeshStandardMaterial({ color: 0x091326, roughness: 0.65, metalness: 0.25 })
       );
       floor.rotation.x = -Math.PI / 2;
       floor.receiveShadow = true;
       scene.add(floor);
 
-      const gridHelper = new THREE.GridHelper(17.5, 35, 0x0284c7, 0x1e293b);
+      const gridHelper = new THREE.GridHelper(13.5, 27, 0x0284c7, 0x1e293b);
       gridHelper.position.y = 0.01;
       scene.add(gridHelper);
 
-      // 요청 반영: 벽체 높이를 기존 5.5 -> 3.4로 대폭 낮춰 슬림하고 안정적인 공간감 구현
+      // 슬림한 후면 & 좌우 파티션 벽체 (높이 3.2m로 낮춤)
       const wallMat = new THREE.MeshStandardMaterial({ color: 0x0b1528, roughness: 0.6, metalness: 0.3 });
-      const backWall = new THREE.Mesh(new THREE.BoxGeometry(17.5, 3.4, 0.28), wallMat);
-      backWall.position.set(0, 1.7, -5.1);
+      const backWall = new THREE.Mesh(new THREE.BoxGeometry(13.5, 3.2, 0.25), wallMat);
+      backWall.position.set(0, 1.6, -4.65);
       scene.add(backWall);
 
-      const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.28, 3.4, 10.5), wallMat);
-      leftWall.position.set(-8.6, 1.7, 0);
+      const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.25, 3.2, 9.5), wallMat);
+      leftWall.position.set(-6.65, 1.6, 0);
       scene.add(leftWall);
 
-      // 좌측 벽 대형 증시 전광판 (낮아진 벽체에 맞춰 높이 조정)
+      const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1.4, 9.5), wallMat);
+      rightWall.position.set(6.65, 0.7, 0);
+      scene.add(rightWall);
+
+      // 좌측 벽 대형 증시 전광판
       initWallTickerTexture();
       const tickerBoard = new THREE.Mesh(
-        new THREE.PlaneGeometry(8.6, 1.85),
+        new THREE.PlaneGeometry(7.8, 1.65),
         new THREE.MeshBasicMaterial({ map: wallTickerTexture })
       );
-      tickerBoard.position.set(-8.44, 2.05, -0.2);
+      tickerBoard.position.set(-6.50, 1.95, 0.1);
       tickerBoard.rotation.y = Math.PI / 2;
       scene.add(tickerBoard);
 
-      // 후면 벽 네온 간판 (브랜드 스위처와 실시간 연동)
+      // 후면 벽 중앙 네온 간판
       signCanvas = document.createElement('canvas');
-      signCanvas.width = 1024; signCanvas.height = 220;
+      signCanvas.width = 1024; signCanvas.height = 210;
       signCtx = signCanvas.getContext('2d');
       signTexture = new THREE.CanvasTexture(signCanvas);
       drawRearWallSign();
 
       const signMesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(8.4, 1.8),
+        new THREE.PlaneGeometry(8.2, 1.65),
         new THREE.MeshBasicMaterial({ map: signTexture })
       );
-      signMesh.position.set(0.4, 2.1, -4.94);
+      signMesh.position.set(0, 2.0, -4.50);
       scene.add(signMesh);
 
-      // 7인 에이전트 데스크 + 고디테일 캐릭터 + 소품 생성
+      // 8인 에이전트 데스크 + 고디테일 캐릭터 생성
       AGENT_CONFIGS.forEach(cfg => {
         const group = new THREE.Group();
         group.position.set(cfg.pos[0], 0, cfg.pos[1]);
 
-        const deskWidth = (cfg.isBoss || cfg.isCore) ? 2.4 : 2.05;
+        const deskWidth = 1.95;
         const deskColor = cfg.isBoss ? 0x451a03 : cfg.isCore ? 0x064e3b : 0x1e293b;
         const deskTop = new THREE.Mesh(
-          new THREE.BoxGeometry(deskWidth, 0.08, 1.05),
+          new THREE.BoxGeometry(deskWidth, 0.08, 0.98),
           new THREE.MeshStandardMaterial({ color: deskColor, roughness: 0.35, metalness: 0.3 })
         );
         deskTop.position.set(0, 0.82, 0);
@@ -979,56 +979,50 @@
           new THREE.BoxGeometry(deskWidth + 0.02, 0.03, 0.03),
           new THREE.MeshBasicMaterial({ color: edgeColor })
         );
-        neonEdge.position.set(0, 0.82, -0.52);
+        neonEdge.position.set(0, 0.82, -0.49);
         group.add(neonEdge);
 
-        // 책상 서랍장 & 다리
         const legMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.7 });
-        const leftPedestal = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.78, 0.96), legMat);
-        leftPedestal.position.set(-deskWidth / 2 + 0.24, 0.39, 0);
+        const leftPedestal = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.78, 0.90), legMat);
+        leftPedestal.position.set(-deskWidth / 2 + 0.22, 0.39, 0);
         leftPedestal.castShadow = true;
         group.add(leftPedestal);
 
-        const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.78, 0.96), legMat);
-        rightLeg.position.set(deskWidth / 2 - 0.14, 0.39, 0);
+        const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.78, 0.90), legMat);
+        rightLeg.position.set(deskWidth / 2 - 0.12, 0.39, 0);
         rightLeg.castShadow = true;
         group.add(rightLeg);
 
-        // 데스크 디테일 소품: 키보드, 마우스패드 & 마우스, 커피 머그컵, 서류 더미
-        const kb = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.025, 0.18), new THREE.MeshStandardMaterial({ color: 0x334155 }));
-        kb.position.set(-0.04, 0.87, 0.22);
+        // 데스크 소품
+        const kb = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.025, 0.16), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+        kb.position.set(-0.04, 0.87, 0.20);
         group.add(kb);
 
-        const mousePad = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.01, 0.20), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
-        mousePad.position.set(0.34, 0.865, 0.22);
-        group.add(mousePad);
-
-        const mouse = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 10), new THREE.MeshStandardMaterial({ color: 0xcbd5e1 }));
+        const mouse = new THREE.Mesh(new THREE.SphereGeometry(0.032, 10, 10), new THREE.MeshStandardMaterial({ color: 0xcbd5e1 }));
         mouse.scale.set(0.8, 0.5, 1.3);
-        mouse.position.set(0.34, 0.88, 0.22);
+        mouse.position.set(0.32, 0.88, 0.20);
         group.add(mouse);
 
-        const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.04, 0.11, 12), new THREE.MeshStandardMaterial({ color: 0xf8fafc }));
-        mug.position.set(-0.68, 0.91, 0.24);
+        const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.038, 0.10, 12), new THREE.MeshStandardMaterial({ color: 0xf8fafc }));
+        mug.position.set(-0.64, 0.91, 0.22);
         group.add(mug);
 
-        const docStack = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.03, 0.30), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 }));
-        docStack.position.set(0.68, 0.875, 0.20);
+        const docStack = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.03, 0.26), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 }));
+        docStack.position.set(0.64, 0.875, 0.18);
         docStack.rotation.y = 0.18;
         group.add(docStack);
 
-        // 다중 모니터 & 모니터 스탠드 배치
+        // 다중 모니터
         const screenMeshes = [];
         const chartTex = createMonitorChartTexture(cfg.roleColor);
         const monPositions = cfg.monitors === 4
-          ? [[-0.40, 1.15, -0.22, 0.18], [0.40, 1.15, -0.22, -0.18], [-0.40, 1.58, -0.22, 0.18], [0.40, 1.58, -0.22, -0.18]]
+          ? [[-0.36, 1.14, -0.20, 0.18], [0.36, 1.14, -0.20, -0.18], [-0.36, 1.54, -0.20, 0.18], [0.36, 1.54, -0.20, -0.18]]
           : cfg.monitors === 3
-            ? [[-0.56, 1.18, -0.16, 0.30], [0, 1.18, -0.24, 0], [0.56, 1.18, -0.16, -0.30]]
-            : [[-0.34, 1.18, -0.20, 0.15], [0.34, 1.18, -0.20, -0.15]];
+            ? [[-0.50, 1.16, -0.15, 0.28], [0, 1.16, -0.22, 0], [0.50, 1.16, -0.15, -0.28]]
+            : [[-0.30, 1.16, -0.18, 0.15], [0.30, 1.16, -0.18, -0.15]];
 
-        // 모니터 중앙 스탠드 기둥
-        const standNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.45, 10), legMat);
-        standNeck.position.set(0, 1.05, -0.30);
+        const standNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.042, 0.42, 10), legMat);
+        standNeck.position.set(0, 1.04, -0.26);
         group.add(standNeck);
 
         monPositions.forEach(mp => {
@@ -1037,65 +1031,64 @@
           monGroup.rotation.y = mp[3];
 
           const frame = new THREE.Mesh(
-            new THREE.BoxGeometry(0.64, 0.40, 0.035),
+            new THREE.BoxGeometry(0.58, 0.37, 0.032),
             new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 })
           );
           monGroup.add(frame);
 
           const scrMat = new THREE.MeshBasicMaterial({ map: chartTex, color: 0x94a3b8 });
-          const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.58, 0.34), scrMat);
-          scr.position.z = 0.02;
+          const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.31), scrMat);
+          scr.position.z = 0.018;
           monGroup.add(scr);
           screenMeshes.push(scr);
 
           group.add(monGroup);
         });
 
-        // 디테일 오피스 체어 (시트, 등받이, 양쪽 팔걸이, 중심봉, 5발 스타 베이스)
+        // 디테일 오피스 체어
         const chairGroup = new THREE.Group();
-        chairGroup.position.set(0, 0, 0.70);
+        chairGroup.position.set(0, 0, 0.66);
         const chairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
-        const seat = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.07, 0.50), chairMat);
+        const seat = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.07, 0.46), chairMat);
         seat.position.y = 0.50;
         chairGroup.add(seat);
 
-        const backRest = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.62, 0.07), chairMat);
-        backRest.position.set(0, 0.84, 0.23);
+        const backRest = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.60, 0.07), chairMat);
+        backRest.position.set(0, 0.82, 0.21);
         chairGroup.add(backRest);
 
-        [-0.27, 0.27].forEach(ax => {
-          const armRest = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.04, 0.32), chairMat);
-          armRest.position.set(ax, 0.68, 0.04);
+        [-0.25, 0.25].forEach(ax => {
+          const armRest = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.038, 0.28), chairMat);
+          armRest.position.set(ax, 0.67, 0.04);
           chairGroup.add(armRest);
-          const armPost = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.16, 8), legMat);
-          armPost.position.set(ax, 0.59, 0.08);
+          const armPost = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.15, 8), legMat);
+          armPost.position.set(ax, 0.58, 0.07);
           chairGroup.add(armPost);
         });
 
-        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.46, 10), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.46, 10), new THREE.MeshStandardMaterial({ color: 0x475569 }));
         pole.position.y = 0.25;
         chairGroup.add(pole);
 
         for (let b = 0; b < 5; b++) {
           const angle = (b / 5) * Math.PI * 2;
-          const baseLeg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.03, 0.28), legMat);
-          baseLeg.position.set(Math.sin(angle) * 0.13, 0.04, Math.cos(angle) * 0.13);
+          const baseLeg = new THREE.Mesh(new THREE.BoxGeometry(0.038, 0.028, 0.25), legMat);
+          baseLeg.position.set(Math.sin(angle) * 0.12, 0.04, Math.cos(angle) * 0.12);
           baseLeg.rotation.y = angle;
           chairGroup.add(baseLeg);
         }
         group.add(chairGroup);
 
-        // 정교한 3D 캐릭터 생성 및 추가
+        // 캐릭터 생성 및 추가
         const charParts = createDetailedAgentCharacter(cfg);
         group.add(charParts.charGroup);
 
-        const workLight = new THREE.PointLight(edgeColor, 0, 3.5);
-        workLight.position.set(0, 1.45, 0.2);
+        const workLight = new THREE.PointLight(edgeColor, 0, 3.2);
+        workLight.position.set(0, 1.4, 0.2);
         group.add(workLight);
 
-        // 홀로그램 라벨 앵커 (낮아진 공간에 맞춰 2.02m로 최적화)
         const labelAnchor = new THREE.Object3D();
-        labelAnchor.position.set(0, 2.02, 0);
+        labelAnchor.position.set(0, 1.96, 0);
         group.add(labelAnchor);
 
         scene.add(group);
@@ -1127,8 +1120,8 @@
 
     function reset3DCamera() {
       if (!camera || !controls) return;
-      camera.position.set(9.2, 6.4, 10.8);
-      controls.target.set(0, 0.75, 0.15);
+      camera.position.set(0.0, 6.8, 11.2);
+      controls.target.set(0, 0.75, 0.25);
       controls.update();
     }
 
@@ -1167,7 +1160,6 @@
         updateWallTickerCanvas();
       }
 
-      // 고디테일 캐릭터 관절 애니메이션 (전완 타이핑 + 고개 스캔 + 상체 호흡)
       Object.values(agent3DObjects).forEach((obj, idx) => {
         if (obj.isWorking) {
           obj.leftForearm.rotation.x = Math.sin(elapsed * 30 + idx) * 0.16;
@@ -1195,7 +1187,7 @@
     }
 
     // =========================================================================
-    // [4] 섹터 필터링 및 실시간 시세/브리핑 로직 연동
+    // [4] 6대 섹터 필터링 및 실시간 시세/브리핑 로직 연동
     // =========================================================================
     function setSectorFilter(sectorKey, btnEl) {
       currentSectorFilter = sectorKey;
@@ -1205,7 +1197,7 @@
       if (isPortfolioOpen) renderPortfolioRows();
       if (hasRunOnce) updateBriefingDisplay();
 
-      const sectorName = sectorKey === 'ALL' ? '전체 5대 섹터' : `${SECTOR_META[sectorKey]?.agentName} (${SECTOR_META[sectorKey]?.label})`;
+      const sectorName = sectorKey === 'ALL' ? '전체 6대 섹터' : `${SECTOR_META[sectorKey]?.agentName} (${SECTOR_META[sectorKey]?.label})`;
       appendTerminalLog("FILTER", `전담 요원 섹터 필터 전환: [${sectorName}]`, "#38bdf8");
     }
 
@@ -1443,7 +1435,7 @@
       return { sectorKey: "FIN_VALUE", sectorLabel: "카이·금융/거시", matchedKeyword: "증시", color: "#38bdf8" };
     }
 
-    async function fetchFiveSectorNewsPipeline(mode) {
+    async function fetchSixSectorNewsPipeline(mode) {
       const holdingNames = MY_HOLDINGS.map(h => h.name);
       const rawResults = await Promise.all(
         FEEDS_REGISTRY.map(async feed => {
@@ -1485,14 +1477,15 @@
 
       const allItems = rawResults.flat();
 
-      const counts = { SHIP_INFRA: 0, AI_SEMI_IT: 0, DEFENSE_METAL: 0, FIN_VALUE: 0, BIO_ENT: 0 };
+      const counts = { CONST_INFRA: 0, SHIP_HOLDING: 0, AI_SEMI_IT: 0, DEFENSE_METAL: 0, FIN_VALUE: 0, BIO_ENT: 0 };
       allItems.forEach(i => { if (counts[i.sectorKey] !== undefined) counts[i.sectorKey]++; });
 
-      appendTerminalLog("LEO (조선·중공업)", `HD현대·조선·인프라 섹터 뉴스 ${counts.SHIP_INFRA}건 선별 완료.`, "#34d399");
-      appendTerminalLog("MIA (AI·반도체)", `삼성전자·SK하이닉스·네이버 섹터 뉴스 ${counts.AI_SEMI_IT}건 선별 완료.`, "#c084fc");
-      appendTerminalLog("LUCY (방산·비철)", `풍산·방산·원자재 섹터 뉴스 ${counts.DEFENSE_METAL}건 선별 완료.`, "#fbbf24");
-      appendTerminalLog("KAI (금융·밸류업)", `KB금융·밸류업·거시지수 뉴스 ${counts.FIN_VALUE}건 선별 완료.`, "#38bdf8");
-      appendTerminalLog("CHLOE (바이오·엔터)", `셀트리온·에스엠 섹터 뉴스 ${counts.BIO_ENT}건 선별 완료.`, "#f472b6");
+      appendTerminalLog("MAX (①건설기계)", `HD건설기계·글로벌 인프라 뉴스 ${counts.CONST_INFRA}건 선별 완료.`, "#fb923c");
+      appendTerminalLog("LEO (②조선·지주)", `HD한국조선해양·HD현대 뉴스 ${counts.SHIP_HOLDING}건 선별 완료.`, "#34d399");
+      appendTerminalLog("MIA (③AI·반도체)", `삼성전자·SK하이닉스·NAVER 뉴스 ${counts.AI_SEMI_IT}건 선별 완료.`, "#c084fc");
+      appendTerminalLog("LUCY (④방산·비철)", `풍산·방산·구리 원자재 뉴스 ${counts.DEFENSE_METAL}건 선별 완료.`, "#fbbf24");
+      appendTerminalLog("KAI (⑤금융·밸류업)", `KB금융·밸류업·거시지수 뉴스 ${counts.FIN_VALUE}건 선별 완료.`, "#38bdf8");
+      appendTerminalLog("CHLOE (⑥바이오·엔터)", `셀트리온·에스엠 뉴스 ${counts.BIO_ENT}건 선별 완료.`, "#f472b6");
 
       let combined = [];
       if (mode === 'HOLDINGS') {
@@ -1509,19 +1502,19 @@
       combined.forEach(item => {
         if (!unique.some(u => u.title === item.title || u.url === item.url)) unique.push(item);
       });
-      return unique.slice(0, 15);
+      return unique.slice(0, 16);
     }
 
     function generateDynamicSummary(items) {
       if (!items || items.length === 0) {
-        return "해당 세부 섹터에 수신된 최신 뉴스가 없습니다. 상단 [전체 (All)] 탭을 선택하거나 [7인 업무 가동]을 눌러주세요.";
+        return "해당 세부 섹터에 수신된 최신 뉴스가 없습니다. 상단 [전체 (All)] 탭을 선택하거나 [8인 업무 가동]을 눌러주세요.";
       }
       const positiveCount = items.filter(i => i.sentiment === 'POSITIVE').length;
       const negativeCount = items.length - positiveCount;
       const headlines = items.slice(0, 3).map(i => i.title.replace(/\[.*?\]/g, '').trim()).join(' / ');
 
       const sectorTitle = currentSectorFilter === 'ALL'
-        ? '5대 섹터 통합 (레오·미아·루시·카이·클로이)'
+        ? '6대 섹터 통합 (맥스·레오·미아·루시·카이·클로이)'
         : `${SECTOR_META[currentSectorFilter]?.agentName} 전담 (${SECTOR_META[currentSectorFilter]?.label})`;
 
       return `[엘레나 취합 · 아서 승인 완료 | ${sectorTitle}] 총 ${items.length}건(긍정 ${positiveCount}건, 신중 ${negativeCount}건) 교차 검증 결과, 핵심 헤드라인은 '${headlines}' 등입니다.`;
@@ -1593,7 +1586,7 @@
       document.getElementById('summary-content').textContent = generateDynamicSummary(filteredNews);
 
       const subtitle = document.getElementById('briefing-subtitle');
-      const secLabel = currentSectorFilter === 'ALL' ? '5대 섹터 통합' : SECTOR_META[currentSectorFilter]?.label;
+      const secLabel = currentSectorFilter === 'ALL' ? '6대 섹터 통합' : SECTOR_META[currentSectorFilter]?.label;
       subtitle.textContent = `${secLabel} 브리핑 · ${filteredNews.length}건 (엘레나 취합 · 아서 승인)`;
 
       renderNewsCards(filteredNews);
@@ -1728,7 +1721,7 @@
     }
 
     function resetAllAgentsToWaiting() {
-      ['scout-ship', 'scout-tech', 'scout-def', 'scout-fin', 'scout-bio', 'editor', 'manager'].forEach(agentId => {
+      ['scout-const', 'scout-ship', 'scout-tech', 'scout-def', 'scout-fin', 'scout-bio', 'editor', 'manager'].forEach(agentId => {
         setAgentState(agentId, '대기중', '#334155', false);
       });
     }
@@ -1744,40 +1737,42 @@
       btnRun.style.opacity = "0.5";
 
       resetAllAgentsToWaiting();
-      appendTerminalLog("SYSTEM", `[${CURRENT_BRAND_NAME}] 7인 파이프라인 가동 시작.`, "#94a3b8");
+      appendTerminalLog("SYSTEM", `[${CURRENT_BRAND_NAME}] 8인(6대 섹터 + 취합 + 승인) 파이프라인 가동 시작.`, "#94a3b8");
       await delay(250);
 
-      appendTerminalLog("ARTHUR", "레오·미아·루시·카이·클로이! 5대 전담 섹터 뉴스 및 실시간 시세 수집을 개시하세요.");
-      setAgentState('scout-ship', '조선 수집중', '#059669', true);
-      setAgentState('scout-tech', 'AI 수집중', '#7c3aed', true);
-      setAgentState('scout-def', '방산 수집중', '#d97706', true);
-      setAgentState('scout-fin', '금융/지수중', '#0284c7', true);
-      setAgentState('scout-bio', '바이오 수집중', '#db2777', true);
+      appendTerminalLog("ARTHUR", "맥스·레오·미아·루시·카이·클로이! 6대 전담 섹터 뉴스 및 시세 수집을 개시하세요.");
+      setAgentState('scout-const', '건설기계 수집중', '#ea580c', true);
+      setAgentState('scout-ship',  '조선/지주 수집중', '#059669', true);
+      setAgentState('scout-tech',  'AI/반도체 수집중', '#7c3aed', true);
+      setAgentState('scout-def',   '방산/비철 수집중', '#d97706', true);
+      setAgentState('scout-fin',   '금융/지수 수집중', '#0284c7', true);
+      setAgentState('scout-bio',   '바이오 수집중',    '#db2777', true);
 
       const mode = isPortfolioOpen ? 'HOLDINGS' : 'MARKET';
       const [newsItems] = await Promise.all([
-        fetchFiveSectorNewsPipeline(mode),
+        fetchSixSectorNewsPipeline(mode),
         fetchKospiIndexWithSilentFailover()
       ]);
       CURRENT_NEWS_ITEMS = newsItems;
 
-      setAgentState('scout-ship', '수집 완료', '#064e3b', false);
-      setAgentState('scout-tech', '수집 완료', '#064e3b', false);
-      setAgentState('scout-def', '수집 완료', '#064e3b', false);
-      setAgentState('scout-fin', '수집 완료', '#064e3b', false);
-      setAgentState('scout-bio', '수집 완료', '#064e3b', false);
+      setAgentState('scout-const', '수집 완료', '#064e3b', false);
+      setAgentState('scout-ship',  '수집 완료', '#064e3b', false);
+      setAgentState('scout-tech',  '수집 완료', '#064e3b', false);
+      setAgentState('scout-def',   '수집 완료', '#064e3b', false);
+      setAgentState('scout-fin',   '수집 완료', '#064e3b', false);
+      setAgentState('scout-bio',   '수집 완료', '#064e3b', false);
 
-      appendTerminalLog("ARTHUR", "엘레나 에디터, 5인의 섹터 스카우트가 올린 데이터를 취합하고 핵심 브리핑으로 정리하세요.");
+      appendTerminalLog("ARTHUR", "엘레나 에디터, 6인의 섹터 스카우트가 올린 데이터를 취합하고 핵심 브리핑으로 정리하세요.");
       setAgentState('editor', '취합·정리중', '#0d9488', true);
       await delay(550);
       setAgentState('editor', '정리 완료', '#064e3b', false);
-      appendTerminalLog("ELENA (취합·정리)", `5대 섹터 총 ${CURRENT_NEWS_ITEMS.length}건 기사 감성 분류 및 통합 요약본 작성 완료.`, "#6ee7b7");
+      appendTerminalLog("ELENA (취합·정리)", `6대 섹터 총 ${CURRENT_NEWS_ITEMS.length}건 기사 감성 분류 및 통합 요약본 작성 완료.`, "#6ee7b7");
 
-      appendTerminalLog("ELENA", "아서 매니저님, 5대 섹터 통합 브리핑 정리가 완료되었습니다. 최종 승인을 요청합니다.");
+      appendTerminalLog("ELENA", "아서 매니저님, 6대 섹터 통합 브리핑 정리가 완료되었습니다. 최종 승인을 요청합니다.");
       setAgentState('manager', '최종 검수중', '#b45309', true);
       await delay(450);
       setAgentState('manager', '최종 승인!', '#064e3b', false);
-      appendTerminalLog("ARTHUR (최종승인)", "7인 데스크 리포트 검수 완료: [최종 PASS 승인]. 브리핑을 즉시 발행합니다!", "#fcd34d");
+      appendTerminalLog("ARTHUR (최종승인)", "8인 데스크 리포트 검수 완료: [최종 PASS 승인]. 브리핑을 즉시 발행합니다!", "#fcd34d");
 
       hasRunOnce = true;
       updateBriefingDisplay();
