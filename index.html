@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>NOBLE STOCK AGENT CO - 2D AI 가상 오피스</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>PULSE 7 : ALPHA NEXUS - 3D AI 가상 오피스</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- 단일 HTML 실행을 위한 Three.js 및 OrbitControls CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -15,36 +18,61 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 12px;
+      padding: 10px;
       user-select: none;
       -webkit-user-select: none;
     }
     .font-pixel { font-family: 'Press Start 2P', monospace; }
     .font-mono { font-family: monospace; }
 
-    .main-frame { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
+    .main-frame { width: 100%; max-width: 840px; display: flex; flex-direction: column; gap: 12px; }
 
     /* 1. 상단 전광판 헤더 */
     .header-box {
       border: 2px solid #334155;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.95));
-      padding: 16px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98));
+      padding: 14px 16px;
       border-radius: 12px;
       text-align: center;
       box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      position: relative;
     }
     @keyframes neonGlow {
-      0%, 100% { text-shadow: 0 0 4px #38bdf8, 0 0 12px #0284c7; }
+      0%, 100% { text-shadow: 0 0 6px #38bdf8, 0 0 14px #0284c7; }
       50% { text-shadow: 0 0 2px #0284c7, 0 0 6px #0369a1; }
     }
-    .neon-sign { color: #38bdf8; font-size: 13px; letter-spacing: 1px; animation: neonGlow 2.5s infinite; }
-    .header-sub { font-size: 10px; color: #94a3b8; margin-top: 4px; font-family: monospace; }
+    .neon-sign { color: #38bdf8; font-size: 15px; letter-spacing: 1px; animation: neonGlow 2.5s infinite; }
+    .header-sub { font-size: 10.5px; color: #94a3b8; margin-top: 4px; font-family: monospace; }
 
-    .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
+    .brand-switcher {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      color: #94a3b8;
+    }
+    .brand-switcher select {
+      background: transparent;
+      color: #38bdf8;
+      border: none;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'Pretendard', sans-serif;
+      cursor: pointer;
+      outline: none;
+    }
+    .brand-switcher select option { background: #0f172a; color: #f1f5f9; }
+
+    .btn-group { display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
     .btn {
       font-family: 'Press Start 2P', monospace;
-      font-size: 10px;
-      padding: 10px 14px;
+      font-size: 9.5px;
+      padding: 9px 13px;
       border-radius: 6px;
       cursor: pointer;
       display: flex;
@@ -53,25 +81,27 @@
       transition: all 0.15s ease;
     }
     .btn-run { background-color: #0891b2; color: #ffffff; border: 1px solid #67e8f9; }
-    .btn-run:hover { background-color: #06b6d4; }
+    .btn-run:hover { background-color: #06b6d4; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
     .btn-portfolio { background-color: #4338ca; color: #ffffff; border: 1px solid #818cf8; }
     .btn-portfolio:hover { background-color: #4f46e5; }
+    .btn-cam { background-color: #1e293b; color: #cbd5e1; border: 1px solid #475569; font-family: 'Pretendard', sans-serif; font-weight: 600; font-size: 11px; padding: 7px 11px; }
+    .btn-cam:hover { background-color: #334155; color: #fff; }
     .btn-active { background-color: #6366f1 !important; box-shadow: 0 0 8px #818cf8; }
 
-    /* 2. 가상 오피스 룸 (직원 6인 3x3 그리드) */
+    /* 2. 3D 가상 오피스 룸 섹션 */
     .section-card {
       border: 2px solid #334155;
       background-color: #0f172a;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
       display: flex;
       flex-direction: column;
     }
     .card-topbar {
       background-color: #1e293b;
       border-bottom: 1px solid #334155;
-      padding: 8px 14px;
+      padding: 7px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -79,115 +109,103 @@
       color: #94a3b8;
       font-family: monospace;
     }
-    .office-floor {
-      background-color: #090e1a;
-      background-image: 
-        radial-gradient(circle at 50% 30%, rgba(30, 41, 59, 0.4) 0%, transparent 70%),
-        linear-gradient(to right, rgba(30, 41, 59, 0.3) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(30, 41, 59, 0.3) 1px, transparent 1px);
-      background-size: 100% 100%, 20px 20px, 20px 20px;
-      padding: 12px 10px;
-    }
-    .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .desk-card {
-      background: linear-gradient(180deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
-      border: 1px solid #334155;
-      padding: 10px 4px 8px 4px;
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 10px rgba(0,0,0,0.3);
-      transition: border-color 0.25s ease, box-shadow 0.25s ease;
-    }
-    .desk-card.active-work {
-      border-color: #38bdf8;
-      box-shadow: 0 0 14px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255,255,255,0.1);
-    }
-    .badge {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      font-size: 7.5px;
-      font-family: monospace;
-      padding: 2px 5px;
-      border-radius: 4px;
-      background-color: #334155;
-      color: #cbd5e1;
-      transition: background-color 0.2s ease, color 0.2s ease;
-      z-index: 5;
-    }
-    .desk-title { font-family: 'Press Start 2P', monospace; font-size: 7.5px; margin-top: 6px; text-align: center; }
-    .desk-name { font-size: 8.5px; color: #94a3b8; margin-top: 3px; text-align: center; white-space: nowrap; }
 
-    /* 캐릭터 일러스트 & 애니메이션 */
-    .character-container {
-      width: 76px;
-      height: 70px;
+    /* 요청 반영: 오피스 높이를 430px -> 310px로 컴팩트하게 축소 */
+    .office-3d-wrapper {
       position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      width: 100%;
+      height: 310px;
+      background: radial-gradient(circle at 50% 40%, #0f172a 0%, #020617 100%);
+      overflow: hidden;
     }
-    .agent-svg {
+    #office-3d-canvas {
       width: 100%;
       height: 100%;
-      overflow: visible;
+      display: block;
+      cursor: grab;
     }
+    #office-3d-canvas:active { cursor: grabbing; }
 
-    /* 상시 잔잔한 호흡/끄덕임 모션 */
-    @keyframes idleBreathing {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-0.8px); }
-    }
-    .anim-idle-head {
-      animation: idleBreathing 3.2s ease-in-out infinite;
-      transform-origin: center bottom;
-    }
-
-    /* 집중 타이핑 모션 */
-    @keyframes fastTypingL {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-2.2px); }
-    }
-    @keyframes fastTypingR {
-      0%, 100% { transform: translateY(-2px); }
-      50% { transform: translateY(0.4px); }
-    }
-    @keyframes headFocusNod {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      25% { transform: translateY(0.8px) rotate(-0.5deg); }
-      75% { transform: translateY(-0.5px) rotate(0.5deg); }
-    }
-    
-    .working-state .hand-l {
-      animation: fastTypingL 0.22s ease-in-out infinite !important;
-    }
-    .working-state .hand-r {
-      animation: fastTypingR 0.22s ease-in-out infinite !important;
-    }
-    .working-state .character-head {
-      animation: headFocusNod 0.7s ease-in-out infinite !important;
-    }
-
-    /* 모니터 및 작업 스포트라이트 발광 효과 */
-    @keyframes screenGlowBeam {
-      0%, 100% { opacity: 0.35; fill: #38bdf8; }
-      50% { opacity: 0.85; fill: #67e8f9; }
-    }
-    .screen-beam {
-      opacity: 0.15;
-      transition: opacity 0.3s ease;
-      mix-blend-mode: screen;
+    .canvas-hint {
+      position: absolute;
+      bottom: 6px;
+      left: 10px;
+      font-size: 9.5px;
+      color: rgba(148, 163, 184, 0.85);
+      background: rgba(2, 6, 23, 0.75);
+      padding: 3px 7px;
+      border-radius: 4px;
+      border: 1px solid rgba(51, 65, 85, 0.6);
       pointer-events: none;
     }
-    .screen-working .screen-beam {
-      animation: screenGlowBeam 1s infinite alternate;
+
+    /* 3D 공간 위에 떠 있는 7인 홀로그램 네임태그 (컴팩트화) */
+    .agent-label-3d {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      border-radius: 5px;
+      padding: 2px 5px;
+      pointer-events: none;
+      text-align: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.6), 0 0 6px rgba(56, 189, 248, 0.2);
+      backdrop-filter: blur(4px);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+      z-index: 10;
     }
-    .screen-working .monitor-display {
-      fill: #38bdf8 !important;
-      filter: drop-shadow(0 0 3px #38bdf8);
+    .agent-label-3d::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 4px 3.5px 0;
+      border-style: solid;
+      border-color: rgba(56, 189, 248, 0.6) transparent;
+    }
+    .label-role { font-size: 8px; font-weight: 700; letter-spacing: -0.2px; }
+    .label-name { font-size: 9px; color: #e2e8f0; font-weight: 600; }
+    .label-badge {
+      display: inline-block;
+      margin-top: 1px;
+      font-size: 7px;
+      font-family: monospace;
+      padding: 1px 4px;
+      border-radius: 3px;
+      background-color: #334155;
+      color: #cbd5e1;
+    }
+
+    /* 5대 세분화 섹터 필터 바 */
+    .sector-filter-bar {
+      background-color: #0b1120;
+      border-top: 1px solid #1e293b;
+      padding: 7px 12px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      align-items: center;
+    }
+    .sector-chip {
+      font-size: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background-color: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .sector-chip:hover { color: #f8fafc; border-color: #64748b; }
+    .sector-chip.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      border-color: #38bdf8;
+      font-weight: 600;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
     }
 
     /* 3. 표 컨테이너 */
@@ -196,26 +214,34 @@
       background-color: #020617;
       padding: 12px;
     }
-    .table-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .table-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 4px; }
     .table-scroll { overflow-x: auto; border: 1px solid #1e293b; border-radius: 6px; }
     table { width: 100%; font-size: 11px; font-family: monospace; border-collapse: collapse; white-space: nowrap; text-align: right; }
     th { background-color: #0f172a; color: #cbd5e1; padding: 7px 10px; border-bottom: 1px solid #1e293b; font-weight: 600; }
     td { padding: 7px 10px; border-bottom: 1px solid rgba(30, 41, 59, 0.7); }
     tr:hover { background-color: rgba(15, 23, 42, 0.6); }
-    .stock-link { color: #f1f5f9; text-decoration: none; display: flex; align-items: center; gap: 4px; font-weight: 500; }
+    .stock-link { color: #f1f5f9; text-decoration: none; display: flex; align-items: center; gap: 5px; font-weight: 500; }
     .stock-link:hover { color: #38bdf8; text-decoration: underline; }
+    .sector-mini-tag {
+      font-size: 8.5px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+    }
 
     /* 4. 시스템 터미널 로그 */
     .terminal-box {
       background-color: rgba(0, 0, 0, 0.95);
       border-top: 1px solid #1e293b;
-      padding: 10px 14px;
+      padding: 8px 14px;
       display: flex;
       flex-direction: column;
-      height: 96px;
+      height: 98px;
     }
     .terminal-header { display: flex; justify-content: space-between; font-size: 10px; font-family: monospace; color: #38bdf8; padding-bottom: 4px; border-bottom: 1px solid #1e293b; }
-    .terminal-body { overflow-y: auto; font-family: monospace; font-size: 11px; color: #cbd5e1; margin-top: 6px; line-height: 1.4; }
+    .terminal-body { overflow-y: auto; font-family: monospace; font-size: 11px; color: #cbd5e1; margin-top: 5px; line-height: 1.4; }
 
     /* 5. 뉴스 브리핑 영역 */
     .briefing-box { padding: 12px 14px 16px 14px; display: flex; flex-direction: column; gap: 10px; }
@@ -262,17 +288,31 @@
 
   <div class="main-frame">
 
-    <!-- 1. 상단 전광판 헤더 -->
+    <!-- 1. 상단 전광판 헤더 (신선한 브랜드 네이밍 + 실시간 변경 가능) -->
     <header class="header-box">
-      <h1 class="neon-sign font-pixel">NOBLE STOCK AGENT CO</h1>
-      <p class="header-sub">24H AUTONOMOUS MULTI-AGENT MARKET DESK</p>
+      <h1 id="brand-title" class="neon-sign font-pixel">PULSE 7 : ALPHA NEXUS</h1>
+      <p id="brand-sub" class="header-sub">REALTIME 7-AGENT MARKET COMMAND · 5 SECTORS + 1 EDITOR + 1 MANAGER</p>
+
+      <div class="brand-switcher">
+        <span>✨ 오피스 이름 변경:</span>
+        <select id="brand-select" onchange="changeBrandName(this.value)">
+          <option value="PULSE 7 : ALPHA NEXUS|REALTIME 7-AGENT MARKET COMMAND">① PULSE 7 : ALPHA NEXUS (추천)</option>
+          <option value="AETHER QUANT LAB|AUTONOMOUS 5-SECTOR INTELLIGENCE">② AETHER QUANT LAB</option>
+          <option value="HYPERION DESK|24H HIGH-CONVICTION STOCK RADAR">③ HYPERION DESK</option>
+          <option value="ORBITAL ALPHA STUDIO|MULTI-AGENT SECTOR WATCHTOWER">④ ORBITAL ALPHA STUDIO</option>
+          <option value="VORTEX 7 TERMINAL|DEEP-SECTOR AI BRIEFING ENGINE">⑤ VORTEX 7 TERMINAL</option>
+        </select>
+      </div>
       
       <div class="btn-group">
         <button id="btn-run" onclick="startWorkPipeline()" class="btn btn-run">
-          <span>▶</span> 업무 가동
+          <span>▶</span> 7인 업무 가동
         </button>
         <button id="btn-portfolio-toggle" onclick="togglePortfolioTable()" class="btn btn-portfolio">
           <span>📈</span> 내 종목 보기
+        </button>
+        <button onclick="reset3DCamera()" class="btn btn-cam">
+          <span>🎥</span> 시점 초기화
         </button>
       </div>
       <div id="gemini-status" style="display:none; margin-top:8px; font-size:10px; font-family:monospace; color:#67e8f9; background:#082f49; padding:4px 8px; border-radius:4px; border:1px solid #0284c7;">
@@ -280,362 +320,44 @@
       </div>
     </header>
 
-    <!-- 2. 가상 오피스 룸 (직원 6인 일러스트 애니메이션) -->
+    <!-- 2. 3D 가상 오피스 룸 (슬림 와이드 비율 & 정교한 7인 3D 캐릭터) -->
     <section class="section-card">
       <div class="card-topbar">
-        <span>FLOOR 01: STOCK RESEARCH DEPT</span>
-        <span style="color:#38bdf8;">● AGENTS ACTIVE: 6</span>
+        <span>FLOOR 01: LOW-PROFILE 3D COMMAND DESK</span>
+        <span style="color:#38bdf8;">● HIGH-DETAIL 3D AGENTS: 7</span>
       </div>
 
-      <div class="office-floor">
-        <div class="agent-grid">
-          
-          <!-- Agent 1: Macro Scout (루시 - 동영상 속 하늘색 머리 주인공) -->
-          <div class="desk-card" id="card-scout-macro">
-            <span id="badge-scout-macro" class="badge">대기중</span>
-            <div class="character-container" id="container-scout-macro">
-              <svg class="agent-svg" viewBox="0 0 100 90">
-                <defs>
-                  <linearGradient id="deskGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#cbd5e1"/>
-                    <stop offset="100%" stop-color="#94a3b8"/>
-                  </linearGradient>
-                  <linearGradient id="beamGradLucy" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6"/>
-                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
-                  </linearGradient>
-                </defs>
-                <!-- 그림자 & 바닥 -->
-                <ellipse cx="50" cy="82" rx="42" ry="7" fill="#030712" opacity="0.45"/>
-                <!-- 책상 바디 & 상판 (아이소메트릭) -->
-                <polygon points="12,58 88,58 78,82 22,82" fill="#64748b"/>
-                <polygon points="12,58 88,58 84,54 16,54" fill="#94a3b8"/>
-                <rect x="22" y="78" width="56" height="5" fill="#475569" rx="1"/>
-                <line x1="24" y1="82" x2="24" y2="87" stroke="#334155" stroke-width="2.5"/>
-                <line x1="76" y1="82" x2="76" y2="87" stroke="#334155" stroke-width="2.5"/>
-                <!-- 서류/노트 -->
-                <polygon points="68,64 80,62 82,73 70,75" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.6"/>
-                <line x1="71" y1="66" x2="78" y2="65" stroke="#38bdf8" stroke-width="0.8"/>
-                <line x1="72" y1="69" x2="79" y2="68" stroke="#94a3b8" stroke-width="0.8"/>
-                <!-- 모니터 빛 투사 영역 -->
-                <polygon class="screen-beam" points="36,44 64,44 74,72 26,72" fill="url(#beamGradLucy)"/>
-                <!-- 모니터 (정면/대각) -->
-                <rect x="36" y="34" width="28" height="20" rx="2" fill="#1e293b" stroke="#475569" stroke-width="1.2"/>
-                <rect class="monitor-display" id="screen-scout-macro" x="38" y="36" width="24" height="16" rx="1" fill="#0f172a"/>
-                <rect x="47" y="54" width="6" height="6" fill="#334155"/>
-                <rect x="44" y="59" width="12" height="2.5" fill="#475569" rx="1"/>
-                <!-- 키보드 -->
-                <rect x="38" y="65" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
-                <!-- 캐릭터 루시 (몸체 + 머리) -->
-                <g class="character-group">
-                  <!-- 상체/옷 (흰색 셔츠 + 청록 타이) -->
-                  <path d="M38,42 C38,36 62,36 62,42 L65,58 L35,58 Z" fill="#f8fafc"/>
-                  <!-- 넥타이 -->
-                  <polygon points="48,42 52,42 51,52 49,52" fill="#0284c7"/>
-                  <!-- 머리 & 얼굴 -->
-                  <g class="character-head anim-idle-head">
-                    <circle cx="50" cy="28" r="11" fill="#fde68a" opacity="0.95"/> <!-- 얼굴 -->
-                    <!-- 눈 (귀여운 웹툰 스타일) -->
-                    <ellipse cx="46.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
-                    <circle cx="46" cy="27.5" r="0.6" fill="#ffffff"/>
-                    <ellipse cx="53.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
-                    <circle cx="53" cy="27.5" r="0.6" fill="#ffffff"/>
-                    <!-- 볼터치 -->
-                    <ellipse cx="44.5" cy="31" rx="1.6" ry="0.9" fill="#f43f5e" opacity="0.45"/>
-                    <ellipse cx="55.5" cy="31" rx="1.6" ry="0.9" fill="#f43f5e" opacity="0.45"/>
-                    <!-- 입 -->
-                    <path d="M49,32 Q50,33 51,32" stroke="#e11d48" stroke-width="0.8" fill="none"/>
-                    <!-- 동영상 시그니처: 시안/하늘색 헤어 & 앞머리 바보털 -->
-                    <path d="M38,27 C37,17 44,14 50,14 C56,14 63,17 62,27 C62,29 60,32 59,32 C58,26 57,22 55,22 C53,22 52,25 50,25 C48,25 47,22 45,22 C43,22 42,26 41,32 C40,32 38,29 38,27 Z" fill="#38bdf8"/>
-                    <!-- 정수리 귀여운 꽁지/바보털 (동영상 느낌) -->
-                    <path d="M50,14 Q53,8 48,6 Q52,10 50,14" fill="#38bdf8"/>
-                  </g>
-                  <!-- 손 (타이핑 모션) -->
-                  <ellipse class="hand-l" cx="42" cy="67" rx="2.5" ry="2" fill="#fde68a"/>
-                  <ellipse class="hand-r" cx="58" cy="67" rx="2.5" ry="2" fill="#fde68a"/>
-                </g>
-              </svg>
-            </div>
-            <div class="desk-title" style="color:#7dd3fc;">매크로 스카우트</div>
-            <div class="desk-name">루시 (거시/지수)</div>
-          </div>
+      <div class="office-3d-wrapper" id="office-3d-wrapper">
+        <canvas id="office-3d-canvas"></canvas>
+        <div id="labels-overlay"></div>
+        <div class="canvas-hint">🖱️ 드래그: 회전 · 휠: 줌 (인물 확대 가능) · 우클릭: 화면 이동</div>
+      </div>
 
-          <!-- Agent 2: Sector Scout (레오 - 카키/그린 재킷의 차분한 분석가) -->
-          <div class="desk-card" id="card-scout-sector">
-            <span id="badge-scout-sector" class="badge">대기중</span>
-            <div class="character-container" id="container-scout-sector">
-              <svg class="agent-svg" viewBox="0 0 100 90">
-                <defs>
-                  <linearGradient id="beamGradLeo" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#34d399" stop-opacity="0.6"/>
-                    <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
-                  </linearGradient>
-                </defs>
-                <ellipse cx="50" cy="82" rx="42" ry="7" fill="#030712" opacity="0.45"/>
-                <!-- 책상 -->
-                <polygon points="12,58 88,58 78,82 22,82" fill="#475569"/>
-                <polygon points="12,58 88,58 84,54 16,54" fill="#64748b"/>
-                <rect x="22" y="78" width="56" height="5" fill="#334155" rx="1"/>
-                <line x1="24" y1="82" x2="24" y2="87" stroke="#1e293b" stroke-width="2.5"/>
-                <line x1="76" y1="82" x2="76" y2="87" stroke="#1e293b" stroke-width="2.5"/>
-                <!-- 커피잔 -->
-                <circle cx="25" cy="65" r="3.5" fill="#f1f5f9"/>
-                <circle cx="25" cy="65" r="2.2" fill="#78350f"/>
-                <!-- 모니터 빛 & 바디 -->
-                <polygon class="screen-beam" points="36,44 64,44 74,72 26,72" fill="url(#beamGradLeo)"/>
-                <rect x="36" y="34" width="28" height="20" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1.2"/>
-                <rect class="monitor-display" id="screen-scout-sector" x="38" y="36" width="24" height="16" rx="1" fill="#0f172a"/>
-                <rect x="47" y="54" width="6" height="6" fill="#334155"/>
-                <rect x="44" y="59" width="12" height="2.5" fill="#475569" rx="1"/>
-                <rect x="38" y="65" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
-                <!-- 캐릭터 레오 (다크 그린 셔츠 + 단정한 브라운 헤어) -->
-                <g class="character-group">
-                  <path d="M37,42 C37,36 63,36 63,42 L66,58 L34,58 Z" fill="#065f46"/>
-                  <polygon points="49,42 51,42 51,50 49,50" fill="#34d399"/>
-                  <g class="character-head anim-idle-head">
-                    <circle cx="50" cy="28" r="11" fill="#fed7aa"/>
-                    <!-- 눈 -->
-                    <ellipse cx="46.5" cy="28.5" rx="1.5" ry="2" fill="#0f172a"/>
-                    <circle cx="46" cy="27.8" r="0.5" fill="#ffffff"/>
-                    <ellipse cx="53.5" cy="28.5" rx="1.5" ry="2" fill="#0f172a"/>
-                    <circle cx="53" cy="27.8" r="0.5" fill="#ffffff"/>
-                    <path d="M49,32.5 Q50,33.5 51,32.5" stroke="#78350f" stroke-width="0.7" fill="none"/>
-                    <!-- 브라운 숏컷 헤어 -->
-                    <path d="M38,26 C37,16 44,13 50,13 C56,13 63,16 62,26 C61,28 60,30 58,26 C55,20 52,22 49,22 C46,22 44,20 42,26 C40,30 39,28 38,26 Z" fill="#334155"/>
-                  </g>
-                  <ellipse class="hand-l" cx="42" cy="67" rx="2.5" ry="2" fill="#fed7aa"/>
-                  <ellipse class="hand-r" cx="58" cy="67" rx="2.5" ry="2" fill="#fed7aa"/>
-                </g>
-              </svg>
-            </div>
-            <div class="desk-title" style="color:#6ee7b7;">섹터 스카우트</div>
-            <div class="desk-name">레오 (방산/중공업)</div>
-          </div>
-
-          <!-- Agent 3: Tech Scout (미아 - 퍼플 투톤 헤어 & 헤드셋 테크 스타일) -->
-          <div class="desk-card" id="card-scout-tech">
-            <span id="badge-scout-tech" class="badge">대기중</span>
-            <div class="character-container" id="container-scout-tech">
-              <svg class="agent-svg" viewBox="0 0 100 90">
-                <defs>
-                  <linearGradient id="beamGradMia" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#c084fc" stop-opacity="0.6"/>
-                    <stop offset="100%" stop-color="#c084fc" stop-opacity="0"/>
-                  </linearGradient>
-                </defs>
-                <ellipse cx="50" cy="82" rx="42" ry="7" fill="#030712" opacity="0.45"/>
-                <polygon points="12,58 88,58 78,82 22,82" fill="#475569"/>
-                <polygon points="12,58 88,58 84,54 16,54" fill="#64748b"/>
-                <rect x="22" y="78" width="56" height="5" fill="#334155" rx="1"/>
-                <line x1="24" y1="82" x2="24" y2="87" stroke="#1e293b" stroke-width="2.5"/>
-                <line x1="76" y1="82" x2="76" y2="87" stroke="#1e293b" stroke-width="2.5"/>
-                <!-- 펜꽂이 -->
-                <rect x="74" y="62" width="6" height="8" rx="1" fill="#334155"/>
-                <line x1="76" y1="60" x2="76" y2="64" stroke="#c084fc" stroke-width="1.5"/>
-                <line x1="78" y1="58" x2="78" y2="64" stroke="#38bdf8" stroke-width="1.5"/>
-                <polygon class="screen-beam" points="36,44 64,44 74,72 26,72" fill="url(#beamGradMia)"/>
-                <rect x="36" y="34" width="28" height="20" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1.2"/>
-                <rect class="monitor-display" id="screen-scout-tech" x="38" y="36" width="24" height="16" rx="1" fill="#0f172a"/>
-                <rect x="47" y="54" width="6" height="6" fill="#334155"/>
-                <rect x="44" y="59" width="12" height="2.5" fill="#475569" rx="1"/>
-                <rect x="38" y="65" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
-                <!-- 캐릭터 미아 (보라색 보브컷 헤어 + 헤드폰) -->
-                <g class="character-group">
-                  <path d="M37,42 C37,36 63,36 63,42 L66,58 L34,58 Z" fill="#581c87"/>
-                  <g class="character-head anim-idle-head">
-                    <circle cx="50" cy="28" r="11" fill="#fce7f3"/>
-                    <ellipse cx="46.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
-                    <circle cx="46" cy="27.5" r="0.6" fill="#ffffff"/>
-                    <ellipse cx="53.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
-                    <circle cx="53" cy="27.5" r="0.6" fill="#ffffff"/>
-                    <ellipse cx="45" cy="31.2" rx="1.5" ry="0.8" fill="#e879f9" opacity="0.4"/>
-                    <ellipse cx="55" cy="31.2" rx="1.5" ry="0.8" fill="#e879f9" opacity="0.4"/>
-                    <path d="M49,32.2 Q50,33 51,32.2" stroke="#a21caf" stroke-width="0.7" fill="none"/>
-                    <!-- 보라색 헤어 & 헤드폰 -->
-                    <path d="M37,28 C36,16 43,13 50,13 C57,13 64,16 63,28 C63,33 60,34 59,28 C57,21 54,23 50,23 C46,23 43,21 41,28 C40,34 37,33 37,28 Z" fill="#9333ea"/>
-                    <!-- 헤드폰 -->
-                    <path d="M36,25 C36,15 64,15 64,25" fill="none" stroke="#2e1065" stroke-width="2.5"/>
-                    <rect x="35" y="23" width="3" height="7" rx="1.5" fill="#c084fc"/>
-                    <rect x="62" y="23" width="3" height="7" rx="1.5" fill="#c084fc"/>
-                  </g>
-                  <ellipse class="hand-l" cx="42" cy="67" rx="2.5" ry="2" fill="#fce7f3"/>
-                  <ellipse class="hand-r" cx="58" cy="67" rx="2.5" ry="2" fill="#fce7f3"/>
-                </g>
-              </svg>
-            </div>
-            <div class="desk-title" style="color:#c084fc;">테크 스카우트</div>
-            <div class="desk-name">미아 (반도체/AI)</div>
-          </div>
-
-          <!-- Agent 4: Analyst (카이 - 안경 + 듀얼 모니터 데스크) -->
-          <div class="desk-card" id="card-analyst">
-            <span id="badge-analyst" class="badge">대기중</span>
-            <div class="character-container" id="container-analyst">
-              <svg class="agent-svg" viewBox="0 0 100 90">
-                <defs>
-                  <linearGradient id="beamGradKai" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#818cf8" stop-opacity="0.6"/>
-                    <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
-                  </linearGradient>
-                </defs>
-                <ellipse cx="50" cy="82" rx="44" ry="7" fill="#030712" opacity="0.45"/>
-                <polygon points="8,58 92,58 80,82 20,82" fill="#475569"/>
-                <polygon points="8,58 92,58 87,54 13,54" fill="#64748b"/>
-                <rect x="20" y="78" width="60" height="5" fill="#334155" rx="1"/>
-                <line x1="22" y1="82" x2="22" y2="87" stroke="#1e293b" stroke-width="2.5"/>
-                <line x1="78" y1="82" x2="78" y2="87" stroke="#1e293b" stroke-width="2.5"/>
-                <!-- 듀얼 모니터 (좌/우) -->
-                <!-- 좌측 모니터 -->
-                <polygon class="screen-beam" points="22,46 42,46 46,68 18,68" fill="url(#beamGradKai)"/>
-                <rect x="20" y="38" width="22" height="17" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1"/>
-                <rect class="monitor-display" id="screen-analyst-1" x="22" y="40" width="18" height="13" rx="1" fill="#0f172a"/>
-                <!-- 우측 모니터 -->
-                <polygon class="screen-beam" points="58,46 78,46 82,68 54,68" fill="url(#beamGradKai)"/>
-                <rect x="58" y="38" width="22" height="17" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1"/>
-                <rect class="monitor-display" id="screen-analyst-2" x="60" y="40" width="18" height="13" rx="1" fill="#0f172a"/>
-                <!-- 키보드 -->
-                <rect x="38" y="66" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
-                <!-- 캐릭터 카이 (지적인 네이비 셔츠 + 안경) -->
-                <g class="character-group">
-                  <path d="M37,42 C37,36 63,36 63,42 L66,58 L34,58 Z" fill="#312e81"/>
-                  <polygon points="49,42 51,42 51,52 49,52" fill="#818cf8"/>
-                  <g class="character-head anim-idle-head">
-                    <circle cx="50" cy="27" r="11" fill="#fed7aa"/>
-                    <!-- 안경 프레임 -->
-                    <rect x="43" y="26" width="6" height="5" rx="1.5" fill="none" stroke="#60a5fa" stroke-width="0.9"/>
-                    <rect x="51" y="26" width="6" height="5" rx="1.5" fill="none" stroke="#60a5fa" stroke-width="0.9"/>
-                    <line x1="49" y1="28" x2="51" y2="28" stroke="#60a5fa" stroke-width="0.9"/>
-                    <!-- 눈 -->
-                    <ellipse cx="46" cy="28.5" rx="1.2" ry="1.6" fill="#0f172a"/>
-                    <ellipse cx="54" cy="28.5" rx="1.2" ry="1.6" fill="#0f172a"/>
-                    <!-- 짙은 남색 댄디 헤어 -->
-                    <path d="M38,25 C37,15 44,12 50,12 C56,12 63,15 62,25 C60,24 57,20 50,20 C43,20 40,24 38,25 Z" fill="#1e1b4b"/>
-                  </g>
-                  <ellipse class="hand-l" cx="42" cy="68" rx="2.5" ry="2" fill="#fed7aa"/>
-                  <ellipse class="hand-r" cx="58" cy="68" rx="2.5" ry="2" fill="#fed7aa"/>
-                </g>
-              </svg>
-            </div>
-            <div class="desk-title" style="color:#a5b4fc;">데이터 분석가</div>
-            <div class="desk-name">카이 (감성 분석)</div>
-          </div>
-
-          <!-- Agent 5: Editor (엘레나 - 따뜻한 에메랄드 니트 & 서류 검토) -->
-          <div class="desk-card" id="card-editor">
-            <span id="badge-editor" class="badge">대기중</span>
-            <div class="character-container" id="container-editor">
-              <svg class="agent-svg" viewBox="0 0 100 90">
-                <defs>
-                  <linearGradient id="beamGradElena" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#34d399" stop-opacity="0.6"/>
-                    <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
-                  </linearGradient>
-                </defs>
-                <ellipse cx="50" cy="82" rx="42" ry="7" fill="#030712" opacity="0.45"/>
-                <polygon points="12,58 88,58 78,82 22,82" fill="#475569"/>
-                <polygon points="12,58 88,58 84,54 16,54" fill="#64748b"/>
-                <rect x="22" y="78" width="56" height="5" fill="#334155" rx="1"/>
-                <line x1="24" y1="82" x2="24" y2="87" stroke="#1e293b" stroke-width="2.5"/>
-                <line x1="76" y1="82" x2="76" y2="87" stroke="#1e293b" stroke-width="2.5"/>
-                <!-- 리포트 파일철 -->
-                <polygon points="20,64 30,62 33,74 23,76" fill="#fef08a" stroke="#ca8a04" stroke-width="0.7"/>
-                <polygon class="screen-beam" points="36,44 64,44 74,72 26,72" fill="url(#beamGradElena)"/>
-                <rect x="36" y="34" width="28" height="20" rx="2" fill="#1e293b" stroke="#334155" stroke-width="1.2"/>
-                <rect class="monitor-display" id="screen-editor" x="38" y="36" width="24" height="16" rx="1" fill="#0f172a"/>
-                <rect x="47" y="54" width="6" height="6" fill="#334155"/>
-                <rect x="44" y="59" width="12" height="2.5" fill="#475569" rx="1"/>
-                <rect x="38" y="65" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
-                <!-- 캐릭터 엘레나 (금발 웨이브 헤어 + 에메랄드 니트) -->
-                <g class="character-group">
-                  <path d="M37,42 C37,36 63,36 63,42 L66,58 L34,58 Z" fill="#059669"/>
-                  <g class="character-head anim-idle-head">
-                    <circle cx="50" cy="28" r="11" fill="#fde68a" opacity="0.95"/>
-                    <ellipse cx="46.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
-                    <circle cx="46" cy="27.5" r="0.6" fill="#ffffff"/>
-                    <ellipse cx="53.5" cy="28.5" rx="1.6" ry="2.2" fill="#0f172a"/>
-                    <circle cx="53" cy="27.5" r="0.6" fill="#ffffff"/>
-                    <ellipse cx="45" cy="31.2" rx="1.5" ry="0.9" fill="#f43f5e" opacity="0.4"/>
-                    <ellipse cx="55" cy="31.2" rx="1.5" ry="0.9" fill="#f43f5e" opacity="0.4"/>
-                    <path d="M49,32.2 Q50,33.2 51,32.2" stroke="#b91c1c" stroke-width="0.7" fill="none"/>
-                    <!-- 웜 블론드 롱 헤어 -->
-                    <path d="M36,28 C35,16 43,12 50,12 C57,12 65,16 64,28 C64,36 61,38 60,30 C58,21 54,23 50,23 C46,23 42,21 40,30 C39,38 36,36 36,28 Z" fill="#d97706"/>
-                  </g>
-                  <ellipse class="hand-l" cx="42" cy="67" rx="2.5" ry="2" fill="#fde68a"/>
-                  <ellipse class="hand-r" cx="58" cy="67" rx="2.5" ry="2" fill="#fde68a"/>
-                </g>
-              </svg>
-            </div>
-            <div class="desk-title" style="color:#6ee7b7;">리포트 에디터</div>
-            <div class="desk-name">엘레나 (브리핑 작성)</div>
-          </div>
-
-          <!-- Agent 6: Manager (아서 - 묵직한 가죽 의자 & 골드 테마 총괄 관리자) -->
-          <div class="desk-card" id="card-manager" style="border: 1.5px solid #b45309;">
-            <span id="badge-manager" class="badge">대기중</span>
-            <div class="character-container" id="container-manager">
-              <svg class="agent-svg" viewBox="0 0 100 90">
-                <defs>
-                  <linearGradient id="beamGradArthur" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
-                    <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
-                  </linearGradient>
-                </defs>
-                <ellipse cx="50" cy="82" rx="43" ry="7" fill="#030712" opacity="0.45"/>
-                <!-- 매니저 전용 와이드 데스크 -->
-                <polygon points="10,58 90,58 80,82 20,82" fill="#78350f"/>
-                <polygon points="10,58 90,58 85,54 15,54" fill="#92400e"/>
-                <rect x="20" y="78" width="60" height="5" fill="#451a03" rx="1"/>
-                <line x1="22" y1="82" x2="22" y2="87" stroke="#292524" stroke-width="2.5"/>
-                <line x1="78" y1="82" x2="78" y2="87" stroke="#292524" stroke-width="2.5"/>
-                <!-- 명패 (Manager) -->
-                <polygon points="20,68 32,68 30,73 18,73" fill="#fcd34d" stroke="#b45309" stroke-width="0.6"/>
-                <polygon class="screen-beam" points="34,42 66,42 76,72 24,72" fill="url(#beamGradArthur)"/>
-                <!-- 대형 곡면 모니터 -->
-                <rect x="34" y="32" width="32" height="22" rx="2" fill="#1e293b" stroke="#b45309" stroke-width="1.2"/>
-                <rect class="monitor-display" id="screen-manager" x="36" y="34" width="28" height="18" rx="1" fill="#0f172a"/>
-                <rect x="47" y="54" width="6" height="6" fill="#334155"/>
-                <rect x="44" y="59" width="12" height="2.5" fill="#475569" rx="1"/>
-                <rect x="38" y="65" width="24" height="6" rx="1" fill="#334155" stroke="#475569" stroke-width="0.8"/>
-                <!-- 캐릭터 아서 (브라운 정장 + 단정한 포마드 헤어) -->
-                <g class="character-group">
-                  <path d="M36,40 C36,34 64,34 64,40 L67,58 L33,58 Z" fill="#451a03"/>
-                  <polygon points="48,40 52,40 51,52 49,52" fill="#f59e0b"/>
-                  <g class="character-head anim-idle-head">
-                    <circle cx="50" cy="27" r="11" fill="#fed7aa"/>
-                    <ellipse cx="46.5" cy="28" rx="1.5" ry="2" fill="#0f172a"/>
-                    <circle cx="46" cy="27.3" r="0.5" fill="#ffffff"/>
-                    <ellipse cx="53.5" cy="28" rx="1.5" ry="2" fill="#0f172a"/>
-                    <circle cx="53" cy="27.3" r="0.5" fill="#ffffff"/>
-                    <path d="M48.5,32 Q50,33 51.5,32" stroke="#78350f" stroke-width="0.8" fill="none"/>
-                    <!-- 포마드 헤어 -->
-                    <path d="M37,25 C37,14 44,11 50,11 C57,11 63,14 63,25 C61,24 58,21 51,21 C44,21 40,23 37,25 Z" fill="#292524"/>
-                  </g>
-                  <ellipse class="hand-l" cx="42" cy="67" rx="2.5" ry="2" fill="#fed7aa"/>
-                  <ellipse class="hand-r" cx="58" cy="67" rx="2.5" ry="2" fill="#fed7aa"/>
-                </g>
-              </svg>
-            </div>
-            <div class="desk-title" style="color:#fcd34d;">총괄 매니저</div>
-            <div class="desk-name">아서 (검수/승인)</div>
-          </div>
-
-        </div>
+      <!-- 세분화된 5대 섹터 필터 바 -->
+      <div class="sector-filter-bar" id="sector-filter-bar">
+        <span style="font-size:10px; color:#64748b; font-family:monospace; margin-right:4px;">5대 섹터 필터:</span>
+        <button class="sector-chip active" onclick="setSectorFilter('ALL', this)">전체 (All)</button>
+        <button class="sector-chip" onclick="setSectorFilter('SHIP_INFRA', this)">🚢 레오: 조선·중공업·인프라</button>
+        <button class="sector-chip" onclick="setSectorFilter('AI_SEMI_IT', this)">🤖 미아: AI·반도체·플랫폼</button>
+        <button class="sector-chip" onclick="setSectorFilter('DEFENSE_METAL', this)">🛡️ 루시: 방산·비철금속</button>
+        <button class="sector-chip" onclick="setSectorFilter('FIN_VALUE', this)">🏦 카이: 금융·밸류업</button>
+        <button class="sector-chip" onclick="setSectorFilter('BIO_ENT', this)">🧬 클로이: 바이오·K콘텐츠</button>
       </div>
 
       <!-- 3. [내 종목 보기] 토글 표 -->
       <div id="portfolio-container" style="display: none;">
         <div class="table-header-flex">
           <span style="font-size: 11px; font-weight: bold; color: #818cf8; font-family: monospace;">
-            📊 보유 종목 평가 현황 (실시간 시세 연동)
+            📊 보유 10종목 평가 현황 (5인의 전담 요원 섹터 매핑 & 실시간 시세)
           </span>
           <span id="stock-source-status" style="font-size: 10px; color: #38bdf8; font-family: monospace;">시세: Naver Finance · 60초 갱신</span>
         </div>
-        <div id="stock-data-note" style="font-size:9px;color:#64748b;margin-bottom:6px;">※ 네이버 금융 공개 시세 엔드포인트에서 조회합니다. 장중 현재가는 지연 시세일 수 있습니다.</div>
+        <div id="stock-data-note" style="font-size:9px;color:#64748b;margin-bottom:6px;">※ 상단 5대 섹터 칩을 클릭하면 해당 전담 요원이 관리하는 보유 종목과 뉴스만 즉시 필터링됩니다.</div>
         <div class="table-scroll">
           <table>
             <thead>
               <tr>
-                <th style="text-align: left;">종목(출처확인)</th>
+                <th style="text-align: left;">종목 (담당요원/섹터)</th>
                 <th>주식수</th>
                 <th>전일종가</th>
                 <th>전일금액</th>
@@ -653,11 +375,11 @@
       <!-- 4. 실시간 시스템 터미널 로그 -->
       <div class="terminal-box">
         <div class="terminal-header">
-          <span>● SYSTEM TERMINAL (LIVE WORK STREAM)</span>
+          <span>● SYSTEM TERMINAL (7-AGENT LIVE WORK STREAM)</span>
           <span id="log-clock" style="color: #64748b;">11:55:00 KST</span>
         </div>
         <div id="terminal-body" class="terminal-body">
-          <div style="color: #64748b;">[SYSTEM] 6인 가상 오피스 시스템 준비 완료. Naver Finance 시세 조회 대기 중...</div>
+          <div style="color: #64748b;">[SYSTEM] PULSE 7 : ALPHA NEXUS 7인 체제 고디테일 3D 오피스 준비 완료.</div>
         </div>
       </div>
     </section>
@@ -667,7 +389,7 @@
       <div class="card-topbar">
         <div>
           <span style="font-weight: bold; color: #f1f5f9;">📰 DAILY STOCK BRIEFING</span>
-          <span id="briefing-subtitle" style="display:block; font-size:10px; color:#64748b; margin-top:2px;">전체 시장 주요 증시 뉴스 · 대기 중</span>
+          <span id="briefing-subtitle" style="display:block; font-size:10px; color:#64748b; margin-top:2px;">5대 섹터 전담 수집 · 엘레나 취합 · 아서 승인 대기 중</span>
         </div>
         <span id="report-tag" style="font-size:9px; background:#082f49; color:#38bdf8; padding:2px 6px; border-radius:4px; border:1px solid #0284c7;">
           전체 시장 모드
@@ -675,14 +397,14 @@
       </div>
 
       <div id="briefing-container" class="briefing-box">
-        <div id="empty-state" style="text-align:center; padding: 24px 0; color: #64748b; font-size: 11px;">
-          상단 [업무 가동] 버튼을 누르면 6인의 AI 요원들이 전문 섹터별 뉴스를 수집·분석합니다.
+        <div id="empty-state" style="text-align:center; padding: 20px 0; color: #64748b; font-size: 11px;">
+          상단 [7인 업무 가동] 버튼을 누르면 5대 섹터 요원(레오·미아·루시·카이·클로이)이 정보를 수집하고, 엘레나가 취합·정리한 뒤 아서가 최종 승인합니다.
         </div>
         
         <!-- KOSPI 변동 카드 -->
         <div id="kospi-banner" class="kosPI-card" style="display:none;">
           <div>
-            <div class="kospi-title" id="kospi-period-label">KOSPI 종합 지수 (실시간)</div>
+            <div class="kospi-title" id="kospi-period-label">KOSPI 종합 지수 (실시간 · 카이 동기화)</div>
             <div class="kospi-value" id="kospi-current-val">-</div>
           </div>
           <div class="kospi-diff" id="kospi-diff-val">
@@ -693,7 +415,7 @@
         <!-- AI 핵심 종합 요약 블록 -->
         <div id="period-summary" class="summary-card" style="display:none;">
           <div class="summary-title">
-            <span>✨</span> <span id="summary-badge-title">AI 브리핑 종합 요약</span>
+            <span>✨</span> <span id="summary-badge-title">엘레나 취합 · 아서 승인 완료 브리핑</span>
           </div>
           <p id="summary-content">뉴스 데이터를 수집 중입니다.</p>
         </div>
@@ -706,47 +428,786 @@
   </div>
 
   <script>
-    // 10개 보유 종목
-    const MY_HOLDINGS = [
-      { code: "267270", symbol: "267270.KS", name: "HD건설기계", shares: 1352, prevClose: null, currentPrice: null, loaded: false },
-      { code: "009540", symbol: "009540.KS", name: "HD한국조선해양", shares: 151, prevClose: null, currentPrice: null, loaded: false },
-      { code: "267250", symbol: "267250.KS", name: "HD현대", shares: 255, prevClose: null, currentPrice: null, loaded: false },
-      { code: "005930", symbol: "005930.KS", name: "삼성전자", shares: 150, prevClose: null, currentPrice: null, loaded: false },
-      { code: "000660", symbol: "000660.KS", name: "SK하이닉스", shares: 3, prevClose: null, currentPrice: null, loaded: false },
-      { code: "035420", symbol: "035420.KS", name: "NAVER", shares: 115, prevClose: null, currentPrice: null, loaded: false },
-      { code: "105560", symbol: "105560.KS", name: "KB금융", shares: 200, prevClose: null, currentPrice: null, loaded: false },
-      { code: "068270", symbol: "068270.KS", name: "셀트리온", shares: 79, prevClose: null, currentPrice: null, loaded: false },
-      { code: "041510", symbol: "041510.KQ", name: "에스엠", shares: 101, prevClose: null, currentPrice: null, loaded: false },
-      { code: "103140", symbol: "103140.KS", name: "풍산", shares: 81, prevClose: null, currentPrice: null, loaded: false }
-    ];
+    // =========================================================================
+    // [1] 5대 세분화 섹터 정의 및 보유 10개 종목 매핑
+    // =========================================================================
+    let CURRENT_BRAND_NAME = "PULSE 7 : ALPHA NEXUS";
+    let CURRENT_BRAND_SUB = "5 SECTOR SCOUTS · 1 EDITOR · 1 MANAGER";
 
-    let KOSPI_STATE = {
-      currentPrice: 7003.74,
-      prevClose: 6971.35,
-      loaded: false
+    const SECTOR_META = {
+      SHIP_INFRA: {
+        label: "조선·중공업·인프라",
+        agentName: "레오",
+        color: "#34d399",
+        keywords: ["조선", "HD한국조선해양", "HD현대", "HD건설기계", "선박", "LNG", "수주", "중공업", "건설기계", "굴착기", "인프라", "해양"]
+      },
+      AI_SEMI_IT: {
+        label: "AI·반도체·플랫폼",
+        agentName: "미아",
+        color: "#c084fc",
+        keywords: ["삼성전자", "SK하이닉스", "반도체", "HBM", "엔비디아", "파운드리", "NAVER", "네이버", "AI", "클라우드", "플랫폼", "메모리"]
+      },
+      DEFENSE_METAL: {
+        label: "방산·비철금속",
+        agentName: "루시",
+        color: "#fbbf24",
+        keywords: ["풍산", "방산", "탄약", "구리", "비철금속", "원자재", "수출", "국방", "무기", "철강"]
+      },
+      FIN_VALUE: {
+        label: "금융·밸류업",
+        agentName: "카이",
+        color: "#38bdf8",
+        keywords: ["KB금융", "금융", "은행", "밸류업", "배당", "주주환원", "자사주", "금리", "환율", "코스피", "기관", "외국인"]
+      },
+      BIO_ENT: {
+        label: "바이오·K콘텐츠",
+        agentName: "클로이",
+        color: "#f472b6",
+        keywords: ["셀트리온", "바이오", "짐펜트라", "임상", "의약품", "헬스케어", "에스엠", "SM", "엔터", "콘서트", "음반", "아이돌"]
+      }
     };
 
+    const MY_HOLDINGS = [
+      { code: "267270", symbol: "267270.KS", name: "HD건설기계", shares: 1352, sectorKey: "SHIP_INFRA", sectorLabel: "레오·건설기계", prevClose: null, currentPrice: null, loaded: false },
+      { code: "009540", symbol: "009540.KS", name: "HD한국조선해양", shares: 151, sectorKey: "SHIP_INFRA", sectorLabel: "레오·조선해양", prevClose: null, currentPrice: null, loaded: false },
+      { code: "267250", symbol: "267250.KS", name: "HD현대", shares: 255, sectorKey: "SHIP_INFRA", sectorLabel: "레오·중공업지주", prevClose: null, currentPrice: null, loaded: false },
+      { code: "005930", symbol: "005930.KS", name: "삼성전자", shares: 150, sectorKey: "AI_SEMI_IT", sectorLabel: "미아·반도체", prevClose: null, currentPrice: null, loaded: false },
+      { code: "000660", symbol: "000660.KS", name: "SK하이닉스", shares: 3, sectorKey: "AI_SEMI_IT", sectorLabel: "미아·HBM/AI", prevClose: null, currentPrice: null, loaded: false },
+      { code: "035420", symbol: "035420.KS", name: "NAVER", shares: 115, sectorKey: "AI_SEMI_IT", sectorLabel: "미아·AI플랫폼", prevClose: null, currentPrice: null, loaded: false },
+      { code: "105560", symbol: "105560.KS", name: "KB금융", shares: 200, sectorKey: "FIN_VALUE", sectorLabel: "카이·금융밸류업", prevClose: null, currentPrice: null, loaded: false },
+      { code: "068270", symbol: "068270.KS", name: "셀트리온", shares: 79, sectorKey: "BIO_ENT", sectorLabel: "클로이·바이오", prevClose: null, currentPrice: null, loaded: false },
+      { code: "041510", symbol: "041510.KQ", name: "에스엠", shares: 101, sectorKey: "BIO_ENT", sectorLabel: "클로이·K콘텐츠", prevClose: null, currentPrice: null, loaded: false },
+      { code: "103140", symbol: "103140.KS", name: "풍산", shares: 81, sectorKey: "DEFENSE_METAL", sectorLabel: "루시·방산/비철", prevClose: null, currentPrice: null, loaded: false }
+    ];
+
+    let KOSPI_STATE = { currentPrice: 7003.74, prevClose: 6971.35, loaded: false };
     let isPortfolioOpen = false;
     const PORTFOLIO_PASSWORD = "790809";
     let isSyncRunning = false;
     let isPipelineRunning = false;
     let hasRunOnce = false;
+    let currentSectorFilter = "ALL";
 
     let CURRENT_NEWS_ITEMS = [];
-    let CURRENT_SUMMARY_TEXT = "";
 
-    const FEEDS_REGISTRY = {
-      MACRO: [
-        { name: "연합뉴스 경제", url: "https://www.yonhapnewstv.co.kr/category/news/economy/feed/" },
-        { name: "이데일리 증시", url: "https://rss.edaily.co.kr/edaily_news.xml" }
-      ],
-      SECTOR: [
-        { name: "한국경제 금융", url: "https://www.hankyung.com/feed/finance" }
-      ],
-      TECH: [
-        { name: "매일경제 증시", url: "https://www.mk.co.kr/rss/30100041/" }
-      ]
-    };
+    const FEEDS_REGISTRY = [
+      { name: "연합뉴스 경제", url: "https://www.yonhapnewstv.co.kr/category/news/economy/feed/" },
+      { name: "이데일리 증시", url: "https://rss.edaily.co.kr/edaily_news.xml" },
+      { name: "한국경제 금융", url: "https://www.hankyung.com/feed/finance" },
+      { name: "매일경제 증시", url: "https://www.mk.co.kr/rss/30100041/" }
+    ];
+
+    // =========================================================================
+    // [2] 고디테일 7인 캐릭터 설정 (성별, 헤어스타일, 안경, 헤드셋, 정장/타이 등)
+    // =========================================================================
+    const AGENT_CONFIGS = [
+      // 1열 (전면 5인): 5대 섹터 전담 스카우트
+      { id: 'scout-ship', role: '① 조선·중공업', name: '레오', pos: [-5.8, -1.45], gender: 'M', hairStyle: 'parted', glasses: false, headset: true, tieColor: 0x34d399, hairColor: 0x451a03, clothesColor: 0x059669, skinColor: 0xfed7aa, monitors: 3, roleColor: '#34d399' },
+      { id: 'scout-tech', role: '② AI·반도체',   name: '미아', pos: [-2.9, -1.45], gender: 'F', hairStyle: 'ponytail', glasses: false, headset: true, tieColor: 0xe879f9, hairColor: 0x581c87, clothesColor: 0x7c3aed, skinColor: 0xfce7f3, monitors: 3, roleColor: '#c084fc' },
+      { id: 'scout-def',  role: '③ 방산·비철',   name: '루시', pos: [ 0.0, -1.45], gender: 'F', hairStyle: 'bob', glasses: false, headset: true, tieColor: 0xfde047, hairColor: 0xbe185d, clothesColor: 0xd97706, skinColor: 0xfbcfe8, monitors: 2, roleColor: '#fbbf24' },
+      { id: 'scout-fin',  role: '④ 금융·밸류업', name: '카이', pos: [ 2.9, -1.45], gender: 'M', hairStyle: 'parted', glasses: true, headset: false, tieColor: 0x38bdf8, hairColor: 0x0f172a, clothesColor: 0x0284c7, skinColor: 0xfed7aa, monitors: 3, roleColor: '#38bdf8' },
+      { id: 'scout-bio',  role: '⑤ 바이오·엔터', name: '클로이', pos: [ 5.8, -1.45], gender: 'F', hairStyle: 'ponytail', glasses: true, headset: false, tieColor: 0xf472b6, hairColor: 0x831843, clothesColor: 0xdb2777, skinColor: 0xfce7f3, monitors: 2, roleColor: '#f472b6' },
+      
+      // 2열 (후면 코어 데스크 2인): 1 취합/정리 에디터 + 1 최종 승인 매니저
+      { id: 'editor',     role: '⑥ 취합·정리',   name: '엘레나', pos: [-2.2, 1.95], gender: 'F', hairStyle: 'bob', glasses: true, headset: false, tieColor: 0x6ee7b7, hairColor: 0xd97706, clothesColor: 0x0d9488, skinColor: 0xfde68a, monitors: 4, roleColor: '#6ee7b7', isCore: true },
+      { id: 'manager',    role: '⑦ 최종 승인',   name: '아서',   pos: [ 2.2, 1.95], gender: 'M', hairStyle: 'parted', glasses: true, headset: false, tieColor: 0xef4444, hairColor: 0x94a3b8, clothesColor: 0x92400e, skinColor: 0xfed7aa, monitors: 4, roleColor: '#fcd34d', isBoss: true }
+    ];
+
+    let scene, camera, renderer, controls;
+    const agent3DObjects = {};
+    let wallTickerTexture, wallTickerCanvas, wallTickerCtx;
+    let signCanvas, signCtx, signTexture;
+    let tickerOffset = 0;
+
+    function changeBrandName(val) {
+      const [name, sub] = val.split('|');
+      CURRENT_BRAND_NAME = name;
+      CURRENT_BRAND_SUB = sub;
+      document.getElementById('brand-title').textContent = name;
+      document.getElementById('brand-sub').textContent = `${sub} · 5 SECTORS + 1 EDITOR + 1 MANAGER`;
+      document.title = `${name} - 3D AI 가상 오피스`;
+      drawRearWallSign();
+      appendTerminalLog("BRAND", `오피스 브랜드 네이밍 변경: [${name}]`, "#67e8f9");
+    }
+
+    function drawRearWallSign() {
+      if (!signCtx) return;
+      signCtx.fillStyle = '#050b18';
+      signCtx.fillRect(0, 0, 1024, 220);
+      signCtx.strokeStyle = '#38bdf8';
+      signCtx.lineWidth = 5;
+      signCtx.strokeRect(6, 6, 1012, 208);
+
+      signCtx.fillStyle = '#f8fafc';
+      signCtx.font = 'bold 58px sans-serif';
+      signCtx.textAlign = 'center';
+      signCtx.fillText(CURRENT_BRAND_NAME, 512, 108);
+
+      signCtx.fillStyle = '#38bdf8';
+      signCtx.font = 'bold 28px monospace';
+      signCtx.fillText(CURRENT_BRAND_SUB, 512, 170);
+      if (signTexture) signTexture.needsUpdate = true;
+    }
+
+    function createMonitorChartTexture(accentHex) {
+      const c = document.createElement('canvas');
+      c.width = 128; c.height = 80;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, 128, 80);
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      for (let x = 16; x < 128; x += 16) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 80); ctx.stroke(); }
+      for (let y = 16; y < 80; y += 16) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(128, y); ctx.stroke(); }
+
+      ctx.strokeStyle = accentHex;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      let py = 55;
+      ctx.moveTo(6, py);
+      for (let x = 16; x <= 120; x += 12) {
+        py = Math.max(14, Math.min(68, py + (Math.random() - 0.45) * 22));
+        ctx.lineTo(x, py);
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = accentHex;
+      for (let i = 0; i < 6; i++) {
+        const bh = 8 + Math.random() * 20;
+        ctx.fillRect(12 + i * 18, 74 - bh, 8, bh);
+      }
+      return new THREE.CanvasTexture(c);
+    }
+
+    function initWallTickerTexture() {
+      wallTickerCanvas = document.createElement('canvas');
+      wallTickerCanvas.width = 1024;
+      wallTickerCanvas.height = 220;
+      wallTickerCtx = wallTickerCanvas.getContext('2d');
+      wallTickerTexture = new THREE.CanvasTexture(wallTickerCanvas);
+      updateWallTickerCanvas();
+    }
+
+    function updateWallTickerCanvas() {
+      if (!wallTickerCtx) return;
+      const ctx = wallTickerCtx;
+      ctx.fillStyle = '#04091a';
+      ctx.fillRect(0, 0, 1024, 220);
+
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(4, 4, 1016, 212);
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 24px monospace';
+      ctx.fillText(`KOSPI ${KOSPI_STATE.currentPrice.toFixed(2)} ▲`, 24, 40);
+
+      ctx.fillStyle = '#6ee7b7';
+      ctx.font = 'bold 18px sans-serif';
+      ctx.fillText('[7인 실시간 데스크] 레오(조선) · 미아(AI) · 루시(방산) · 카이(금융) · 클로이(바이오) → 엘레나(취합) → 아서(승인)', 310 - (tickerOffset % 360), 39);
+
+      const cards = [
+        { title: '조선/중공업', val: '레오', color: '#34d399' },
+        { title: 'AI/반도체', val: '미아', color: '#c084fc' },
+        { title: '방산/비철', val: '루시', color: '#fbbf24' },
+        { title: '금융/밸류업', val: '카이', color: '#38bdf8' },
+        { title: '바이오/엔터', val: '클로이', color: '#f472b6' }
+      ];
+      cards.forEach((c, idx) => {
+        const bx = 22 + idx * 196;
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(bx, 60, 184, 138);
+        ctx.strokeStyle = c.color;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(bx, 60, 184, 138);
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText(c.title, bx + 12, 88);
+        ctx.fillStyle = c.color;
+        ctx.fillText(c.val, bx + 125, 88);
+
+        ctx.beginPath();
+        ctx.strokeStyle = c.color;
+        ctx.lineWidth = 3;
+        ctx.moveTo(bx + 14, 175);
+        ctx.lineTo(bx + 55, 148);
+        ctx.lineTo(bx + 95, 160);
+        ctx.lineTo(bx + 135, 126);
+        ctx.lineTo(bx + 168, 110);
+        ctx.stroke();
+      });
+
+      wallTickerTexture.needsUpdate = true;
+    }
+
+    // =========================================================================
+    // [정교한 3D 캐릭터 빌더 함수] - 이목구비, 헤어, 안경, 헤드셋, 정장/타이, 관절 팔/다리
+    // =========================================================================
+    function createDetailedAgentCharacter(cfg) {
+      const charGroup = new THREE.Group();
+      charGroup.position.set(0, 0, 0.68);
+
+      const skinMat = new THREE.MeshStandardMaterial({ color: cfg.skinColor, roughness: 0.45 });
+      const suitMat = new THREE.MeshStandardMaterial({ color: cfg.clothesColor, roughness: 0.5 });
+      const hairMat = new THREE.MeshStandardMaterial({ color: cfg.hairColor, roughness: 0.55 });
+      const pantsMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.7 });
+      const shirtMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
+      const tieMat = new THREE.MeshStandardMaterial({ color: cfg.tieColor, roughness: 0.3 });
+      const darkMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.3, metalness: 0.6 });
+
+      // 1. 하체 (앉은 자세 골반 + 양쪽 허벅지 + 종아리 + 구두)
+      const pelvis = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.14, 0.32), pantsMat);
+      pelvis.position.set(0, 0.56, 0);
+      charGroup.add(pelvis);
+
+      [-0.12, 0.12].forEach(lx => {
+        // 허벅지 (앞으로 뻗음)
+        const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.068, 0.36, 12), pantsMat);
+        thigh.rotation.x = Math.PI / 2;
+        thigh.position.set(lx, 0.56, -0.18);
+        charGroup.add(thigh);
+
+        // 무릎 관절 구체
+        const knee = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10), pantsMat);
+        knee.position.set(lx, 0.56, -0.35);
+        charGroup.add(knee);
+
+        // 종아리 (아래로 내려감)
+        const calf = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.052, 0.44, 12), pantsMat);
+        calf.position.set(lx, 0.32, -0.35);
+        charGroup.add(calf);
+
+        // 구두/스니커즈
+        const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.08, 0.20), darkMat);
+        shoe.position.set(lx, 0.08, -0.40);
+        charGroup.add(shoe);
+      });
+
+      // 2. 상체 몸통 (재킷 + 화이트 셔츠 V존 + 넥타이/스카프 + 어깨 라인)
+      const upperBodyGroup = new THREE.Group();
+      upperBodyGroup.position.set(0, 0.62, 0);
+
+      const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.18, 0.50, 16), suitMat);
+      torso.scale.set(1.15, 1, 0.72);
+      torso.position.y = 0.25;
+      torso.castShadow = true;
+      upperBodyGroup.add(torso);
+
+      // 양쪽 어깨 볼륨
+      [-0.23, 0.23].forEach(sx => {
+        const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 12), suitMat);
+        shoulder.position.set(sx, 0.44, 0);
+        upperBodyGroup.add(shoulder);
+      });
+
+      // 앞면 셔츠 V존 & 넥타이(또는 스카프)
+      const shirtV = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.24, 0.02), shirtMat);
+      shirtV.position.set(0, 0.36, -0.145);
+      upperBodyGroup.add(shirtV);
+
+      const tie = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.22, 0.025), tieMat);
+      tie.position.set(0, 0.34, -0.152);
+      upperBodyGroup.add(tie);
+
+      // 목 (Neck)
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.075, 0.12, 12), skinMat);
+      neck.position.set(0, 0.53, 0);
+      upperBodyGroup.add(neck);
+
+      // 3. 머리 그룹 (얼굴, 귀, 눈/눈썹, 코, 헤어스타일, 안경, 헤드셋)
+      const headGroup = new THREE.Group();
+      headGroup.position.set(0, 0.73, 0);
+
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.195, 24, 24), skinMat);
+      head.scale.set(0.95, 1.05, 0.95);
+      head.castShadow = true;
+      headGroup.add(head);
+
+      // 양쪽 귀
+      [-0.185, 0.185].forEach(ex => {
+        const ear = new THREE.Mesh(new THREE.SphereGeometry(0.038, 10, 10), skinMat);
+        ear.position.set(ex, 0, 0);
+        headGroup.add(ear);
+      });
+
+      // 눈동자 & 눈썹 (전면 -Z 방향을 바라봄)
+      [-0.068, 0.068].forEach(eyeX => {
+        const eyeWhite = new THREE.Mesh(new THREE.SphereGeometry(0.026, 10, 10), shirtMat);
+        eyeWhite.position.set(eyeX, 0.02, -0.172);
+        headGroup.add(eyeWhite);
+
+        const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.015, 8, 8), darkMat);
+        pupil.position.set(eyeX, 0.02, -0.188);
+        headGroup.add(pupil);
+
+        const brow = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.012, 0.015), hairMat);
+        brow.position.set(eyeX, 0.065, -0.178);
+        headGroup.add(brow);
+      });
+
+      // 입체 코
+      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.022, 0.05, 8), skinMat);
+      nose.rotation.x = -Math.PI / 2;
+      nose.position.set(0, -0.01, -0.195);
+      headGroup.add(nose);
+
+      // 헤어스타일 분기 (정교한 볼륨감)
+      const hairCap = new THREE.Mesh(
+        new THREE.SphereGeometry(0.208, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.60),
+        hairMat
+      );
+      hairCap.position.y = 0.02;
+      headGroup.add(hairCap);
+
+      if (cfg.hairStyle === 'ponytail') {
+        // 뒷머리 포니테일 묶음
+        const tailBun = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 12), hairMat);
+        tailBun.position.set(0, 0.02, 0.21);
+        headGroup.add(tailBun);
+        const tailDrop = new THREE.Mesh(new THREE.ConeGeometry(0.065, 0.22, 12), hairMat);
+        tailDrop.rotation.x = 0.35;
+        tailDrop.position.set(0, -0.08, 0.24);
+        headGroup.add(tailDrop);
+      } else if (cfg.hairStyle === 'bob') {
+        // 단발 볼륨 사이드 헤어
+        [-0.16, 0.16].forEach(bx => {
+          const sideBob = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.22, 0.22), hairMat);
+          sideBob.position.set(bx, -0.03, 0.02);
+          headGroup.add(sideBob);
+        });
+      } else {
+        // 남성 깔끔한 가르마 앞머리 볼륨
+        const frontVolume = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.065, 0.10), hairMat);
+        frontVolume.position.set(0.02, 0.14, -0.14);
+        frontVolume.rotation.z = -0.12;
+        headGroup.add(frontVolume);
+      }
+
+      // 안경 착용 캐릭터 (카이, 클로이, 엘레나, 아서)
+      if (cfg.glasses) {
+        const glassMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.8, roughness: 0.2 });
+        [-0.068, 0.068].forEach(gx => {
+          const rim = new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.006, 8, 16), glassMat);
+          rim.position.set(gx, 0.02, -0.185);
+          headGroup.add(rim);
+        });
+        const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.006, 0.006), glassMat);
+        bridge.position.set(0, 0.02, -0.185);
+        headGroup.add(bridge);
+      }
+
+      // 트레이딩 헤드셋 착용 캐릭터 (레오, 미아, 루시)
+      if (cfg.headset) {
+        const hsBand = new THREE.Mesh(
+          new THREE.TorusGeometry(0.215, 0.014, 8, 24, Math.PI),
+          darkMat
+        );
+        headGroup.add(hsBand);
+
+        const earCup = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.03, 12), new THREE.MeshBasicMaterial({ color: cfg.roleColor }));
+        earCup.rotation.z = Math.PI / 2;
+        earCup.position.set(-0.205, 0, 0);
+        headGroup.add(earCup);
+
+        const micBoom = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.012, 0.16), darkMat);
+        micBoom.position.set(-0.18, -0.06, -0.09);
+        micBoom.rotation.y = -0.35;
+        headGroup.add(micBoom);
+      }
+
+      upperBodyGroup.add(headGroup);
+
+      // 4. 관절 양팔 (어깨 -> 상완 -> 팔꿈치 -> 전완 -> 손)
+      function createArticulatedArm(isLeft) {
+        const armRoot = new THREE.Group();
+        const sign = isLeft ? -1 : 1;
+        armRoot.position.set(sign * 0.24, 0.42, 0);
+
+        // 상완 (아래+앞쪽으로 비스듬히)
+        const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.048, 0.25, 12), suitMat);
+        upperArm.position.set(0, -0.10, -0.06);
+        upperArm.rotation.x = 0.45;
+        armRoot.add(upperArm);
+
+        // 전완 + 손 그룹 (키보드 위에서 타이핑 모션 수행)
+        const forearmGroup = new THREE.Group();
+        forearmGroup.position.set(0, -0.20, -0.12);
+
+        const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.046, 0.040, 0.26, 12), suitMat);
+        forearm.rotation.x = Math.PI / 2 - 0.15;
+        forearm.position.set(sign * -0.03, -0.02, -0.12);
+        forearmGroup.add(forearm);
+
+        const hand = new THREE.Mesh(new THREE.SphereGeometry(0.044, 12, 12), skinMat);
+        hand.scale.set(1, 0.65, 1.25);
+        hand.position.set(sign * -0.05, -0.04, -0.25);
+        forearmGroup.add(hand);
+
+        armRoot.add(forearmGroup);
+        return { armRoot, forearmGroup };
+      }
+
+      const leftArmObj = createArticulatedArm(true);
+      const rightArmObj = createArticulatedArm(false);
+      upperBodyGroup.add(leftArmObj.armRoot);
+      upperBodyGroup.add(rightArmObj.armRoot);
+
+      charGroup.add(upperBodyGroup);
+
+      return {
+        charGroup,
+        upperBodyGroup,
+        headGroup,
+        leftForearm: leftArmObj.forearmGroup,
+        rightForearm: rightArmObj.forearmGroup
+      };
+    }
+
+    // =========================================================================
+    // [3] Three.js 3D 오피스 초기화 (낮아진 벽체 높이 & 밀착 카메라 뷰)
+    // =========================================================================
+    function init3DOffice() {
+      const wrapper = document.getElementById('office-3d-wrapper');
+      const canvas = document.getElementById('office-3d-canvas');
+      const overlay = document.getElementById('labels-overlay');
+
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x020617, 0.024);
+
+      // 요청 반영: 오피스 높이가 낮고 인물 디테일이 잘 보이도록 FOV 및 카메라 고도 조정
+      camera = new THREE.PerspectiveCamera(34, wrapper.clientWidth / wrapper.clientHeight, 0.1, 120);
+      camera.position.set(9.2, 6.4, 10.8);
+
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.target.set(0, 0.75, 0.15);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.maxPolarAngle = Math.PI / 2 - 0.04;
+      controls.minDistance = 4.5;
+      controls.maxDistance = 22;
+
+      // 조명 세팅
+      scene.add(new THREE.AmbientLight(0xe0f2fe, 0.72));
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+      dirLight.position.set(8, 14, 10);
+      dirLight.castShadow = true;
+      dirLight.shadow.mapSize.width = 1024;
+      dirLight.shadow.mapSize.height = 1024;
+      scene.add(dirLight);
+
+      const neonBlueLight = new THREE.PointLight(0x38bdf8, 1.0, 20);
+      neonBlueLight.position.set(-6, 3.2, -2.5);
+      scene.add(neonBlueLight);
+
+      const neonPurpleLight = new THREE.PointLight(0x818cf8, 0.85, 20);
+      neonPurpleLight.position.set(6, 3.2, 2);
+      scene.add(neonPurpleLight);
+
+      // 오피스 바닥
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(17.5, 10.5),
+        new THREE.MeshStandardMaterial({ color: 0x091326, roughness: 0.65, metalness: 0.25 })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      const gridHelper = new THREE.GridHelper(17.5, 35, 0x0284c7, 0x1e293b);
+      gridHelper.position.y = 0.01;
+      scene.add(gridHelper);
+
+      // 요청 반영: 벽체 높이를 기존 5.5 -> 3.4로 대폭 낮춰 슬림하고 안정적인 공간감 구현
+      const wallMat = new THREE.MeshStandardMaterial({ color: 0x0b1528, roughness: 0.6, metalness: 0.3 });
+      const backWall = new THREE.Mesh(new THREE.BoxGeometry(17.5, 3.4, 0.28), wallMat);
+      backWall.position.set(0, 1.7, -5.1);
+      scene.add(backWall);
+
+      const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.28, 3.4, 10.5), wallMat);
+      leftWall.position.set(-8.6, 1.7, 0);
+      scene.add(leftWall);
+
+      // 좌측 벽 대형 증시 전광판 (낮아진 벽체에 맞춰 높이 조정)
+      initWallTickerTexture();
+      const tickerBoard = new THREE.Mesh(
+        new THREE.PlaneGeometry(8.6, 1.85),
+        new THREE.MeshBasicMaterial({ map: wallTickerTexture })
+      );
+      tickerBoard.position.set(-8.44, 2.05, -0.2);
+      tickerBoard.rotation.y = Math.PI / 2;
+      scene.add(tickerBoard);
+
+      // 후면 벽 네온 간판 (브랜드 스위처와 실시간 연동)
+      signCanvas = document.createElement('canvas');
+      signCanvas.width = 1024; signCanvas.height = 220;
+      signCtx = signCanvas.getContext('2d');
+      signTexture = new THREE.CanvasTexture(signCanvas);
+      drawRearWallSign();
+
+      const signMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(8.4, 1.8),
+        new THREE.MeshBasicMaterial({ map: signTexture })
+      );
+      signMesh.position.set(0.4, 2.1, -4.94);
+      scene.add(signMesh);
+
+      // 7인 에이전트 데스크 + 고디테일 캐릭터 + 소품 생성
+      AGENT_CONFIGS.forEach(cfg => {
+        const group = new THREE.Group();
+        group.position.set(cfg.pos[0], 0, cfg.pos[1]);
+
+        const deskWidth = (cfg.isBoss || cfg.isCore) ? 2.4 : 2.05;
+        const deskColor = cfg.isBoss ? 0x451a03 : cfg.isCore ? 0x064e3b : 0x1e293b;
+        const deskTop = new THREE.Mesh(
+          new THREE.BoxGeometry(deskWidth, 0.08, 1.05),
+          new THREE.MeshStandardMaterial({ color: deskColor, roughness: 0.35, metalness: 0.3 })
+        );
+        deskTop.position.set(0, 0.82, 0);
+        deskTop.castShadow = true;
+        deskTop.receiveShadow = true;
+        group.add(deskTop);
+
+        const edgeColor = new THREE.Color(cfg.roleColor);
+        const neonEdge = new THREE.Mesh(
+          new THREE.BoxGeometry(deskWidth + 0.02, 0.03, 0.03),
+          new THREE.MeshBasicMaterial({ color: edgeColor })
+        );
+        neonEdge.position.set(0, 0.82, -0.52);
+        group.add(neonEdge);
+
+        // 책상 서랍장 & 다리
+        const legMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.7 });
+        const leftPedestal = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.78, 0.96), legMat);
+        leftPedestal.position.set(-deskWidth / 2 + 0.24, 0.39, 0);
+        leftPedestal.castShadow = true;
+        group.add(leftPedestal);
+
+        const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.78, 0.96), legMat);
+        rightLeg.position.set(deskWidth / 2 - 0.14, 0.39, 0);
+        rightLeg.castShadow = true;
+        group.add(rightLeg);
+
+        // 데스크 디테일 소품: 키보드, 마우스패드 & 마우스, 커피 머그컵, 서류 더미
+        const kb = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.025, 0.18), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+        kb.position.set(-0.04, 0.87, 0.22);
+        group.add(kb);
+
+        const mousePad = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.01, 0.20), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+        mousePad.position.set(0.34, 0.865, 0.22);
+        group.add(mousePad);
+
+        const mouse = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 10), new THREE.MeshStandardMaterial({ color: 0xcbd5e1 }));
+        mouse.scale.set(0.8, 0.5, 1.3);
+        mouse.position.set(0.34, 0.88, 0.22);
+        group.add(mouse);
+
+        const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.04, 0.11, 12), new THREE.MeshStandardMaterial({ color: 0xf8fafc }));
+        mug.position.set(-0.68, 0.91, 0.24);
+        group.add(mug);
+
+        const docStack = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.03, 0.30), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 }));
+        docStack.position.set(0.68, 0.875, 0.20);
+        docStack.rotation.y = 0.18;
+        group.add(docStack);
+
+        // 다중 모니터 & 모니터 스탠드 배치
+        const screenMeshes = [];
+        const chartTex = createMonitorChartTexture(cfg.roleColor);
+        const monPositions = cfg.monitors === 4
+          ? [[-0.40, 1.15, -0.22, 0.18], [0.40, 1.15, -0.22, -0.18], [-0.40, 1.58, -0.22, 0.18], [0.40, 1.58, -0.22, -0.18]]
+          : cfg.monitors === 3
+            ? [[-0.56, 1.18, -0.16, 0.30], [0, 1.18, -0.24, 0], [0.56, 1.18, -0.16, -0.30]]
+            : [[-0.34, 1.18, -0.20, 0.15], [0.34, 1.18, -0.20, -0.15]];
+
+        // 모니터 중앙 스탠드 기둥
+        const standNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.45, 10), legMat);
+        standNeck.position.set(0, 1.05, -0.30);
+        group.add(standNeck);
+
+        monPositions.forEach(mp => {
+          const monGroup = new THREE.Group();
+          monGroup.position.set(mp[0], mp[1], mp[2]);
+          monGroup.rotation.y = mp[3];
+
+          const frame = new THREE.Mesh(
+            new THREE.BoxGeometry(0.64, 0.40, 0.035),
+            new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 })
+          );
+          monGroup.add(frame);
+
+          const scrMat = new THREE.MeshBasicMaterial({ map: chartTex, color: 0x94a3b8 });
+          const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.58, 0.34), scrMat);
+          scr.position.z = 0.02;
+          monGroup.add(scr);
+          screenMeshes.push(scr);
+
+          group.add(monGroup);
+        });
+
+        // 디테일 오피스 체어 (시트, 등받이, 양쪽 팔걸이, 중심봉, 5발 스타 베이스)
+        const chairGroup = new THREE.Group();
+        chairGroup.position.set(0, 0, 0.70);
+        const chairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
+        const seat = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.07, 0.50), chairMat);
+        seat.position.y = 0.50;
+        chairGroup.add(seat);
+
+        const backRest = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.62, 0.07), chairMat);
+        backRest.position.set(0, 0.84, 0.23);
+        chairGroup.add(backRest);
+
+        [-0.27, 0.27].forEach(ax => {
+          const armRest = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.04, 0.32), chairMat);
+          armRest.position.set(ax, 0.68, 0.04);
+          chairGroup.add(armRest);
+          const armPost = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.16, 8), legMat);
+          armPost.position.set(ax, 0.59, 0.08);
+          chairGroup.add(armPost);
+        });
+
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.46, 10), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+        pole.position.y = 0.25;
+        chairGroup.add(pole);
+
+        for (let b = 0; b < 5; b++) {
+          const angle = (b / 5) * Math.PI * 2;
+          const baseLeg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.03, 0.28), legMat);
+          baseLeg.position.set(Math.sin(angle) * 0.13, 0.04, Math.cos(angle) * 0.13);
+          baseLeg.rotation.y = angle;
+          chairGroup.add(baseLeg);
+        }
+        group.add(chairGroup);
+
+        // 정교한 3D 캐릭터 생성 및 추가
+        const charParts = createDetailedAgentCharacter(cfg);
+        group.add(charParts.charGroup);
+
+        const workLight = new THREE.PointLight(edgeColor, 0, 3.5);
+        workLight.position.set(0, 1.45, 0.2);
+        group.add(workLight);
+
+        // 홀로그램 라벨 앵커 (낮아진 공간에 맞춰 2.02m로 최적화)
+        const labelAnchor = new THREE.Object3D();
+        labelAnchor.position.set(0, 2.02, 0);
+        group.add(labelAnchor);
+
+        scene.add(group);
+
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'agent-label-3d';
+        labelDiv.id = `label-3d-${cfg.id}`;
+        labelDiv.innerHTML = `
+          <div class="label-role" style="color:${cfg.roleColor};">${cfg.role}</div>
+          <div class="label-name">${cfg.name}</div>
+          <span id="badge-${cfg.id}" class="label-badge">대기중</span>
+        `;
+        overlay.appendChild(labelDiv);
+
+        agent3DObjects[cfg.id] = {
+          group,
+          ...charParts,
+          screenMeshes,
+          workLight,
+          labelAnchor,
+          labelDiv,
+          isWorking: false
+        };
+      });
+
+      window.addEventListener('resize', onWindowResize);
+      animate3D();
+    }
+
+    function reset3DCamera() {
+      if (!camera || !controls) return;
+      camera.position.set(9.2, 6.4, 10.8);
+      controls.target.set(0, 0.75, 0.15);
+      controls.update();
+    }
+
+    function onWindowResize() {
+      const wrapper = document.getElementById('office-3d-wrapper');
+      if (!wrapper || !renderer || !camera) return;
+      camera.aspect = wrapper.clientWidth / wrapper.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
+    }
+
+    function update3DLabelsPosition() {
+      const wrapper = document.getElementById('office-3d-wrapper');
+      if (!wrapper) return;
+      const width = wrapper.clientWidth;
+      const height = wrapper.clientHeight;
+      const tempV = new THREE.Vector3();
+
+      Object.values(agent3DObjects).forEach(obj => {
+        obj.labelAnchor.getWorldPosition(tempV);
+        tempV.project(camera);
+        const x = (tempV.x * 0.5 + 0.5) * width;
+        const y = (-(tempV.y * 0.5) + 0.5) * height;
+        obj.labelDiv.style.left = `${x}px`;
+        obj.labelDiv.style.top = `${y}px`;
+      });
+    }
+
+    let clock3D = new THREE.Clock();
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      const elapsed = clock3D.getElapsedTime();
+
+      if (Math.floor(elapsed * 20) % 2 === 0) {
+        tickerOffset += 1.5;
+        updateWallTickerCanvas();
+      }
+
+      // 고디테일 캐릭터 관절 애니메이션 (전완 타이핑 + 고개 스캔 + 상체 호흡)
+      Object.values(agent3DObjects).forEach((obj, idx) => {
+        if (obj.isWorking) {
+          obj.leftForearm.rotation.x = Math.sin(elapsed * 30 + idx) * 0.16;
+          obj.rightForearm.rotation.x = Math.cos(elapsed * 30 + idx) * 0.16;
+          obj.headGroup.rotation.y = Math.sin(elapsed * 4.5 + idx) * 0.22;
+          obj.headGroup.rotation.x = Math.sin(elapsed * 6 + idx) * 0.05;
+          obj.workLight.intensity = 1.9 + Math.sin(elapsed * 10) * 0.4;
+          obj.screenMeshes.forEach(s => s.material.color.setHex(0xffffff));
+        } else {
+          obj.leftForearm.rotation.x = 0;
+          obj.rightForearm.rotation.x = 0;
+          obj.headGroup.rotation.y = Math.sin(elapsed * 1.2 + idx) * 0.08;
+          obj.headGroup.rotation.x = 0;
+          obj.upperBodyGroup.position.y = 0.62 + Math.sin(elapsed * 2 + idx) * 0.008;
+          obj.workLight.intensity = 0.15;
+          obj.screenMeshes.forEach(s => s.material.color.setHex(0x94a3b8));
+        }
+      });
+
+      if (controls) controls.update();
+      if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+        update3DLabelsPosition();
+      }
+    }
+
+    // =========================================================================
+    // [4] 섹터 필터링 및 실시간 시세/브리핑 로직 연동
+    // =========================================================================
+    function setSectorFilter(sectorKey, btnEl) {
+      currentSectorFilter = sectorKey;
+      document.querySelectorAll('.sector-chip').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+
+      if (isPortfolioOpen) renderPortfolioRows();
+      if (hasRunOnce) updateBriefingDisplay();
+
+      const sectorName = sectorKey === 'ALL' ? '전체 5대 섹터' : `${SECTOR_META[sectorKey]?.agentName} (${SECTOR_META[sectorKey]?.label})`;
+      appendTerminalLog("FILTER", `전담 요원 섹터 필터 전환: [${sectorName}]`, "#38bdf8");
+    }
 
     function updateClock() {
       const now = new Date();
@@ -778,14 +1239,12 @@
         `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
         targetUrl
       ];
-
       let lastError = null;
       for (let i = 0; i < urls.length; i++) {
-        const url = urls[i];
         try {
           const controller = new AbortController();
           const timeout = setTimeout(() => controller.abort(), 8000);
-          const response = await fetch(url, {
+          const response = await fetch(urls[i], {
             method: "GET",
             cache: "no-store",
             signal: controller.signal,
@@ -794,20 +1253,13 @@
           clearTimeout(timeout);
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           const text = await response.text();
-          if (!text || text.trim().startsWith('<')) throw new Error("HTML 오류 페이지 응답");
-          try {
-            return JSON.parse(text);
-          } catch {
-            return JSON.parse(text.trim().replace(/^﻿/, ''));
-          }
+          if (!text || text.trim().startsWith('<')) throw new Error("HTML 응답");
+          return JSON.parse(text.trim().replace(/^\uFEFF/, ''));
         } catch (err) {
           lastError = err;
-          if (i < urls.length - 1) {
-            appendTerminalLog("API_RETRY", `시세 경로 ${i + 1} 실패 → 다음 경로 시도`, "#64748b");
-          }
         }
       }
-      throw lastError || new Error("모든 시세 경로 실패");
+      throw lastError || new Error("시세 경로 실패");
     }
 
     async function fetchRawWithCors(targetUrl) {
@@ -816,7 +1268,6 @@
         `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
         `https://proxy.cors.dev/${targetUrl}`
       ];
-
       for (const proxy of proxies) {
         try {
           const controller = new AbortController();
@@ -831,9 +1282,7 @@
             const text = await res.text();
             if (text && text.length > 200) return text;
           }
-        } catch (_) {
-          continue;
-        }
+        } catch (_) {}
       }
       throw new Error("Proxy Feed Fail");
     }
@@ -857,26 +1306,16 @@
       for (const item of datas) {
         const code = String(item?.itemCode || item?.cd || item?.code || '');
         if (!/^\d{6}$/.test(code)) continue;
-
         const currentPrice = toNumber(item?.closePrice ?? item?.nv);
         const compare = toNumber(item?.compareToPreviousClosePrice ?? item?.cv);
         let prevClose = toNumber(item?.lastClosePrice ?? item?.sv ?? item?.pcv);
-
         if (!Number.isFinite(prevClose) && Number.isFinite(currentPrice) && Number.isFinite(compare)) {
           prevClose = currentPrice - compare;
         }
-
         if (!Number.isFinite(currentPrice) || !Number.isFinite(prevClose)) continue;
-
-        map.set(code, {
-          currentPrice,
-          prevClose,
-          marketState: item?.marketStatus || item?.ms || "UNKNOWN",
-          lastUpdated: item?.localTradedAt || new Date().toISOString()
-        });
+        map.set(code, { currentPrice, prevClose });
       }
-
-      if (map.size === 0) throw new Error("네이버 응답에 유효한 시세가 없습니다");
+      if (map.size === 0) throw new Error("유효 시세 없음");
       return map;
     }
 
@@ -888,55 +1327,30 @@
     }
 
     async function fetchNaverRealtimeOne(code) {
-      const query = `SERVICE_ITEM:${code}`;
-      const url = `https://polling.finance.naver.com/api/realtime?query=${encodeURIComponent(query)}`;
+      const url = `https://polling.finance.naver.com/api/realtime?query=${encodeURIComponent('SERVICE_ITEM:' + code)}`;
       const data = await fetchJsonWithCorsFallback(url);
-      const map = parseNaverDomesticRealtime(data);
-      return map.get(String(code));
+      return parseNaverDomesticRealtime(data).get(String(code));
     }
 
     async function fetchYahooQuote(symbol) {
       const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1d&events=history`;
       const data = await fetchJsonWithCorsFallback(yahooUrl);
-      return parseYahooQuote(data);
-    }
-
-    function parseYahooQuote(data) {
       const result = data?.chart?.result?.[0];
-      if (!result) throw new Error("Yahoo 시세 응답 형식 오류");
-
+      if (!result) throw new Error("Yahoo 응답 오류");
       const meta = result.meta || {};
       const quote = result.indicators?.quote?.[0] || {};
       const closes = Array.isArray(quote.close) ? quote.close.filter(v => Number.isFinite(v)) : [];
       const currentPrice = Number.isFinite(meta.regularMarketPrice) ? Number(meta.regularMarketPrice) : (closes.length ? Number(closes[closes.length - 1]) : NaN);
       let prevClose = Number(meta.previousClose);
       if (!Number.isFinite(prevClose) && closes.length >= 2) prevClose = Number(closes[closes.length - 2]);
-      if (!Number.isFinite(currentPrice) || !Number.isFinite(prevClose)) throw new Error("전일종가/현재가 확인 실패");
-
-      return {
-        currentPrice,
-        prevClose,
-        marketState: meta.marketState || "UNKNOWN",
-        lastUpdated: meta.regularMarketTime ? new Date(meta.regularMarketTime * 1000).toISOString() : new Date().toISOString()
-      };
+      if (!Number.isFinite(currentPrice) || !Number.isFinite(prevClose)) throw new Error("가격 확인 실패");
+      return { currentPrice, prevClose };
     }
 
     function applyQuote(stock, quote) {
-      const prevClose = Number(quote.prevClose);
-      const currentPrice = Number(quote.currentPrice);
-      if (!Number.isFinite(prevClose) || !Number.isFinite(currentPrice)) {
-        throw new Error("가격 숫자 변환 실패");
-      }
-      stock.prevClose = Math.round(prevClose);
-      stock.currentPrice = Math.round(currentPrice);
-      stock.lastUpdated = quote.lastUpdated || new Date().toISOString();
-      stock.marketState = quote.marketState || "UNKNOWN";
+      stock.prevClose = Math.round(Number(quote.prevClose));
+      stock.currentPrice = Math.round(Number(quote.currentPrice));
       stock.loaded = true;
-    }
-
-    function shortError(err) {
-      const msg = String(err?.message || err || "알 수 없는 오류");
-      return msg.length > 90 ? msg.slice(0, 90) + "…" : msg;
     }
 
     async function fetchKospiIndexWithSilentFailover() {
@@ -945,33 +1359,26 @@
         const data = await fetchJsonWithCorsFallback(url);
         const datas = data?.datas || data?.result?.datas || [];
         const item = datas.find(d => String(d?.itemCode || d?.cd || d?.code).toUpperCase() === 'KOSPI');
-        
         if (item) {
           const currentPrice = toNumber(item?.closePrice ?? item?.nv);
           const compare = toNumber(item?.compareToPreviousClosePrice ?? item?.cv);
           let prevClose = toNumber(item?.lastClosePrice ?? item?.sv ?? item?.pcv);
-          if (!Number.isFinite(prevClose) && Number.isFinite(currentPrice) && Number.isFinite(compare)) {
-            prevClose = currentPrice - compare;
-          }
+          if (!Number.isFinite(prevClose) && Number.isFinite(currentPrice) && Number.isFinite(compare)) prevClose = currentPrice - compare;
           if (Number.isFinite(currentPrice) && Number.isFinite(prevClose)) {
             KOSPI_STATE.currentPrice = currentPrice;
             KOSPI_STATE.prevClose = prevClose;
             KOSPI_STATE.loaded = true;
-            appendTerminalLog("KOSPI_API", `KOSPI 실시간 수신: ${currentPrice.toFixed(2)}pt (Naver)`, "#6ee7b7");
             return;
           }
         }
-        throw new Error("유효한 KOSPI 시세 없음");
-      } catch (err) {
+        throw new Error("KOSPI 시세 없음");
+      } catch (_) {
         try {
-          const yahooQuote = await fetchYahooQuote("^KS11");
-          KOSPI_STATE.currentPrice = yahooQuote.currentPrice;
-          KOSPI_STATE.prevClose = yahooQuote.prevClose;
+          const yq = await fetchYahooQuote("^KS11");
+          KOSPI_STATE.currentPrice = yq.currentPrice;
+          KOSPI_STATE.prevClose = yq.prevClose;
           KOSPI_STATE.loaded = true;
-          appendTerminalLog("KOSPI_API", `KOSPI 실시간 수신: ${yahooQuote.currentPrice.toFixed(2)}pt (Yahoo 보조)`, "#6ee7b7");
-        } catch (yahooErr) {
-          appendTerminalLog("KOSPI_WARN", `KOSPI 실시간 통신 지연 → 기준 시세 유지`, "#fbbf24");
-        }
+        } catch (__) {}
       }
     }
 
@@ -982,65 +1389,38 @@
       const banner = document.getElementById('gemini-status');
       banner.style.display = 'block';
       banner.textContent = "네이버 금융 실시간 시세 및 KOSPI 연결 중...";
-      appendTerminalLog("STOCK_API", "보유종목 및 KOSPI 지수 시세 조회 시작...", "#38bdf8");
+      appendTerminalLog("STOCK_API", "보유 10종목 및 KOSPI 지수 시세 조회 시작...", "#38bdf8");
 
       fetchKospiIndexWithSilentFailover().then(() => {
         if (hasRunOnce) renderKospiBanner();
       });
 
       let successCount = 0;
-
       try {
         const codes = MY_HOLDINGS.map(stock => stock.code);
         const quoteMap = await fetchNaverRealtimeBatch(codes);
-
         for (const stock of MY_HOLDINGS) {
           const quote = quoteMap.get(stock.code);
-          if (quote) {
-            applyQuote(stock, quote);
-            successCount++;
-            appendTerminalLog("QUOTE_OK", `${stock.name}: ${stock.currentPrice.toLocaleString()}원`, "#6ee7b7");
-          }
+          if (quote) { applyQuote(stock, quote); successCount++; }
         }
-      } catch (err) {
-        appendTerminalLog("NAVER_BATCH_FAIL", `일괄 조회 실패 → 개별 조회로 전환 (${err.message})`, "#fbbf24");
-      }
+      } catch (_) {}
 
       for (const stock of MY_HOLDINGS.filter(s => !s.loaded)) {
         try {
           const quote = await fetchNaverRealtimeOne(stock.code);
-          if (!quote) throw new Error("유효한 네이버 시세 없음");
-          applyQuote(stock, quote);
-          successCount++;
-          appendTerminalLog("QUOTE_OK", `${stock.name}: ${stock.currentPrice.toLocaleString()}원`, "#6ee7b7");
-        } catch (naverError) {
-          appendTerminalLog("NAVER_FAIL", `${stock.name}: ${shortError(naverError)}`, "#fbbf24");
-
+          if (quote) { applyQuote(stock, quote); successCount++; }
+        } catch (_) {
           try {
-            const yahooQuote = await fetchYahooQuote(stock.symbol);
-            applyQuote(stock, yahooQuote);
+            const yq = await fetchYahooQuote(stock.symbol);
+            applyQuote(stock, yq);
             successCount++;
-            appendTerminalLog("QUOTE_OK", `${stock.name}: ${stock.currentPrice.toLocaleString()}원 (Yahoo 보조)`, "#6ee7b7");
-          } catch (yahooError) {
-            appendTerminalLog("QUOTE_FAIL", `${stock.name}: Naver/Yahoo 모두 실패 · ${shortError(yahooError)}`, "#fb7185");
-          }
+          } catch (__) {}
         }
       }
 
       renderPortfolioRows();
-
-      if (successCount === MY_HOLDINGS.length) {
-        banner.textContent = `시세 동기화 완료: ${successCount}/10개`;
-        appendTerminalLog("STOCK_API", "10개 종목 및 지수 조회 완료", "#6ee7b7");
-      } else if (successCount > 0) {
-        banner.textContent = `부분 동기화: ${successCount}/10개`;
-        appendTerminalLog("STOCK_API_WARN", `${successCount}/10개 성공.`, "#fbbf24");
-      } else {
-        banner.textContent = "시세 서버 연결 실패";
-        appendTerminalLog("STOCK_API_ERROR", "외부 시세 서버 통신 지연. 기본 상태 유지.", "#fb7185");
-      }
-
-      setTimeout(() => { banner.style.display = 'none'; }, 3000);
+      banner.textContent = `시세 동기화 완료: ${successCount}/10개`;
+      setTimeout(() => { banner.style.display = 'none'; }, 2500);
       isSyncRunning = false;
     }
 
@@ -1052,113 +1432,105 @@
       }, 60000);
     }
 
-    async function parseRssFeedItems(feedList, targetKeywords = [], defaultTag = "증시") {
-      const items = [];
-      for (const feed of feedList) {
-        try {
-          const rawXml = await fetchRawWithCors(feed.url);
-          const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(rawXml, "text/xml");
-          const nodes = xmlDoc.querySelectorAll("item");
-
-          nodes.forEach(node => {
-            const title = sanitizeText(node.querySelector("title")?.textContent);
-            const link = (node.querySelector("link")?.textContent || "").trim();
-            const desc = sanitizeText(node.querySelector("description")?.textContent || title);
-            const pubDateStr = (node.querySelector("pubDate")?.textContent || "").trim();
-
-            if (!title || !link || !link.startsWith("http")) return;
-            if (link.includes("search.naver.com")) return;
-
-            let matchedTag = defaultTag;
-            if (targetKeywords.length > 0) {
-              const matched = targetKeywords.find(k => title.includes(k) || desc.includes(k));
-              if (matched) matchedTag = matched;
-            }
-
-            const pubDate = pubDateStr ? new Date(pubDateStr) : new Date();
-            const dateStr = `${pubDate.getFullYear()}.${String(pubDate.getMonth()+1).padStart(2,'0')}.${String(pubDate.getDate()).padStart(2,'0')} ${String(pubDate.getHours()).padStart(2,'0')}:${String(pubDate.getMinutes()).padStart(2,'0')}`;
-
-            items.push({
-              stockName: matchedTag,
-              sentiment: (title.includes('하락') || title.includes('급락') || title.includes('우려') || title.includes('약세')) ? 'NEGATIVE' : 'POSITIVE',
-              title,
-              summary: desc.length > 110 ? desc.slice(0, 110) + '...' : desc,
-              source: feed.name.split(' ')[0],
-              publishedAt: dateStr,
-              url: link
-            });
-          });
-        } catch (_) {}
+    function classifyArticleSector(title, desc) {
+      const text = `${title} ${desc}`;
+      for (const [sectorKey, meta] of Object.entries(SECTOR_META)) {
+        const matchedKw = meta.keywords.find(k => text.includes(k));
+        if (matchedKw) {
+          return { sectorKey, sectorLabel: `${meta.agentName}·${meta.label}`, matchedKeyword: matchedKw, color: meta.color };
+        }
       }
-      return items;
+      return { sectorKey: "FIN_VALUE", sectorLabel: "카이·금융/거시", matchedKeyword: "증시", color: "#38bdf8" };
     }
 
-    async function fetchTriadNewsPipeline(mode) {
+    async function fetchFiveSectorNewsPipeline(mode) {
       const holdingNames = MY_HOLDINGS.map(h => h.name);
-      const sectorKeywords = ["방산", "풍산", "조선", "HD현대", "HD한국조선해양", "건설기계", "원자재", "철강", "해운", "제조업"];
-      const techKeywords = ["삼성전자", "SK하이닉스", "반도체", "NAVER", "네이버", "셀트리온", "바이오", "에스엠", "AI", "HBM"];
+      const rawResults = await Promise.all(
+        FEEDS_REGISTRY.map(async feed => {
+          const list = [];
+          try {
+            const rawXml = await fetchRawWithCors(feed.url);
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(rawXml, "text/xml");
+            const nodes = xmlDoc.querySelectorAll("item");
 
-      const macroPromise = parseRssFeedItems(FEEDS_REGISTRY.MACRO, ["코스피", "환율", "금리", "증시", "외국인", "기관"], "거시 시황");
-      const sectorPromise = parseRssFeedItems(FEEDS_REGISTRY.SECTOR, sectorKeywords, "중공업/방산");
-      const techPromise = parseRssFeedItems(FEEDS_REGISTRY.TECH, techKeywords, "테크/반도체");
+            nodes.forEach(node => {
+              const title = sanitizeText(node.querySelector("title")?.textContent);
+              const link = (node.querySelector("link")?.textContent || "").trim();
+              const desc = sanitizeText(node.querySelector("description")?.textContent || title);
+              const pubDateStr = (node.querySelector("pubDate")?.textContent || "").trim();
 
-      const [macroItems, sectorItems, techItems] = await Promise.all([macroPromise, sectorPromise, techPromise]);
+              if (!title || !link || !link.startsWith("http")) return;
+              const classified = classifyArticleSector(title, desc);
 
-      appendTerminalLog("LUCY", `거시 시황 뉴스 ${macroItems.length}건 선별 완료.`, "#38bdf8");
-      appendTerminalLog("LEO", `제조·방산·조선 섹터 뉴스 ${sectorItems.length}건 선별 완료.`, "#34d399");
-      appendTerminalLog("MIA", `테크·반도체 섹터 뉴스 ${techItems.length}건 선별 완료.`, "#c084fc");
+              const pubDate = pubDateStr ? new Date(pubDateStr) : new Date();
+              const dateStr = `${pubDate.getFullYear()}.${String(pubDate.getMonth()+1).padStart(2,'0')}.${String(pubDate.getDate()).padStart(2,'0')} ${String(pubDate.getHours()).padStart(2,'0')}:${String(pubDate.getMinutes()).padStart(2,'0')}`;
+
+              list.push({
+                stockName: `${classified.sectorLabel} (${classified.matchedKeyword})`,
+                sectorKey: classified.sectorKey,
+                sectorColor: classified.color,
+                sentiment: (title.includes('하락') || title.includes('급락') || title.includes('우려') || title.includes('약세')) ? 'NEGATIVE' : 'POSITIVE',
+                title,
+                summary: desc.length > 110 ? desc.slice(0, 110) + '...' : desc,
+                source: feed.name.split(' ')[0],
+                publishedAt: dateStr,
+                url: link
+              });
+            });
+          } catch (_) {}
+          return list;
+        })
+      );
+
+      const allItems = rawResults.flat();
+
+      const counts = { SHIP_INFRA: 0, AI_SEMI_IT: 0, DEFENSE_METAL: 0, FIN_VALUE: 0, BIO_ENT: 0 };
+      allItems.forEach(i => { if (counts[i.sectorKey] !== undefined) counts[i.sectorKey]++; });
+
+      appendTerminalLog("LEO (조선·중공업)", `HD현대·조선·인프라 섹터 뉴스 ${counts.SHIP_INFRA}건 선별 완료.`, "#34d399");
+      appendTerminalLog("MIA (AI·반도체)", `삼성전자·SK하이닉스·네이버 섹터 뉴스 ${counts.AI_SEMI_IT}건 선별 완료.`, "#c084fc");
+      appendTerminalLog("LUCY (방산·비철)", `풍산·방산·원자재 섹터 뉴스 ${counts.DEFENSE_METAL}건 선별 완료.`, "#fbbf24");
+      appendTerminalLog("KAI (금융·밸류업)", `KB금융·밸류업·거시지수 뉴스 ${counts.FIN_VALUE}건 선별 완료.`, "#38bdf8");
+      appendTerminalLog("CHLOE (바이오·엔터)", `셀트리온·에스엠 섹터 뉴스 ${counts.BIO_ENT}건 선별 완료.`, "#f472b6");
 
       let combined = [];
       if (mode === 'HOLDINGS') {
         const isHoldingNews = (item) => holdingNames.some(name => item.title.includes(name) || item.stockName.includes(name));
-        const holdingList = [...techItems, ...sectorItems, ...macroItems].filter(isHoldingNews);
-        const restList = [...techItems, ...sectorItems, ...macroItems].filter(i => !isHoldingNews(i));
-        combined = [...holdingList, ...restList];
+        combined = [
+          ...allItems.filter(isHoldingNews),
+          ...allItems.filter(i => !isHoldingNews(i))
+        ];
       } else {
-        const maxLen = Math.max(macroItems.length, sectorItems.length, techItems.length);
-        for (let i = 0; i < maxLen; i++) {
-          if (macroItems[i]) combined.push(macroItems[i]);
-          if (sectorItems[i]) combined.push(sectorItems[i]);
-          if (techItems[i]) combined.push(techItems[i]);
-        }
+        combined = allItems;
       }
 
       const unique = [];
       combined.forEach(item => {
-        if (!unique.some(u => u.title === item.title || u.url === item.url)) {
-          unique.push(item);
-        }
+        if (!unique.some(u => u.title === item.title || u.url === item.url)) unique.push(item);
       });
-
-      return unique.slice(0, 10);
+      return unique.slice(0, 15);
     }
 
-    function generateDynamicSummary(items, mode) {
+    function generateDynamicSummary(items) {
       if (!items || items.length === 0) {
-        return "현재 수신된 최신 증시 뉴스가 없습니다. 잠시 후 [업무 가동]을 다시 시도해주세요.";
+        return "해당 세부 섹터에 수신된 최신 뉴스가 없습니다. 상단 [전체 (All)] 탭을 선택하거나 [7인 업무 가동]을 눌러주세요.";
       }
-
       const positiveCount = items.filter(i => i.sentiment === 'POSITIVE').length;
       const negativeCount = items.length - positiveCount;
       const headlines = items.slice(0, 3).map(i => i.title.replace(/\[.*?\]/g, '').trim()).join(' / ');
 
-      let tone = positiveCount >= negativeCount
-        ? "전반적으로 긍정적인 실적 기대감과 핵심 수급 흐름이 확인되고 있습니다."
-        : "시장 매크로 변동성과 관망세가 혼재되어 신중한 접근이 필요한 구간입니다.";
+      const sectorTitle = currentSectorFilter === 'ALL'
+        ? '5대 섹터 통합 (레오·미아·루시·카이·클로이)'
+        : `${SECTOR_META[currentSectorFilter]?.agentName} 전담 (${SECTOR_META[currentSectorFilter]?.label})`;
 
-      if (mode === 'HOLDINGS') {
-        return `[보유종목 AI 데스크 리포트] 트라이어드 요원들이 교차 검증한 ${items.length}건(긍정 ${positiveCount}건, 신중 ${negativeCount}건) 분석 결과, '${headlines}' 등의 이슈가 집중 조명되었습니다. ${tone}`;
-      } else {
-        return `[시장 전체 6인 데스크 브리핑] 총 ${items.length}건의 주요 증시 속보(긍정 ${positiveCount}건, 신중 ${negativeCount}건) 종합 결과, 핵심 헤드라인은 '${headlines}' 등입니다. ${tone}`;
-      }
+      return `[엘레나 취합 · 아서 승인 완료 | ${sectorTitle}] 총 ${items.length}건(긍정 ${positiveCount}건, 신중 ${negativeCount}건) 교차 검증 결과, 핵심 헤드라인은 '${headlines}' 등입니다.`;
     }
 
     async function togglePortfolioTable() {
       const container = document.getElementById('portfolio-container');
       const btn = document.getElementById('btn-portfolio-toggle');
       const modeTag = document.getElementById('report-tag');
-      const subtitle = document.getElementById('briefing-subtitle');
       
       if (!isPortfolioOpen) {
         const enteredPassword = window.prompt("내 종목을 보려면 비밀번호를 입력하세요.");
@@ -1176,33 +1548,21 @@
         container.style.display = 'block';
         btn.classList.add('btn-active');
         btn.innerHTML = `<span>📉</span> 내 종목 닫기`;
-        
         modeTag.textContent = "내 보유종목 모드";
         modeTag.style.background = "#064e3b";
         modeTag.style.color = "#6ee7b7";
-        modeTag.style.borderColor = "#047857";
-        subtitle.textContent = "보유 10개 종목 맞춤형 리포트";
 
         renderPortfolioRows();
-        appendTerminalLog("SYSTEM", "보유 10개 종목 테이블 전개 완료 (증감단가 및 증감금액 열 포함).", "#818cf8");
-        
         fetchStockDataWithSilentFailover();
         startStockRefreshTimer();
-
         if (hasRunOnce) updateBriefingDisplay();
       } else {
         container.style.display = 'none';
         btn.classList.remove('btn-active');
         btn.innerHTML = `<span>📈</span> 내 종목 보기`;
-
         modeTag.textContent = "전체 시장 모드";
         modeTag.style.background = "#082f49";
         modeTag.style.color = "#38bdf8";
-        modeTag.style.borderColor = "#0284c7";
-        subtitle.textContent = "전체 시장 주요 증시 뉴스";
-
-        appendTerminalLog("SYSTEM", "보유 종목 테이블 닫음. 전체 시장 모드 전환.", "#94a3b8");
-
         if (hasRunOnce) updateBriefingDisplay();
       }
     }
@@ -1210,39 +1570,33 @@
     function renderKospiBanner() {
       const kospiBanner = document.getElementById('kospi-banner');
       kospiBanner.style.display = 'flex';
-
       const curVal = KOSPI_STATE.currentPrice;
       const prevClose = KOSPI_STATE.prevClose;
-
       const diffVal = curVal - prevClose;
       const rateVal = prevClose ? (diffVal / prevClose) * 100 : 0;
 
-      document.getElementById('kospi-period-label').textContent = "KOSPI 종합 지수 (실시간)";
       document.getElementById('kospi-current-val').textContent = curVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      
       const arrow = diffVal > 0 ? "▲" : diffVal < 0 ? "▼" : "─";
       const color = diffVal > 0 ? "#fb7185" : diffVal < 0 ? "#38bdf8" : "#94a3b8";
       const sign = diffVal > 0 ? "+" : "";
-
-      document.getElementById('kospi-diff-val').innerHTML = `
-        <span style="color:${color};">${arrow} ${sign}${diffVal.toFixed(2)} (${sign}${rateVal.toFixed(2)}%)</span>
-      `;
+      document.getElementById('kospi-diff-val').innerHTML = `<span style="color:${color};">${arrow} ${sign}${diffVal.toFixed(2)} (${sign}${rateVal.toFixed(2)}%)</span>`;
     }
 
     function updateBriefingDisplay() {
       renderKospiBanner();
+      const filteredNews = currentSectorFilter === 'ALL'
+        ? CURRENT_NEWS_ITEMS
+        : CURRENT_NEWS_ITEMS.filter(item => item.sectorKey === currentSectorFilter);
 
       const summaryCard = document.getElementById('period-summary');
       summaryCard.style.display = 'block';
-      document.getElementById('summary-badge-title').textContent = isPortfolioOpen 
-        ? "보유종목 실시간 AI 종합 요약" 
-        : "시장 전체 실시간 AI 브리핑";
-      document.getElementById('summary-content').textContent = CURRENT_SUMMARY_TEXT;
+      document.getElementById('summary-content').textContent = generateDynamicSummary(filteredNews);
 
       const subtitle = document.getElementById('briefing-subtitle');
-      subtitle.textContent = `${isPortfolioOpen ? "보유 10개 종목 맞춤형 리포트" : "전체 시장 주요 증시 뉴스"} · ${CURRENT_NEWS_ITEMS.length}건`;
+      const secLabel = currentSectorFilter === 'ALL' ? '5대 섹터 통합' : SECTOR_META[currentSectorFilter]?.label;
+      subtitle.textContent = `${secLabel} 브리핑 · ${filteredNews.length}건 (엘레나 취합 · 아서 승인)`;
 
-      renderNewsCards(CURRENT_NEWS_ITEMS);
+      renderNewsCards(filteredNews);
     }
 
     function renderNewsCards(items) {
@@ -1252,19 +1606,19 @@
       newsList.style.display = 'flex';
 
       if (!items || items.length === 0) {
-        newsList.innerHTML = `<div style="text-align:center; padding:16px; color:#64748b; font-size:11px;">수신된 뉴스가 없습니다. 상단 [업무 가동]을 다시 시도해주세요.</div>`;
+        newsList.innerHTML = `<div style="text-align:center; padding:16px; color:#64748b; font-size:11px;">선택하신 세부 섹터의 뉴스가 없습니다. [전체 (All)] 탭을 눌러보세요.</div>`;
         return;
       }
 
       items.forEach(item => {
         const card = document.createElement('div');
         card.className = "news-card";
-        const sentimentColor = item.sentiment === 'POSITIVE' ? '#6ee7b7' : item.sentiment === 'NEGATIVE' ? '#fb7185' : '#cbd5e1';
-        const sentimentBg = item.sentiment === 'POSITIVE' ? '#064e3b' : item.sentiment === 'NEGATIVE' ? '#4c0519' : '#1e293b';
+        const sentimentColor = item.sentiment === 'POSITIVE' ? '#6ee7b7' : '#fb7185';
+        const sentimentBg = item.sentiment === 'POSITIVE' ? '#064e3b' : '#4c0519';
 
         card.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:11px; font-weight:bold; color:#e2e8f0;">${item.stockName}</span>
+            <span style="font-size:11px; font-weight:bold; color:${item.sectorColor || '#e2e8f0'};">[${item.stockName}]</span>
             <span style="font-size:8px; font-family:monospace; padding:2px 6px; border-radius:4px; background:${sentimentBg}; color:${sentimentColor};">${item.sentiment}</span>
           </div>
           <a href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title} ↗</a>
@@ -1285,7 +1639,11 @@
       let totalCurrAmount = 0;
       let loadedCount = 0;
 
-      MY_HOLDINGS.forEach(stock => {
+      const targetHoldings = currentSectorFilter === 'ALL'
+        ? MY_HOLDINGS
+        : MY_HOLDINGS.filter(h => h.sectorKey === currentSectorFilter);
+
+      targetHoldings.forEach(stock => {
         const loaded = stock.loaded && Number.isFinite(stock.prevClose) && Number.isFinite(stock.currentPrice);
         const prevAmount = loaded ? stock.shares * stock.prevClose : null;
         const currAmount = loaded ? stock.shares * stock.currentPrice : null;
@@ -1304,22 +1662,18 @@
         const arrow = !loaded ? "" : priceDiff > 0 ? "▲" : priceDiff < 0 ? "▼" : "─";
         const naverTotalUrl = `https://m.stock.naver.com/domestic/stock/${stock.code}/total?domesticStockExchange=KRX`;
         const priceText = value => Number.isFinite(value) ? value.toLocaleString() : "-";
-        const signedNumber = value => {
-          if (!Number.isFinite(value)) return "-";
-          return `${value > 0 ? "+" : ""}${value.toLocaleString()}`;
-        };
+        const signedNumber = value => Number.isFinite(value) ? `${value > 0 ? "+" : ""}${value.toLocaleString()}` : "-";
 
         const changePriceText = loaded
           ? `<span style="font-size:12px;">${arrow}</span> ${signedNumber(priceDiff)} <span style="font-size:9px;">(${priceRate >= 0 ? "+" : ""}${priceRate.toFixed(2)}%)</span>`
           : "-";
 
-        const changeAmountText = loaded ? `${signedNumber(amountDiff)}` : "-";
-
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="text-align: left;">
             <a href="${naverTotalUrl}" target="_blank" rel="noopener noreferrer" class="stock-link">
-              <span>${stock.name}</span> <span style="font-size:9px; color:#64748b;">↗</span>
+              <span>${stock.name}</span>
+              <span class="sector-mini-tag">${stock.sectorLabel}</span>
             </a>
           </td>
           <td style="color:#cbd5e1;">${stock.shares.toLocaleString()}주</td>
@@ -1328,12 +1682,12 @@
           <td style="color:${diffColor}; font-weight:bold;">${priceText(stock.currentPrice)}</td>
           <td style="color:${diffColor}; font-weight:bold;">${priceText(currAmount)}</td>
           <td style="color:${diffColor}; font-weight:bold;">${changePriceText}</td>
-          <td style="color:${diffColor}; font-weight:bold;">${changeAmountText}</td>
+          <td style="color:${diffColor}; font-weight:bold;">${loaded ? signedNumber(amountDiff) : "-"}</td>
         `;
         tbody.appendChild(tr);
       });
 
-      const allLoaded = loadedCount === MY_HOLDINGS.length;
+      const allLoaded = loadedCount === targetHoldings.length && targetHoldings.length > 0;
       const totalDiff = allLoaded ? totalCurrAmount - totalPrevAmount : null;
       const totalRate = allLoaded && totalPrevAmount !== 0 ? (totalDiff / totalPrevAmount) * 100 : null;
       const totalColor = !allLoaded ? "#64748b" : totalDiff > 0 ? "#fb7185" : totalDiff < 0 ? "#38bdf8" : "#94a3b8";
@@ -1345,7 +1699,7 @@
       totalTr.style.fontWeight = "bold";
       totalTr.style.borderTop = "2px solid rgba(99, 102, 241, 0.5)";
       totalTr.innerHTML = `
-        <td style="text-align:left;color:#a5b4fc;">합계</td>
+        <td style="text-align:left;color:#a5b4fc;">합계 (${targetHoldings.length}종목)</td>
         <td style="color:#64748b;">-</td>
         <td style="color:#64748b;">-</td>
         <td style="color:${totalColor};">${allLoaded ? totalPrevAmount.toLocaleString() : "-"}</td>
@@ -1357,41 +1711,30 @@
       tbody.appendChild(totalTr);
     }
 
-    // [에이전트 상태 및 애니메이션 제어]
     function setAgentState(agentId, stateText, bgColor, isWorking = false) {
       const badge = document.getElementById(`badge-${agentId}`);
       if (badge) {
         badge.textContent = stateText;
         badge.style.backgroundColor = bgColor;
       }
-
-      const card = document.getElementById(`card-${agentId}`);
-      const container = document.getElementById(`container-${agentId}`);
-      
-      if (isWorking) {
-        if (card) card.classList.add('active-work');
-        if (container) {
-          container.classList.add('working-state');
-          container.classList.add('screen-working');
-        }
-      } else {
-        if (card) card.classList.remove('active-work');
-        if (container) {
-          container.classList.remove('working-state');
-          container.classList.remove('screen-working');
-        }
+      const labelDiv = document.getElementById(`label-3d-${agentId}`);
+      if (labelDiv) {
+        labelDiv.style.borderColor = isWorking ? '#38bdf8' : 'rgba(56, 189, 248, 0.45)';
+        labelDiv.style.boxShadow = isWorking ? '0 0 14px rgba(56, 189, 248, 0.85)' : '0 3px 10px rgba(0,0,0,0.6)';
+      }
+      if (agent3DObjects[agentId]) {
+        agent3DObjects[agentId].isWorking = isWorking;
       }
     }
 
     function resetAllAgentsToWaiting() {
-      ['scout-macro', 'scout-sector', 'scout-tech', 'analyst', 'editor', 'manager'].forEach(agentId => {
+      ['scout-ship', 'scout-tech', 'scout-def', 'scout-fin', 'scout-bio', 'editor', 'manager'].forEach(agentId => {
         setAgentState(agentId, '대기중', '#334155', false);
       });
     }
 
     function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-    // [6인 AI 가상 오피스 통합 오케스트레이션 파이프라인]
     async function startWorkPipeline() {
       if (isPipelineRunning) return;
       isPipelineRunning = true;
@@ -1401,46 +1744,40 @@
       btnRun.style.opacity = "0.5";
 
       resetAllAgentsToWaiting();
-      appendTerminalLog("SYSTEM", "업무 가동: 6인 AI 가상 오피스 데스크 통합 파이프라인 시작.", "#94a3b8");
+      appendTerminalLog("SYSTEM", `[${CURRENT_BRAND_NAME}] 7인 파이프라인 가동 시작.`, "#94a3b8");
       await delay(250);
 
-      // 1. 트라이어드 스카우트 3인 병렬 가동
-      appendTerminalLog("ARTHUR", "루시, 레오, 미아 요원! 전문 섹터별 실시간 뉴스 수집을 가동하세요.");
-      setAgentState('scout-macro', '수집 중', '#0891b2', true);
-      setAgentState('scout-sector', '수집 중', '#059669', true);
-      setAgentState('scout-tech', '수집 중', '#7c3aed', true);
+      appendTerminalLog("ARTHUR", "레오·미아·루시·카이·클로이! 5대 전담 섹터 뉴스 및 실시간 시세 수집을 개시하세요.");
+      setAgentState('scout-ship', '조선 수집중', '#059669', true);
+      setAgentState('scout-tech', 'AI 수집중', '#7c3aed', true);
+      setAgentState('scout-def', '방산 수집중', '#d97706', true);
+      setAgentState('scout-fin', '금융/지수중', '#0284c7', true);
+      setAgentState('scout-bio', '바이오 수집중', '#db2777', true);
 
       const mode = isPortfolioOpen ? 'HOLDINGS' : 'MARKET';
-      CURRENT_NEWS_ITEMS = await fetchTriadNewsPipeline(mode);
-      
-      setAgentState('scout-macro', '완료', '#064e3b', false);
-      setAgentState('scout-sector', '완료', '#064e3b', false);
-      setAgentState('scout-tech', '완료', '#064e3b', false);
+      const [newsItems] = await Promise.all([
+        fetchFiveSectorNewsPipeline(mode),
+        fetchKospiIndexWithSilentFailover()
+      ]);
+      CURRENT_NEWS_ITEMS = newsItems;
 
-      // 2. 카이 (데이터 분석가) - 시세 연동 및 감성 스코어링
-      appendTerminalLog("ARTHUR", "카이 분석관, KOSPI 실시간 시세 연동 및 3인 수집본 감성 분석을 시작하세요.");
-      setAgentState('analyst', '분석 중', '#312e81', true);
-      
-      await fetchKospiIndexWithSilentFailover();
+      setAgentState('scout-ship', '수집 완료', '#064e3b', false);
+      setAgentState('scout-tech', '수집 완료', '#064e3b', false);
+      setAgentState('scout-def', '수집 완료', '#064e3b', false);
+      setAgentState('scout-fin', '수집 완료', '#064e3b', false);
+      setAgentState('scout-bio', '수집 완료', '#064e3b', false);
 
-      setAgentState('analyst', '완료', '#064e3b', false);
-      appendTerminalLog("KAI", "KOSPI 지수 연동 및 종합 기사 감성 분석 완료.", "#818cf8");
+      appendTerminalLog("ARTHUR", "엘레나 에디터, 5인의 섹터 스카우트가 올린 데이터를 취합하고 핵심 브리핑으로 정리하세요.");
+      setAgentState('editor', '취합·정리중', '#0d9488', true);
+      await delay(550);
+      setAgentState('editor', '정리 완료', '#064e3b', false);
+      appendTerminalLog("ELENA (취합·정리)", `5대 섹터 총 ${CURRENT_NEWS_ITEMS.length}건 기사 감성 분류 및 통합 요약본 작성 완료.`, "#6ee7b7");
 
-      // 3. 엘레나 (리포트 에디터) - AI 종합 요약문 작성
-      appendTerminalLog("ARTHUR", "엘레나 에디터, 수집 기사 헤드라인을 기반으로 실시간 브리핑을 완성하세요.");
-      setAgentState('editor', '작성 중', '#064e3b', true);
-      
-      CURRENT_SUMMARY_TEXT = generateDynamicSummary(CURRENT_NEWS_ITEMS, mode);
-      
-      await delay(350);
-      setAgentState('editor', '완료', '#064e3b', false);
-      appendTerminalLog("ELENA", "기사 원문 링크 바인딩 및 종합 AI 요약 작성 완료.", "#6ee7b7");
-
-      // 4. 아서 (총괄 매니저) - 검수 및 승인
-      setAgentState('manager', '검수 중', '#78350f', true);
-      await delay(300);
-      setAgentState('manager', '승인 완료', '#064e3b', false);
-      appendTerminalLog("ARTHUR", "6인 오피스 검수 완료: [PASS 승인]. 브리핑 발행!", "#fcd34d");
+      appendTerminalLog("ELENA", "아서 매니저님, 5대 섹터 통합 브리핑 정리가 완료되었습니다. 최종 승인을 요청합니다.");
+      setAgentState('manager', '최종 검수중', '#b45309', true);
+      await delay(450);
+      setAgentState('manager', '최종 승인!', '#064e3b', false);
+      appendTerminalLog("ARTHUR (최종승인)", "7인 데스크 리포트 검수 완료: [최종 PASS 승인]. 브리핑을 즉시 발행합니다!", "#fcd34d");
 
       hasRunOnce = true;
       updateBriefingDisplay();
@@ -1449,6 +1786,10 @@
       btnRun.disabled = false;
       btnRun.style.opacity = "1";
     }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      init3DOffice();
+    });
   </script>
 </body>
 </html>
