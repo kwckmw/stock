@@ -2,77 +2,190 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PULSE 8 : ALPHA NEXUS - 8인 체제 3D AI 가상 오피스</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- 첫 페인트 전에 테마 적용(깜빡임 방지). 기본값은 다크 -->
+  <script>
+    (function () {
+      var t = 'dark';
+      try { if (localStorage.getItem('pulse8-theme') === 'light') t = 'light'; } catch (e) {}
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
   <!-- 단일 HTML 실행을 위한 Three.js 및 OrbitControls CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <style>
+    /* =========================================================
+       테마 토큰 — 기본은 라이트, [data-theme="dark"]에서 다크
+       ========================================================= */
+    :root {
+      color-scheme: light;
+      --bg: #eef2f7;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --surface-3: #f1f5f9;
+      --border: #d5dde8;
+      --border-soft: #e5eaf1;
+      --text: #0f172a;
+      --text-2: #334155;
+      --text-3: #64748b;
+      --text-4: #94a3b8;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --accent-soft: #e0f2fe;
+      --accent-soft-border: #7dd3fc;
+      --indigo: #4f46e5;
+      --indigo-hover: #4338ca;
+      --indigo-text: #4338ca;
+      --shadow: 0 4px 16px rgba(15, 23, 42, 0.07);
+      --up: #dc2626;
+      --down: #2563eb;
+      --flat: #64748b;
+      --pos-bg: #dcfce7; --pos-fg: #15803d;
+      --neg-bg: #ffe4e6; --neg-fg: #be123c;
+      --hold-bg: #dcfce7; --hold-fg: #047857;
+      --row-hover: #f1f5f9;
+      --total-bg: #eef2ff;
+      --office-bg: radial-gradient(circle at 50% 35%, #ffffff 0%, #dde5ef 100%);
+      --sector-mix: 60%;
+      --neon-glow-a: 0 0 0 transparent;
+      --neon-glow-b: 0 0 0 transparent;
+    }
+    [data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #020617;
+      --surface: #0f172a;
+      --surface-2: #0b1120;
+      --surface-3: #1e293b;
+      --border: #334155;
+      --border-soft: #1e293b;
+      --text: #f1f5f9;
+      --text-2: #cbd5e1;
+      --text-3: #94a3b8;
+      --text-4: #64748b;
+      --accent: #38bdf8;
+      --accent-hover: #7dd3fc;
+      --accent-soft: #082f49;
+      --accent-soft-border: #0284c7;
+      --indigo: #4338ca;
+      --indigo-hover: #4f46e5;
+      --indigo-text: #a5b4fc;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      --up: #fb7185;
+      --down: #38bdf8;
+      --flat: #94a3b8;
+      --pos-bg: #064e3b; --pos-fg: #6ee7b7;
+      --neg-bg: #4c0519; --neg-fg: #fb7185;
+      --hold-bg: #064e3b; --hold-fg: #6ee7b7;
+      --row-hover: rgba(15, 23, 42, 0.6);
+      --total-bg: #0f172a;
+      --office-bg: radial-gradient(circle at 50% 40%, #0f172a 0%, #020617 100%);
+      --sector-mix: 100%;
+      --neon-glow-a: 0 0 6px #38bdf8, 0 0 14px #0284c7;
+      --neon-glow-b: 0 0 2px #0284c7, 0 0 6px #0369a1;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background-color: #020617;
-      color: #f1f5f9;
-      font-family: 'Pretendard', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 10px;
-      user-select: none;
-      -webkit-user-select: none;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
     .font-pixel { font-family: 'Press Start 2P', monospace; }
     .font-mono { font-family: monospace; }
 
     .main-frame { width: 100%; max-width: 860px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* 1. 상단 전광판 헤더 */
+    /* 0. 테마 토글 (헤더 최상단) */
+    .header-top { display: flex; justify-content: flex-end; margin: -4px -4px 8px 0; }
+    .theme-toggle {
+      display: inline-flex;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .theme-toggle button {
+      border: none;
+      background: transparent;
+      color: var(--text-3);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .theme-toggle button:hover { color: var(--text); }
+    .theme-toggle button[aria-pressed="true"] {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.18);
+    }
+    [data-theme="dark"] .theme-toggle button[aria-pressed="true"] { background: #334155; }
+
+    /* 1. 상단 헤더 */
     .header-box {
-      border: 2px solid #334155;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98));
+      border: 1px solid var(--border);
+      background: var(--surface);
       padding: 14px 16px;
       border-radius: 12px;
       text-align: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      box-shadow: var(--shadow);
       position: relative;
     }
-    @keyframes neonGlow {
-      0%, 100% { text-shadow: 0 0 6px #38bdf8, 0 0 14px #0284c7; }
-      50% { text-shadow: 0 0 2px #0284c7, 0 0 6px #0369a1; }
+    [data-theme="dark"] .header-box {
+      border-width: 2px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98));
     }
-    .neon-sign { color: #38bdf8; font-size: 15px; letter-spacing: 1px; animation: neonGlow 2.5s infinite; }
-    .header-sub { font-size: 10.5px; color: #94a3b8; margin-top: 4px; font-family: monospace; }
+    @keyframes neonGlow {
+      0%, 100% { text-shadow: var(--neon-glow-a); }
+      50% { text-shadow: var(--neon-glow-b); }
+    }
+    .neon-sign { color: var(--accent); font-size: 16px; letter-spacing: 1px; line-height: 1.5; animation: neonGlow 2.5s infinite; }
+    .header-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; font-family: monospace; }
 
     .brand-switcher {
       display: inline-flex;
       align-items: center;
       gap: 4px;
       margin-top: 8px;
-      background: #0f172a;
-      border: 1px solid #334155;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
       padding: 3px 8px;
       border-radius: 999px;
-      font-size: 10px;
-      color: #94a3b8;
+      font-size: 11px;
+      color: var(--text-3);
     }
     .brand-switcher select {
       background: transparent;
-      color: #38bdf8;
+      color: var(--accent);
       border: none;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
-      font-family: 'Pretendard', sans-serif;
+      font-family: inherit;
       cursor: pointer;
       outline: none;
     }
-    .brand-switcher select option { background: #0f172a; color: #f1f5f9; }
+    .brand-switcher select option { background: var(--surface); color: var(--text); }
 
     .btn-group { display: flex; gap: 8px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
     .btn {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 9.5px;
-      padding: 9px 13px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 9px 14px;
       border-radius: 6px;
       cursor: pointer;
       display: flex;
@@ -80,58 +193,92 @@
       gap: 6px;
       transition: all 0.15s ease;
     }
+    .btn:disabled { opacity: 0.5; cursor: wait; }
     .btn-run { background-color: #0891b2; color: #ffffff; border: 1px solid #67e8f9; }
     .btn-run:hover { background-color: #06b6d4; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
-    .btn-portfolio { background-color: #4338ca; color: #ffffff; border: 1px solid #818cf8; }
-    .btn-portfolio:hover { background-color: #4f46e5; }
-    .btn-cam { background-color: #1e293b; color: #cbd5e1; border: 1px solid #475569; font-family: 'Pretendard', sans-serif; font-weight: 600; font-size: 11px; padding: 7px 11px; }
-    .btn-cam:hover { background-color: #334155; color: #fff; }
+    .btn-portfolio { background-color: var(--indigo); color: #ffffff; border: 1px solid #818cf8; }
+    .btn-portfolio:hover { background-color: var(--indigo-hover); }
+    .btn-cam { background-color: var(--surface-3); color: var(--text-2); border: 1px solid var(--border); font-family: inherit; font-weight: 600; font-size: 12.5px; padding: 9px 14px; }
+    .btn-cam:hover { background-color: var(--border-soft); color: var(--text); }
     .btn-active { background-color: #6366f1 !important; box-shadow: 0 0 8px #818cf8; }
+
+    .sync-status {
+      display: none;
+      margin-top: 8px;
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--accent-soft-border);
+    }
 
     /* 2. 3D 가상 오피스 룸 섹션 */
     .section-card {
-      border: 2px solid #334155;
-      background-color: #0f172a;
+      border: 1px solid var(--border);
+      background-color: var(--surface);
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
     }
+    [data-theme="dark"] .section-card { border-width: 2px; }
     .card-topbar {
-      background-color: #1e293b;
-      border-bottom: 1px solid #334155;
+      background-color: var(--surface-2);
+      border-bottom: 1px solid var(--border);
       padding: 7px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 11px;
-      color: #94a3b8;
+      color: var(--text-3);
       font-family: monospace;
     }
+    [data-theme="dark"] .card-topbar { background-color: #1e293b; }
+    .topbar-accent { color: var(--accent); }
+    .topbar-title { font-weight: bold; color: var(--text); }
+    .topbar-sub { display: block; font-size: 11px; color: var(--text-4); margin-top: 2px; }
 
-    /* 컴팩트 와이드 비율 (320px) + 4x2 8인 전원 노출 최적화 */
     .office-3d-wrapper {
       position: relative;
       width: 100%;
       height: 320px;
-      background: radial-gradient(circle at 50% 40%, #0f172a 0%, #020617 100%);
+      background: var(--office-bg);
       overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      transition: height 0.25s ease;
     }
-    #office-3d-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      cursor: grab;
+    .office-3d-wrapper.collapsed { height: 0; }
+    .office-3d-wrapper.collapsed #labels-overlay,
+    .office-3d-wrapper.collapsed .canvas-hint { display: none; }
+    .topbar-btn {
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 9px;
+      cursor: pointer;
+      white-space: nowrap;
     }
+    [data-theme="dark"] .topbar-btn { background: #0f172a; }
+    .topbar-btn:hover { color: var(--text); border-color: var(--text-4); }
+    #office-3d-canvas { width: 100%; height: 100%; display: block; cursor: grab; }
     #office-3d-canvas:active { cursor: grabbing; }
 
     .canvas-hint {
       position: absolute;
       bottom: 6px;
       left: 10px;
-      font-size: 9.5px;
-      color: rgba(148, 163, 184, 0.85);
+      right: 10px;
+      font-size: 11px;
+      color: rgba(148, 163, 184, 0.95);
       background: rgba(2, 6, 23, 0.75);
       padding: 3px 7px;
       border-radius: 4px;
@@ -139,7 +286,7 @@
       pointer-events: none;
     }
 
-    /* 3D 공간 위에 떠 있는 8인 홀로그램 네임태그 */
+    /* 3D 네임태그: 라이트/다크 모두 어두운 유리 패널로 유지(가독성) */
     .agent-label-3d {
       position: absolute;
       transform: translate(-50%, -100%);
@@ -149,7 +296,7 @@
       padding: 2px 5px;
       pointer-events: none;
       text-align: center;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.6), 0 0 6px rgba(56, 189, 248, 0.2);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.35), 0 0 6px rgba(56, 189, 248, 0.2);
       backdrop-filter: blur(4px);
       transition: border-color 0.2s, box-shadow 0.2s;
       white-space: nowrap;
@@ -165,12 +312,12 @@
       border-style: solid;
       border-color: rgba(56, 189, 248, 0.6) transparent;
     }
-    .label-role { font-size: 8px; font-weight: 700; letter-spacing: -0.2px; }
-    .label-name { font-size: 9px; color: #e2e8f0; font-weight: 600; }
+    .label-role { font-size: 9px; font-weight: 700; letter-spacing: -0.2px; }
+    .label-name { font-size: 10.5px; color: #e2e8f0; font-weight: 600; }
     .label-badge {
       display: inline-block;
       margin-top: 1px;
-      font-size: 7px;
+      font-size: 8.5px;
       font-family: monospace;
       padding: 1px 4px;
       border-radius: 3px;
@@ -178,28 +325,31 @@
       color: #cbd5e1;
     }
 
-    /* 6대 세분화 섹터 필터 바 (1번: HD건설기계 전담 섹터 독립) */
+    /* 섹터 필터 바 */
     .sector-filter-bar {
-      background-color: #0b1120;
-      border-top: 1px solid #1e293b;
+      background-color: var(--surface-2);
+      border-top: 1px solid var(--border-soft);
       padding: 7px 12px;
       display: flex;
       gap: 6px;
       overflow-x: auto;
       align-items: center;
     }
+    .filter-label { font-size: 11px; color: var(--text-4); font-family: monospace; margin-right: 2px; white-space: nowrap; }
     .sector-chip {
-      font-size: 10px;
-      padding: 4px 9px;
+      font-size: 11.5px;
+      padding: 6px 11px;
       border-radius: 999px;
-      background-color: #1e293b;
-      color: #94a3b8;
-      border: 1px solid #334155;
+      background-color: var(--surface);
+      color: var(--text-3);
+      border: 1px solid var(--border);
       cursor: pointer;
       white-space: nowrap;
+      font-family: inherit;
       transition: all 0.15s;
     }
-    .sector-chip:hover { color: #f8fafc; border-color: #64748b; }
+    [data-theme="dark"] .sector-chip { background-color: #1e293b; }
+    .sector-chip:hover { color: var(--text); border-color: var(--text-4); }
     .sector-chip.active {
       background-color: #0284c7;
       color: #ffffff;
@@ -208,80 +358,206 @@
       box-shadow: 0 0 8px rgba(56, 189, 248, 0.4);
     }
 
-    /* 3. 표 컨테이너 */
+    /* 3. 포트폴리오 표 */
     #portfolio-container {
-      border-top: 2px solid #312e81;
-      background-color: #020617;
+      border-top: 2px solid #c7d2fe;
+      background-color: var(--surface-2);
       padding: 12px;
     }
+    [data-theme="dark"] #portfolio-container { border-top-color: #312e81; background-color: #020617; }
     .table-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 4px; }
-    .table-scroll { overflow-x: auto; border: 1px solid #1e293b; border-radius: 6px; }
-    table { width: 100%; font-size: 11px; font-family: monospace; border-collapse: collapse; white-space: nowrap; text-align: right; }
-    th { background-color: #0f172a; color: #cbd5e1; padding: 7px 10px; border-bottom: 1px solid #1e293b; font-weight: 600; }
-    td { padding: 7px 10px; border-bottom: 1px solid rgba(30, 41, 59, 0.7); }
-    tr:hover { background-color: rgba(15, 23, 42, 0.6); }
-    .stock-link { color: #f1f5f9; text-decoration: none; display: flex; align-items: center; gap: 5px; font-weight: 500; }
-    .stock-link:hover { color: #38bdf8; text-decoration: underline; }
+    .table-title { font-size: 12px; font-weight: bold; color: var(--indigo-text); font-family: monospace; }
+    .table-source { font-size: 11px; color: var(--accent); font-family: monospace; }
+    .table-note { font-size: 11px; line-height: 1.5; color: var(--text-4); margin-bottom: 6px; }
+    .table-scroll { overflow-x: auto; border: 1px solid var(--border-soft); border-radius: 6px; background: var(--surface); }
+    [data-theme="dark"] .table-scroll { background: transparent; }
+    table { width: 100%; font-size: 12px; font-family: monospace; border-collapse: collapse; white-space: nowrap; text-align: right; }
+    th { background-color: var(--surface-3); color: var(--text-2); padding: 7px 8px; border-bottom: 1px solid var(--border-soft); font-weight: 600; }
+    [data-theme="dark"] th { background-color: #0f172a; }
+    td { padding: 7px 8px; border-bottom: 1px solid var(--border-soft); color: var(--text-2); }
+    tr:hover { background-color: var(--row-hover); }
+    td.muted { color: var(--text-3); }
+    td.dim { color: var(--text-4); }
+    .num-up { color: var(--up); font-weight: bold; }
+    .num-down { color: var(--down); font-weight: bold; }
+    .num-flat { color: var(--flat); font-weight: bold; }
+    .num-none { color: var(--text-4); }
+    .total-row { background-color: var(--total-bg); font-weight: bold; border-top: 2px solid rgba(99, 102, 241, 0.5); }
+    .total-row td:first-child { color: var(--indigo-text); }
+    .stock-link { color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 5px; font-weight: 500; }
+    .stock-link:hover { color: var(--accent); text-decoration: underline; }
     .sector-mini-tag {
-      font-size: 8.5px;
-      padding: 1px 4px;
+      font-size: 10px;
+      padding: 1px 5px;
       border-radius: 3px;
-      background: #1e293b;
-      color: #94a3b8;
-      border: 1px solid #334155;
+      background: var(--surface-3);
+      color: var(--text-3);
+      border: 1px solid var(--border);
     }
 
-    /* 4. 시스템 터미널 로그 */
+    /* 4. 시스템 터미널 — 콘솔 느낌을 위해 두 테마 모두 어두운 배경 유지 */
     .terminal-box {
-      background-color: rgba(0, 0, 0, 0.95);
-      border-top: 1px solid #1e293b;
+      background-color: #0b1120;
+      border-top: 1px solid var(--border-soft);
       padding: 8px 14px;
       display: flex;
       flex-direction: column;
-      height: 102px;
+      height: 120px;
     }
-    .terminal-header { display: flex; justify-content: space-between; font-size: 10px; font-family: monospace; color: #38bdf8; padding-bottom: 4px; border-bottom: 1px solid #1e293b; }
-    .terminal-body { overflow-y: auto; font-family: monospace; font-size: 11px; color: #cbd5e1; margin-top: 5px; line-height: 1.4; }
+    [data-theme="dark"] .terminal-box { background-color: rgba(0, 0, 0, 0.95); }
+    .terminal-header { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; font-family: monospace; color: #38bdf8; padding-bottom: 4px; border-bottom: 1px solid #1e293b; }
+    .terminal-body { overflow-y: auto; font-family: monospace; font-size: 11.5px; user-select: text; color: #cbd5e1; margin-top: 5px; line-height: 1.4; }
 
-    /* 5. 뉴스 브리핑 영역 */
+    /* 5. 뉴스 브리핑 */
     .briefing-box { padding: 12px 14px 16px 14px; display: flex; flex-direction: column; gap: 10px; }
+    .mode-tag { font-size: 11px; background: var(--accent-soft); color: var(--accent); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--accent-soft-border); white-space: nowrap; }
+    .mode-tag.holdings { background: var(--hold-bg); color: var(--hold-fg); border-color: var(--hold-fg); }
+    .empty-state { text-align: center; padding: 20px 4px; color: var(--text-3); font-size: 12.5px; line-height: 1.6; }
 
-    .kosPI-card {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
-      border: 1px solid #38bdf8;
+    .kospi-card {
+      background: var(--surface-2);
+      border: 1px solid var(--accent-soft-border);
       border-radius: 8px;
       padding: 10px 12px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-family: monospace;
+    }
+    [data-theme="dark"] .kospi-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+      border-color: #38bdf8;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
-    .kospi-title { font-size: 10px; color: #94a3b8; }
-    .kospi-value { font-size: 14px; font-weight: bold; color: #f8fafc; margin-top: 2px; }
+    .kospi-title { font-size: 10px; color: var(--text-3); }
+    .kospi-value { font-size: 14px; font-weight: bold; color: var(--text); margin-top: 2px; }
     .kospi-diff { font-size: 11px; font-weight: bold; text-align: right; }
 
     .summary-card {
-      background-color: rgba(8, 47, 73, 0.4);
-      border: 1px dashed #0284c7;
+      background-color: var(--accent-soft);
+      border: 1px dashed var(--accent-soft-border);
       border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 11px;
-      line-height: 1.5;
-      color: #cbd5e1;
+      padding: 11px 13px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--text-2);
     }
-    .summary-title { font-weight: bold; color: #38bdf8; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+    [data-theme="dark"] .summary-card { background-color: rgba(8, 47, 73, 0.4); }
+    .summary-title { font-weight: bold; color: var(--accent); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
 
+    #news-list { display: none; flex-direction: column; gap: 8px; }
     .news-card {
-      background-color: rgba(30, 41, 59, 0.9);
-      border: 1px solid #334155;
+      background-color: var(--surface-2);
+      border: 1px solid var(--border-soft);
       border-radius: 8px;
       padding: 12px;
     }
-    .news-card a { color: #f1f5f9; text-decoration: none; font-size: 12px; font-weight: 600; line-height: 1.45; display: block; margin: 5px 0; }
-    .news-card a:hover { color: #38bdf8; }
-    .news-card p { font-size: 11px; color: #94a3b8; line-height: 1.5; margin: 5px 0 0; }
-    .news-meta { font-size: 9px; color:#64748b; font-family:monospace; margin-top: 6px; }
+    [data-theme="dark"] .news-card { background-color: rgba(30, 41, 59, 0.9); border-color: #334155; }
+    .news-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+    .news-sector { font-size: 12px; font-weight: bold; color: color-mix(in srgb, var(--sc, var(--text)) var(--sector-mix), #000); }
+    .sentiment { font-size: 11px; white-space: nowrap; font-family: monospace; padding: 2px 6px; border-radius: 4px; }
+    .sentiment.pos { background: var(--pos-bg); color: var(--pos-fg); }
+    .sentiment.neg { background: var(--neg-bg); color: var(--neg-fg); }
+    .sentiment.neu { background: var(--surface-3); color: var(--text-3); }
+    .news-card a { color: var(--text); text-decoration: none; font-size: 14px; font-weight: 600; line-height: 1.5; display: block; margin: 6px 0; }
+    .news-card a:hover { color: var(--accent); }
+    .news-card p { font-size: 12.5px; color: var(--text-3); line-height: 1.5; margin: 5px 0 0; }
+    .news-meta { font-size: 11px; color: var(--text-4); font-family: monospace; margin-top: 6px; }
+    .news-meta .src { color: var(--accent); }
+    .news-empty { text-align: center; padding: 16px; color: var(--text-3); font-size: 12.5px; }
+
+    /* 핵심 지표 요약 카드 */
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card {
+      display: flex; flex-direction: column; gap: 3px;
+      text-align: left;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 12px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+    [data-theme="dark"] .stat-card { background: linear-gradient(180deg, #0f172a, #0b1120); }
+    button.stat-card.locked { cursor: pointer; }
+    button.stat-card.locked:hover { border-color: var(--accent-soft-border); }
+    button.stat-card:not(.locked) { cursor: default; }
+    .stat-label { font-size: 11px; color: var(--text-3); font-weight: 600; }
+    .stat-value { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+    .stat-value.num-up { color: var(--up); }
+    .stat-value.num-down { color: var(--down); }
+    .stat-value.num-none { color: var(--text-3); font-size: 15px; }
+    .stat-sub { font-size: 11px; color: var(--text-3); line-height: 1.35; }
+
+    /* 표: 보조 요소 */
+    td .rate { font-size: 11px; opacity: 0.9; }
+    .mobile-only { display: none; }
+    .summary-card { cursor: pointer; }
+
+    /* 모바일 (600px 이하): 줄바꿈 없이 한 줄 유지 — 넘치는 글은 … 처리, 표·로그는 가로 스크롤 */
+    @media (max-width: 600px) {
+      body { padding: 8px; }
+      .main-frame, .main-frame * { white-space: nowrap; }
+      .desktop-only { display: none; }
+      .mobile-only { display: inline; }
+
+      /* 한 줄 말줄임 공통 */
+      .header-sub, .table-title, .table-note, .topbar-sub, .canvas-hint,
+      .card-topbar > span, .card-topbar > div, .terminal-header > span,
+      .news-sector, .news-card a, .news-card p, .news-meta, .empty-state, .news-empty,
+      .stat-label, .stat-value, .stat-sub, .summary-card, #summary-content, .table-header-flex > span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .card-topbar, .terminal-header, .news-head, .table-header-flex { gap: 8px; flex-wrap: nowrap; }
+      .table-header-flex > span:first-child { flex: 1 1 50%; }
+      .table-header-flex > span:last-child { flex: 0 1 auto; max-width: 48%; }
+      /* 잘리면 안 되는 짧은 요소는 고정 폭 유지 */
+      .card-topbar > .mode-tag, .terminal-header > span:last-child, .topbar-btn, .sentiment {
+        flex-shrink: 0; overflow: visible;
+      }
+
+      /* 헤더 */
+      .neon-sign { font-size: 14px; letter-spacing: 0; }
+      .header-sub { font-size: 10.5px; }
+      .brand-switcher { max-width: 100%; }
+      .brand-switcher select { min-width: 0; text-overflow: ellipsis; }
+      .btn-group { flex-wrap: nowrap; gap: 6px; }
+      .btn { font-size: 11.5px; padding: 8px 10px; gap: 4px; }
+      .btn-cam { font-size: 11.5px; padding: 8px 10px; }
+
+      /* 요약 카드 */
+      .stat-grid { gap: 6px; }
+      .stat-card { padding: 9px 8px; }
+      .stat-label { font-size: 10.5px; }
+      .stat-value { font-size: 14px; }
+      .stat-value.num-none { font-size: 12.5px; }
+      .stat-sub { font-size: 10px; }
+
+      /* 3D */
+      .office-3d-wrapper:not(.collapsed) { height: 280px; }
+      .card-topbar { font-size: 10.5px; }
+
+      /* 표: 기존 8열 그대로, 가로 스크롤 */
+      .table-scroll { -webkit-overflow-scrolling: touch; }
+      .table-note { font-size: 10.5px; }
+
+      /* 터미널: 긴 로그는 가로 스크롤 */
+      .terminal-body { overflow: auto; }
+      .terminal-header { font-size: 10.5px; }
+
+      /* 브리핑 */
+      .summary-card { display: block; }
+      .summary-card.expanded, .summary-card.expanded * { white-space: normal; overflow: visible; }
+      #summary-content { display: block; }
+      .news-card { padding: 10px 12px; }
+      .news-card a { font-size: 13.5px; margin: 4px 0; }
+      .news-card p { font-size: 12px; margin-top: 2px; }
+      .empty-state { font-size: 12px; padding: 16px 0; }
+    }
   </style>
 </head>
 <body>
@@ -290,6 +566,12 @@
 
     <!-- 1. 상단 전광판 헤더 -->
     <header class="header-box">
+      <div class="header-top">
+        <div class="theme-toggle" role="group" aria-label="화면 테마">
+          <button type="button" data-theme-btn="light" onclick="setTheme('light')">☀️ 라이트</button>
+          <button type="button" data-theme-btn="dark" onclick="setTheme('dark')">🌙 다크</button>
+        </div>
+      </div>
       <h1 id="brand-title" class="neon-sign font-pixel">PULSE 8 : ALPHA NEXUS</h1>
       <p id="brand-sub" class="header-sub">REALTIME 8-AGENT MARKET COMMAND · 6 SECTORS + 1 EDITOR + 1 MANAGER</p>
 
@@ -312,30 +594,49 @@
           <span>📈</span> 내 종목 보기
         </button>
         <button onclick="reset3DCamera()" class="btn btn-cam">
-          <span>🎥</span> 8인 전체 시점 초기화
+          <span>🎥</span> <span class="desktop-only">8인 전체 시점 초기화</span><span class="mobile-only">시점 초기화</span>
         </button>
       </div>
-      <div id="gemini-status" style="display:none; margin-top:8px; font-size:10px; font-family:monospace; color:#67e8f9; background:#082f49; padding:4px 8px; border-radius:4px; border:1px solid #0284c7;">
+      <div id="gemini-status" class="sync-status">
         실시간 시세 동기화 진행 중...
       </div>
     </header>
 
+    <!-- 핵심 숫자 요약 카드 (내 종목은 비밀번호 입력 후 표시) -->
+    <section class="stat-grid" aria-label="핵심 지표">
+      <button type="button" class="stat-card locked" id="stat-total" onclick="if(!isPortfolioOpen) togglePortfolioTable()">
+        <span class="stat-label">총 평가금액</span>
+        <span class="stat-value num-none">🔒 잠김</span>
+        <span class="stat-sub">눌러서 내 종목 열기</span>
+      </button>
+      <button type="button" class="stat-card locked" id="stat-pnl" onclick="if(!isPortfolioOpen) togglePortfolioTable()">
+        <span class="stat-label">오늘 손익</span>
+        <span class="stat-value num-none">🔒 잠김</span>
+        <span class="stat-sub">비밀번호 입력 후 표시</span>
+      </button>
+      <div class="stat-card" id="stat-kospi">
+        <span class="stat-label">KOSPI</span>
+        <span class="stat-value num-none">-</span>
+        <span class="stat-sub">연결 중…</span>
+      </div>
+    </section>
+
     <!-- 2. 3D 가상 오피스 룸 (4x2 그리드로 8인 전원 한눈에 표시) -->
     <section class="section-card">
       <div class="card-topbar">
-        <span>FLOOR 01: 4x2 SYMMETRIC COMMAND DESK (ALL 8 AGENTS IN VIEW)</span>
-        <span style="color:#38bdf8;">● HIGH-DETAIL 3D AGENTS: 8</span>
+        <span>FLOOR 01 · OPEN-PLAN 8-AGENT DESK <span class="topbar-accent">● 8</span></span>
+        <button type="button" id="btn-office-toggle" class="topbar-btn" aria-expanded="true" aria-controls="office-3d-wrapper" onclick="setOfficeCollapsed(!officeCollapsed)">▲ 3D 접기</button>
       </div>
 
       <div class="office-3d-wrapper" id="office-3d-wrapper">
         <canvas id="office-3d-canvas"></canvas>
         <div id="labels-overlay"></div>
-        <div class="canvas-hint">🖱️ 1열(맥스·레오·미아·루시) + 2열(카이·클로이·엘레나·아서) 8인 한눈에 보기 완료 · 드래그 회전/줌 가능</div>
+        <div class="canvas-hint">🖱️ 드래그로 사방 360° 회전 · 휠/핀치 줌 · 우클릭 드래그로 이동</div>
       </div>
 
       <!-- 6대 세분화 섹터 필터 바 (1번 섹터: HD건설기계 전담 독립!) -->
       <div class="sector-filter-bar" id="sector-filter-bar">
-        <span style="font-size:10px; color:#64748b; font-family:monospace; margin-right:2px;">6대 섹터:</span>
+        <span class="filter-label">6대 섹터:</span>
         <button class="sector-chip active" onclick="setSectorFilter('ALL', this)">전체 (All)</button>
         <button class="sector-chip" onclick="setSectorFilter('CONST_INFRA', this)">🚜 ① 맥스: 건설기계·인프라 (HD건설기계)</button>
         <button class="sector-chip" onclick="setSectorFilter('SHIP_HOLDING', this)">🚢 ② 레오: 조선·해양·지주</button>
@@ -348,12 +649,12 @@
       <!-- 3. [내 종목 보기] 토글 표 -->
       <div id="portfolio-container" style="display: none;">
         <div class="table-header-flex">
-          <span style="font-size: 11px; font-weight: bold; color: #818cf8; font-family: monospace;">
+          <span class="table-title">
             📊 보유 10종목 평가 현황 (6인의 섹터 전담 요원 매핑 & 실시간 시세)
           </span>
-          <span id="stock-source-status" style="font-size: 10px; color: #38bdf8; font-family: monospace;">시세: Naver Finance · 60초 갱신</span>
+          <span id="stock-source-status" class="table-source">시세: Naver Finance · 60초 갱신</span>
         </div>
-        <div id="stock-data-note" style="font-size:9px;color:#64748b;margin-bottom:6px;">※ 1번 섹터(맥스)는 [HD건설기계] 단독 전담 섹터로 동작합니다. 상단 섹터 버튼을 누르면 종목과 뉴스가 즉시 연동됩니다.</div>
+        <div id="stock-data-note" class="table-note">※ 1번 섹터(맥스)는 [HD건설기계] 단독 전담 섹터로 동작합니다. 상단 섹터 버튼을 누르면 종목과 뉴스가 즉시 연동됩니다.</div>
         <div class="table-scroll">
           <table>
             <thead>
@@ -389,40 +690,27 @@
     <section class="section-card">
       <div class="card-topbar">
         <div>
-          <span style="font-weight: bold; color: #f1f5f9;">📰 DAILY STOCK BRIEFING</span>
-          <span id="briefing-subtitle" style="display:block; font-size:10px; color:#64748b; margin-top:2px;">6대 섹터 전담 수집 · 엘레나 취합 · 아서 승인 대기 중</span>
+          <span class="topbar-title">📰 DAILY STOCK BRIEFING</span>
+          <span id="briefing-subtitle" class="topbar-sub">6대 섹터 전담 수집 · 엘레나 취합 · 아서 승인 대기 중</span>
         </div>
-        <span id="report-tag" style="font-size:9px; background:#082f49; color:#38bdf8; padding:2px 6px; border-radius:4px; border:1px solid #0284c7;">
-          전체 시장 모드
-        </span>
+        <span id="report-tag" class="mode-tag">전체 시장 모드</span>
       </div>
 
       <div id="briefing-container" class="briefing-box">
-        <div id="empty-state" style="text-align:center; padding: 20px 0; color: #64748b; font-size: 11px;">
-          상단 [8인 업무 가동] 버튼을 누르면 6대 섹터 요원(맥스·레오·미아·루시·카이·클로이)이 동시에 정보를 수집하고, 엘레나가 취합·정리한 뒤 아서가 최종 승인합니다.
+        <div id="empty-state" class="empty-state">
+          [8인 업무 가동]을 누르면 6대 섹터 요원이 뉴스를 수집하고, 엘레나 취합 → 아서 승인 후 브리핑이 발행됩니다.
         </div>
         
-        <!-- KOSPI 변동 카드 -->
-        <div id="kospi-banner" class="kosPI-card" style="display:none;">
-          <div>
-            <div class="kospi-title" id="kospi-period-label">KOSPI 종합 지수 (실시간 · 카이 동기화)</div>
-            <div class="kospi-value" id="kospi-current-val">-</div>
-          </div>
-          <div class="kospi-diff" id="kospi-diff-val">
-            <span style="color:#94a3b8;">-</span>
-          </div>
-        </div>
-
-        <!-- AI 핵심 종합 요약 블록 -->
-        <div id="period-summary" class="summary-card" style="display:none;">
+        <!-- 키워드 기반 자동 요약 블록 -->
+        <div id="period-summary" class="summary-card" style="display:none;" onclick="this.classList.toggle('expanded')" title="눌러서 전체 보기">
           <div class="summary-title">
-            <span>✨</span> <span id="summary-badge-title">엘레나 취합 · 아서 승인 완료 브리핑</span>
+            <span>✨</span> <span id="summary-badge-title">엘레나 취합 · 아서 승인 브리핑 (자동 분류)</span>
           </div>
           <p id="summary-content">뉴스 데이터를 수집 중입니다.</p>
         </div>
 
         <!-- 뉴스 리스트 피드 -->
-        <div id="news-list" style="display:none; display:flex; flex-direction:column; gap:8px;"></div>
+        <div id="news-list"></div>
       </div>
     </section>
 
@@ -440,7 +728,7 @@
         label: "건설기계·글로벌인프라",
         agentName: "맥스",
         color: "#fb923c",
-        keywords: ["HD건설기계", "건설기계", "굴착기", "인프라", "재건", "광산", "중장비", "현대건설기계", "우크라이나", "북미"]
+        keywords: ["HD건설기계", "건설기계", "굴착기", "인프라", "재건", "광산", "중장비", "현대건설기계", "우크라이나"]
       },
       SHIP_HOLDING: {
         label: "조선·해양·에너지지주",
@@ -458,13 +746,13 @@
         label: "K-방산·비철금속",
         agentName: "루시",
         color: "#fbbf24",
-        keywords: ["풍산", "방산", "탄약", "구리", "비철금속", "원자재", "수출", "국방", "무기", "포탄"]
+        keywords: ["풍산", "방산", "탄약", "구리", "비철금속", "원자재", "국방", "무기", "포탄"]
       },
       FIN_VALUE: {
         label: "금융지주·밸류업",
         agentName: "카이",
         color: "#38bdf8",
-        keywords: ["KB금융", "금융", "은행", "밸류업", "배당", "주주환원", "자사주", "금리", "환율", "코스피", "기관", "외국인"]
+        keywords: ["KB금융", "금융", "은행", "밸류업", "배당", "주주환원", "자사주", "금리", "환율", "보험", "증권"]
       },
       BIO_ENT: {
         label: "바이오·K콘텐츠",
@@ -493,7 +781,7 @@
       { code: "041510", symbol: "041510.KQ", name: "에스엠", shares: 101, sectorKey: "BIO_ENT", sectorLabel: "⑥클로이·K콘텐츠", prevClose: null, currentPrice: null, loaded: false }
     ];
 
-    let KOSPI_STATE = { currentPrice: 7003.74, prevClose: 6971.35, loaded: false };
+    let KOSPI_STATE = { currentPrice: null, prevClose: null, loaded: false, updatedAt: null };
     let isPortfolioOpen = false;
     const PORTFOLIO_PASSWORD = "790809";
     let isSyncRunning = false;
@@ -534,6 +822,52 @@
     let wallTickerTexture, wallTickerCanvas, wallTickerCtx;
     let signCanvas, signCtx, signTexture;
     let tickerOffset = 0;
+
+    // =========================================================================
+    // [테마] 라이트(기본) / 다크 — DOM은 CSS 변수, 3D 씬은 아래 팔레트로 전환
+    // =========================================================================
+    const SCENE_THEMES = {
+      light: { fog: 0xdde5ef, fogDensity: 0.016, ambient: 1.05, floor: 0xe2e8f0, wall: 0xf8fafc, desk: 0xf1f5f9, leg: 0x94a3b8, chair: 0x475569, gridMain: 0x7dd3fc, gridSub: 0xcbd5e1, neon: 0.55 },
+      dark:  { fog: 0x020617, fogDensity: 0.022, ambient: 0.74, floor: 0x091326, wall: 0x0b1528, desk: 0x1e293b, leg: 0x0f172a, chair: 0x1e293b, gridMain: 0x0284c7, gridSub: 0x1e293b, neon: 1.0 }
+    };
+    const sceneRefs = { ambient: null, floorMat: null, wallMat: null, deskMat: null, legMat: null, chairMat: null, grid: null, neonLights: [] };
+
+    function getTheme() {
+      return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    }
+
+    function setTheme(theme) {
+      const t = theme === 'dark' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+      try { localStorage.setItem('pulse8-theme', t); } catch (_) {}
+      document.querySelectorAll('[data-theme-btn]').forEach(b => {
+        b.setAttribute('aria-pressed', b.dataset.themeBtn === t ? 'true' : 'false');
+      });
+      apply3DTheme(t);
+    }
+
+    function apply3DTheme(t) {
+      if (!scene) return;
+      const p = SCENE_THEMES[t];
+      scene.fog.color.setHex(p.fog);
+      scene.fog.density = p.fogDensity;
+      sceneRefs.ambient.intensity = p.ambient;
+      sceneRefs.floorMat.color.setHex(p.floor);
+      sceneRefs.wallMat.color.setHex(p.wall);
+      sceneRefs.deskMat.color.setHex(p.desk);
+      sceneRefs.legMat.color.setHex(p.leg);
+      sceneRefs.chairMat.color.setHex(p.chair);
+      sceneRefs.neonLights.forEach(l => { l.intensity = l.userData.base * p.neon; });
+      if (sceneRefs.grid) {
+        scene.remove(sceneRefs.grid);
+        sceneRefs.grid.geometry.dispose();
+        sceneRefs.grid.material.dispose();
+      }
+      const grid = new THREE.GridHelper(16, 32, p.gridMain, p.gridSub);
+      grid.position.y = 0.01;
+      scene.add(grid);
+      sceneRefs.grid = grid;
+    }
 
     function changeBrandName(val) {
       const [name, sub] = val.split('|');
@@ -614,13 +948,29 @@
       ctx.lineWidth = 4;
       ctx.strokeRect(4, 4, 1016, 202);
 
-      ctx.fillStyle = '#38bdf8';
+      // KOSPI: 실제 등락에 따라 화살표/색 표시 (한국식: 상승 빨강, 하락 파랑), 미연결 시 '--'
       ctx.font = 'bold 23px monospace';
-      ctx.fillText(`KOSPI ${KOSPI_STATE.currentPrice.toFixed(2)} ▲`, 20, 38);
+      if (KOSPI_STATE.loaded) {
+        const d = KOSPI_STATE.currentPrice - KOSPI_STATE.prevClose;
+        ctx.fillStyle = d > 0 ? '#fb7185' : d < 0 ? '#38bdf8' : '#94a3b8';
+        ctx.fillText(`KOSPI ${KOSPI_STATE.currentPrice.toFixed(2)} ${d > 0 ? '▲' : d < 0 ? '▼' : '─'}`, 20, 38);
+      } else {
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('KOSPI  --', 20, 38);
+      }
 
-      ctx.fillStyle = '#6ee7b7';
+      // 흐르는 문구: KOSPI 영역을 침범하지 않도록 오른쪽 영역에서만 잘라서 표시
+      const tickerText = '[8인 가동] ①맥스(HD건설기계) · ②레오(조선) · ③미아(AI) · ④루시(방산) · ⑤카이(금융) · ⑥클로이(바이오) → ⑦엘레나 → ⑧아서';
       ctx.font = 'bold 17px sans-serif';
-      ctx.fillText('[8인 가동] ①맥스(HD건설기계) · ②레오(조선) · ③미아(AI) · ④루시(방산) · ⑤카이(금융) · ⑥클로이(바이오) → ⑦엘레나 → ⑧아서', 295 - (tickerOffset % 360), 37);
+      const tw = ctx.measureText(tickerText).width;
+      const left = 290, right = 1012;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(left, 12, right - left, 36);
+      ctx.clip();
+      ctx.fillStyle = '#6ee7b7';
+      ctx.fillText(tickerText, right - (tickerOffset % (tw + (right - left))), 37);
+      ctx.restore();
 
       const cards = [
         { title: '①HD건설기계', val: '맥스', color: '#fb923c' },
@@ -890,7 +1240,8 @@
       controls.maxDistance = 22;
 
       // 조명
-      scene.add(new THREE.AmbientLight(0xe0f2fe, 0.74));
+      sceneRefs.ambient = new THREE.AmbientLight(0xe0f2fe, 0.74);
+      scene.add(sceneRefs.ambient);
 
       const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
       dirLight.position.set(6, 14, 10);
@@ -901,62 +1252,73 @@
 
       const neonBlueLight = new THREE.PointLight(0x38bdf8, 1.0, 18);
       neonBlueLight.position.set(-5, 3.0, -2.0);
+      neonBlueLight.userData.base = 1.0;
       scene.add(neonBlueLight);
 
       const neonPurpleLight = new THREE.PointLight(0x818cf8, 0.85, 18);
       neonPurpleLight.position.set(5, 3.0, 2.0);
+      neonPurpleLight.userData.base = 0.85;
       scene.add(neonPurpleLight);
+      sceneRefs.neonLights = [neonBlueLight, neonPurpleLight];
 
-      // 오피스 바닥 (4x2 그리드에 딱 맞는 13.5m x 9.5m 컴팩트 플로어)
-      const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(13.5, 9.5),
-        new THREE.MeshStandardMaterial({ color: 0x091326, roughness: 0.65, metalness: 0.25 })
-      );
+      // 테마 전환 시 색만 바꾸면 되도록 공유 재질로 생성
+      sceneRefs.floorMat = new THREE.MeshStandardMaterial({ color: 0x091326, roughness: 0.65, metalness: 0.25 });
+      sceneRefs.wallMat  = new THREE.MeshStandardMaterial({ color: 0x0b1528, roughness: 0.6, metalness: 0.3 });
+      sceneRefs.deskMat  = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.35, metalness: 0.3 });
+      sceneRefs.legMat   = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.7 });
+      sceneRefs.chairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
+
+      // 오픈 플로어: 벽 없이 사방에서 볼 수 있도록 바닥을 넓힘 (16m x 12m)
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(16, 12), sceneRefs.floorMat);
       floor.rotation.x = -Math.PI / 2;
       floor.receiveShadow = true;
       scene.add(floor);
 
-      const gridHelper = new THREE.GridHelper(13.5, 27, 0x0284c7, 0x1e293b);
-      gridHelper.position.y = 0.01;
-      scene.add(gridHelper);
+      // 벽 대신 양면 독립형 패널: 앞뒤 어느 쪽에서 봐도 글자가 정방향으로 보임
+      function createStandingBoard(texture, w, h, x, z, rotY, bottomY) {
+        const board = new THREE.Group();
+        board.position.set(x, 0, z);
+        board.rotation.y = rotY;
+        const centerY = bottomY + h / 2;
 
-      // 슬림한 후면 & 좌우 파티션 벽체 (높이 3.2m로 낮춤)
-      const wallMat = new THREE.MeshStandardMaterial({ color: 0x0b1528, roughness: 0.6, metalness: 0.3 });
-      const backWall = new THREE.Mesh(new THREE.BoxGeometry(13.5, 3.2, 0.25), wallMat);
-      backWall.position.set(0, 1.6, -4.65);
-      scene.add(backWall);
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(w + 0.12, h + 0.12, 0.08), sceneRefs.wallMat);
+        frame.position.y = centerY;
+        frame.castShadow = true;
+        board.add(frame);
 
-      const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.25, 3.2, 9.5), wallMat);
-      leftWall.position.set(-6.65, 1.6, 0);
-      scene.add(leftWall);
+        const front = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: texture }));
+        front.position.set(0, centerY, 0.042);
+        board.add(front);
 
-      const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1.4, 9.5), wallMat);
-      rightWall.position.set(6.65, 0.7, 0);
-      scene.add(rightWall);
+        const back = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: texture }));
+        back.position.set(0, centerY, -0.042);
+        back.rotation.y = Math.PI;
+        board.add(back);
 
-      // 좌측 벽 대형 증시 전광판
+        [-w / 2 + 0.3, w / 2 - 0.3].forEach(px => {
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.06, bottomY, 10), sceneRefs.legMat);
+          post.position.set(px, bottomY / 2, 0);
+          post.castShadow = true;
+          board.add(post);
+          const foot = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.04, 0.5), sceneRefs.legMat);
+          foot.position.set(px, 0.02, 0);
+          board.add(foot);
+        });
+        scene.add(board);
+        return board;
+      }
+
+      // 좌측 독립형 증시 전광판
       initWallTickerTexture();
-      const tickerBoard = new THREE.Mesh(
-        new THREE.PlaneGeometry(7.8, 1.65),
-        new THREE.MeshBasicMaterial({ map: wallTickerTexture })
-      );
-      tickerBoard.position.set(-6.50, 1.95, 0.1);
-      tickerBoard.rotation.y = Math.PI / 2;
-      scene.add(tickerBoard);
+      createStandingBoard(wallTickerTexture, 7.0, 1.48, -6.9, 0.25, Math.PI / 2, 1.15);
 
-      // 후면 벽 중앙 네온 간판
+      // 후방 독립형 네온 간판
       signCanvas = document.createElement('canvas');
       signCanvas.width = 1024; signCanvas.height = 210;
       signCtx = signCanvas.getContext('2d');
       signTexture = new THREE.CanvasTexture(signCanvas);
       drawRearWallSign();
-
-      const signMesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(8.2, 1.65),
-        new THREE.MeshBasicMaterial({ map: signTexture })
-      );
-      signMesh.position.set(0, 2.0, -4.50);
-      scene.add(signMesh);
+      createStandingBoard(signTexture, 7.4, 1.5, 0, -4.4, 0, 1.2);
 
       // 8인 에이전트 데스크 + 고디테일 캐릭터 생성
       AGENT_CONFIGS.forEach(cfg => {
@@ -964,11 +1326,12 @@
         group.position.set(cfg.pos[0], 0, cfg.pos[1]);
 
         const deskWidth = 1.95;
-        const deskColor = cfg.isBoss ? 0x451a03 : cfg.isCore ? 0x064e3b : 0x1e293b;
-        const deskTop = new THREE.Mesh(
-          new THREE.BoxGeometry(deskWidth, 0.08, 0.98),
-          new THREE.MeshStandardMaterial({ color: deskColor, roughness: 0.35, metalness: 0.3 })
-        );
+        const deskMaterial = cfg.isBoss
+          ? new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.35, metalness: 0.3 })
+          : cfg.isCore
+            ? new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 0.35, metalness: 0.3 })
+            : sceneRefs.deskMat;
+        const deskTop = new THREE.Mesh(new THREE.BoxGeometry(deskWidth, 0.08, 0.98), deskMaterial);
         deskTop.position.set(0, 0.82, 0);
         deskTop.castShadow = true;
         deskTop.receiveShadow = true;
@@ -982,7 +1345,7 @@
         neonEdge.position.set(0, 0.82, -0.49);
         group.add(neonEdge);
 
-        const legMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.7 });
+        const legMat = sceneRefs.legMat;
         const leftPedestal = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.78, 0.90), legMat);
         leftPedestal.position.set(-deskWidth / 2 + 0.22, 0.39, 0);
         leftPedestal.castShadow = true;
@@ -1048,7 +1411,7 @@
         // 디테일 오피스 체어
         const chairGroup = new THREE.Group();
         chairGroup.position.set(0, 0, 0.66);
-        const chairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
+        const chairMat = sceneRefs.chairMat;
         const seat = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.07, 0.46), chairMat);
         seat.position.y = 0.50;
         chairGroup.add(seat);
@@ -1114,8 +1477,16 @@
         };
       });
 
+      apply3DTheme(getTheme());
       window.addEventListener('resize', onWindowResize);
-      animate3D();
+
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(entries => {
+          officeInView = entries[0].isIntersecting;
+          refresh3DLoop();
+        }).observe(wrapper);
+      }
+      start3DLoop();
     }
 
     function reset3DCamera() {
@@ -1151,12 +1522,30 @@
     }
 
     let clock3D = new THREE.Clock();
+    let rafId = null;
+    let lastTickerDraw = 0;
+    let officeInView = true;      // 화면에 3D 영역이 보이는지 (IntersectionObserver)
+    let officeCollapsed = false;  // 사용자가 3D 영역을 접었는지
+
+    // 보이지 않을 때(스크롤로 벗어남·접힘·탭 숨김)는 렌더링 루프를 완전히 멈춤
+    function shouldRender3D() { return officeInView && !officeCollapsed && !document.hidden; }
+    function start3DLoop() {
+      if (rafId === null && shouldRender3D() && renderer) rafId = requestAnimationFrame(animate3D);
+    }
+    function stop3DLoop() {
+      if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+    }
+    function refresh3DLoop() { shouldRender3D() ? start3DLoop() : stop3DLoop(); }
+
     function animate3D() {
-      requestAnimationFrame(animate3D);
+      if (!shouldRender3D()) { rafId = null; return; }
+      rafId = requestAnimationFrame(animate3D);
       const elapsed = clock3D.getElapsedTime();
 
-      if (Math.floor(elapsed * 20) % 2 === 0) {
-        tickerOffset += 1.5;
+      // 전광판 캔버스 재작성·GPU 업로드는 초당 약 12회로 제한 (기존: 매 프레임 절반)
+      if (elapsed - lastTickerDraw > 0.08) {
+        tickerOffset += (elapsed - lastTickerDraw) * 45;
+        lastTickerDraw = elapsed;
         updateWallTickerCanvas();
       }
 
@@ -1201,27 +1590,42 @@
       appendTerminalLog("FILTER", `전담 요원 섹터 필터 전환: [${sectorName}]`, "#38bdf8");
     }
 
+    // 사용자 PC 시간대와 무관하게 항상 한국 시간으로 표시
+    function formatKST(date) {
+      return date.toLocaleTimeString('en-GB', { timeZone: 'Asia/Seoul', hour12: false });
+    }
     function updateClock() {
-      const now = new Date();
-      document.getElementById('log-clock').textContent = now.toTimeString().split(' ')[0] + ' KST';
+      document.getElementById('log-clock').textContent = formatKST(new Date()) + ' KST';
     }
     setInterval(updateClock, 1000);
 
     function appendTerminalLog(sender, message, color = "#cbd5e1") {
       const terminal = document.getElementById('terminal-body');
       const row = document.createElement('div');
-      const now = new Date().toTimeString().split(' ')[0];
+      const now = formatKST(new Date());
       row.style.color = color;
       row.innerHTML = `<span style="color:#64748b;">[${now}]</span> <span style="color:#38bdf8; font-weight:bold;">[${sender}]</span> ${message}`;
       terminal.appendChild(row);
       terminal.scrollTop = terminal.scrollHeight;
     }
 
+    // DOMParser 문서는 스크립트·이미지 로드를 실행하지 않으므로 외부 HTML 해독에 안전
     function sanitizeText(str) {
       if (!str) return '';
-      const div = document.createElement('div');
-      div.innerHTML = str;
-      return (div.textContent || div.innerText || '').trim();
+      const doc = new DOMParser().parseFromString(String(str), 'text/html');
+      return (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    // innerHTML에 넣기 전 반드시 거치는 이스케이프 (외부 뉴스 텍스트용)
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    function safeHttpUrl(url) {
+      try {
+        const u = new URL(url);
+        return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '#';
+      } catch (_) { return '#'; }
     }
 
     async function fetchJsonWithCorsFallback(targetUrl) {
@@ -1347,6 +1751,16 @@
 
     async function fetchKospiIndexWithSilentFailover() {
       try {
+        await fetchKospiInner();
+      } finally {
+        KOSPI_STATE.tried = true;
+        renderSummaryStats();
+        updateWallTickerCanvas();
+      }
+    }
+
+    async function fetchKospiInner() {
+      try {
         const url = `https://polling.finance.naver.com/api/realtime?query=SERVICE_INDEX:KOSPI`;
         const data = await fetchJsonWithCorsFallback(url);
         const datas = data?.datas || data?.result?.datas || [];
@@ -1360,6 +1774,7 @@
             KOSPI_STATE.currentPrice = currentPrice;
             KOSPI_STATE.prevClose = prevClose;
             KOSPI_STATE.loaded = true;
+            KOSPI_STATE.updatedAt = new Date();
             return;
           }
         }
@@ -1370,6 +1785,7 @@
           KOSPI_STATE.currentPrice = yq.currentPrice;
           KOSPI_STATE.prevClose = yq.prevClose;
           KOSPI_STATE.loaded = true;
+          KOSPI_STATE.updatedAt = new Date();
         } catch (__) {}
       }
     }
@@ -1411,37 +1827,113 @@
       }
 
       renderPortfolioRows();
-      banner.textContent = `시세 동기화 완료: ${successCount}/10개`;
+      renderSummaryStats();
+      lastStockSyncAt = Date.now();
+      banner.textContent = `시세 동기화 완료: ${successCount}/${MY_HOLDINGS.length}개`;
       setTimeout(() => { banner.style.display = 'none'; }, 2500);
       isSyncRunning = false;
     }
 
-    let stockRefreshTimer = null;
-    function startStockRefreshTimer() {
-      if (stockRefreshTimer) clearInterval(stockRefreshTimer);
-      stockRefreshTimer = setInterval(() => {
-        if (isPortfolioOpen) fetchStockDataWithSilentFailover();
-      }, 60000);
+    // 정규장(평일 09:00~15:30 KST, 앞뒤 10분 여유)에만 자동 갱신 — 휴일은 판단하지 않음
+    function isKrMarketOpen(now = new Date()) {
+      const kst = new Date(now.getTime() + 9 * 3600 * 1000);
+      const day = kst.getUTCDay();
+      if (day === 0 || day === 6) return false;
+      const mins = kst.getUTCHours() * 60 + kst.getUTCMinutes();
+      return mins >= 8 * 60 + 50 && mins <= 15 * 60 + 40;
     }
 
-    function classifyArticleSector(title, desc) {
-      const text = `${title} ${desc}`;
-      for (const [sectorKey, meta] of Object.entries(SECTOR_META)) {
-        const matchedKw = meta.keywords.find(k => text.includes(k));
-        if (matchedKw) {
-          return { sectorKey, sectorLabel: `${meta.agentName}·${meta.label}`, matchedKeyword: matchedKw, color: meta.color };
-        }
-      }
-      return { sectorKey: "FIN_VALUE", sectorLabel: "카이·금융/거시", matchedKeyword: "증시", color: "#38bdf8" };
+    let lastStockSyncAt = 0;
+    let lastKospiSyncAt = 0;
+    const REFRESH_MS = 60000;
+
+    function updateRefreshStatusLabel() {
+      const el = document.getElementById('stock-source-status');
+      if (el) el.textContent = isKrMarketOpen()
+        ? '시세: Naver Finance · 장중 60초 자동 갱신'
+        : '시세: Naver Finance · 장 마감 (자동 갱신 일시정지)';
     }
+
+    function autoRefreshTick(force = false) {
+      updateRefreshStatusLabel();
+      if (document.hidden) return;                 // 탭이 안 보이면 요청하지 않음
+      const open = isKrMarketOpen();
+      const now = Date.now();
+      if ((open || force) && now - lastKospiSyncAt >= REFRESH_MS) {
+        lastKospiSyncAt = now;
+        fetchKospiIndexWithSilentFailover();
+      }
+      if (isPortfolioOpen && open && now - lastStockSyncAt >= REFRESH_MS) {
+        fetchStockDataWithSilentFailover();
+      }
+    }
+    setInterval(() => autoRefreshTick(), 15000);
+
+    document.addEventListener('visibilitychange', () => {
+      refresh3DLoop();
+      if (!document.hidden) autoRefreshTick();     // 돌아오면 오래된 데이터만 즉시 갱신
+    });
+
+    // 어느 섹터에도 해당하지 않는 기사는 카이(금융)에 몰아넣지 않고 별도 '시장·거시'로 분류
+    const MACRO_BUCKET = { key: "MACRO", label: "시장·거시 (미분류)", color: "#94a3b8" };
+
+    // 짧은 영문 키워드(AI, SM, LNG 등)는 단어 경계로만 매칭 → 'SMR', 'SAIL' 같은 오탐 방지
+    const KEYWORD_MATCHERS = {};
+    Object.entries(SECTOR_META).forEach(([sectorKey, meta]) => {
+      KEYWORD_MATCHERS[sectorKey] = meta.keywords.map(kw => {
+        const isShortLatin = /^[A-Za-z]{1,4}$/.test(kw);
+        const isHolding = MY_HOLDINGS.some(h => h.name === kw);
+        return {
+          kw,
+          weight: isHolding ? 3 : 1,
+          test: isShortLatin
+            ? (text => new RegExp(`(^|[^A-Za-z])${kw}(?![A-Za-z])`).test(text))
+            : (text => text.includes(kw))
+        };
+      });
+    });
+
+    function classifyArticleSector(title, desc) {
+      // 제목 매칭은 본문보다 2배 가중
+      let best = null;
+      for (const [sectorKey, matchers] of Object.entries(KEYWORD_MATCHERS)) {
+        let score = 0, topKw = null, topW = 0;
+        for (const m of matchers) {
+          const w = (m.test(title) ? 2 : m.test(desc) ? 1 : 0) * m.weight;
+          if (w > 0) { score += w; if (w > topW) { topW = w; topKw = m.kw; } }
+        }
+        if (score > 0 && (!best || score > best.score)) best = { sectorKey, score, topKw };
+      }
+      if (!best) {
+        return { sectorKey: MACRO_BUCKET.key, sectorLabel: MACRO_BUCKET.label, matchedKeyword: null, color: MACRO_BUCKET.color };
+      }
+      const meta = SECTOR_META[best.sectorKey];
+      return { sectorKey: best.sectorKey, sectorLabel: `${meta.agentName}·${meta.label}`, matchedKeyword: best.topKw, color: meta.color };
+    }
+
+    // 긍정/부정 키워드 점수로 3단계 판정 (둘 다 없거나 같으면 중립)
+    const SENTIMENT_WORDS = {
+      pos: ["상승", "급등", "강세", "호조", "호실적", "수주", "신고가", "최대", "흑자", "증가", "반등", "돌파", "상향", "순매수", "기대감", "훈풍"],
+      neg: ["하락", "급락", "약세", "우려", "부진", "적자", "감소", "하향", "쇼크", "순매도", "리스크", "악재", "둔화", "손실", "경고"]
+    };
+    function judgeSentiment(title, desc) {
+      const count = (text, words) => words.reduce((n, w) => n + (text.includes(w) ? 1 : 0), 0);
+      const score = (count(title, SENTIMENT_WORDS.pos) - count(title, SENTIMENT_WORDS.neg)) * 2
+                  + (count(desc, SENTIMENT_WORDS.pos) - count(desc, SENTIMENT_WORDS.neg));
+      return score > 0 ? 'POSITIVE' : score < 0 ? 'NEGATIVE' : 'NEUTRAL';
+    }
+
+    let LAST_FEED_STATUS = { ok: 0, total: 0 };
 
     async function fetchSixSectorNewsPipeline(mode) {
       const holdingNames = MY_HOLDINGS.map(h => h.name);
+      let feedOkCount = 0;
       const rawResults = await Promise.all(
         FEEDS_REGISTRY.map(async feed => {
           const list = [];
           try {
             const rawXml = await fetchRawWithCors(feed.url);
+            feedOkCount++;
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(rawXml, "text/xml");
             const nodes = xmlDoc.querySelectorAll("item");
@@ -1455,14 +1947,17 @@
               if (!title || !link || !link.startsWith("http")) return;
               const classified = classifyArticleSector(title, desc);
 
-              const pubDate = pubDateStr ? new Date(pubDateStr) : new Date();
+              const parsedDate = pubDateStr ? new Date(pubDateStr) : null;
+              const pubDate = parsedDate && !isNaN(parsedDate) ? parsedDate : new Date();
+              const pubTs = parsedDate && !isNaN(parsedDate) ? parsedDate.getTime() : 0;
               const dateStr = `${pubDate.getFullYear()}.${String(pubDate.getMonth()+1).padStart(2,'0')}.${String(pubDate.getDate()).padStart(2,'0')} ${String(pubDate.getHours()).padStart(2,'0')}:${String(pubDate.getMinutes()).padStart(2,'0')}`;
 
               list.push({
-                stockName: `${classified.sectorLabel} (${classified.matchedKeyword})`,
+                stockName: classified.matchedKeyword ? `${classified.sectorLabel} (${classified.matchedKeyword})` : classified.sectorLabel,
                 sectorKey: classified.sectorKey,
                 sectorColor: classified.color,
-                sentiment: (title.includes('하락') || title.includes('급락') || title.includes('우려') || title.includes('약세')) ? 'NEGATIVE' : 'POSITIVE',
+                sentiment: judgeSentiment(title, desc),
+                ts: pubTs,
                 title,
                 summary: desc.length > 110 ? desc.slice(0, 110) + '...' : desc,
                 source: feed.name.split(' ')[0],
@@ -1475,9 +1970,11 @@
         })
       );
 
-      const allItems = rawResults.flat();
+      LAST_FEED_STATUS = { ok: feedOkCount, total: FEEDS_REGISTRY.length };
+      // 최신 기사 우선 정렬 (날짜 없는 기사는 뒤로)
+      const allItems = rawResults.flat().sort((a, b) => b.ts - a.ts);
 
-      const counts = { CONST_INFRA: 0, SHIP_HOLDING: 0, AI_SEMI_IT: 0, DEFENSE_METAL: 0, FIN_VALUE: 0, BIO_ENT: 0 };
+      const counts = { CONST_INFRA: 0, SHIP_HOLDING: 0, AI_SEMI_IT: 0, DEFENSE_METAL: 0, FIN_VALUE: 0, BIO_ENT: 0, MACRO: 0 };
       allItems.forEach(i => { if (counts[i.sectorKey] !== undefined) counts[i.sectorKey]++; });
 
       appendTerminalLog("MAX (①건설기계)", `HD건설기계·글로벌 인프라 뉴스 ${counts.CONST_INFRA}건 선별 완료.`, "#fb923c");
@@ -1486,6 +1983,7 @@
       appendTerminalLog("LUCY (④방산·비철)", `풍산·방산·구리 원자재 뉴스 ${counts.DEFENSE_METAL}건 선별 완료.`, "#fbbf24");
       appendTerminalLog("KAI (⑤금융·밸류업)", `KB금융·밸류업·거시지수 뉴스 ${counts.FIN_VALUE}건 선별 완료.`, "#38bdf8");
       appendTerminalLog("CHLOE (⑥바이오·엔터)", `셀트리온·에스엠 뉴스 ${counts.BIO_ENT}건 선별 완료.`, "#f472b6");
+      appendTerminalLog("SYSTEM", `섹터 키워드 미해당 시장·거시 기사 ${counts.MACRO}건 · 뉴스 피드 연결 ${feedOkCount}/${FEEDS_REGISTRY.length}`, feedOkCount ? "#94a3b8" : "#fb7185");
 
       let combined = [];
       if (mode === 'HOLDINGS') {
@@ -1506,18 +2004,22 @@
     }
 
     function generateDynamicSummary(items) {
+      if (LAST_FEED_STATUS.total && LAST_FEED_STATUS.ok === 0) {
+        return "뉴스 피드 4곳 모두 연결에 실패했습니다(CORS 프록시 응답 없음). 잠시 후 [8인 업무 가동]을 다시 눌러주세요.";
+      }
       if (!items || items.length === 0) {
         return "해당 세부 섹터에 수신된 최신 뉴스가 없습니다. 상단 [전체 (All)] 탭을 선택하거나 [8인 업무 가동]을 눌러주세요.";
       }
-      const positiveCount = items.filter(i => i.sentiment === 'POSITIVE').length;
-      const negativeCount = items.length - positiveCount;
+      const pos = items.filter(i => i.sentiment === 'POSITIVE').length;
+      const neg = items.filter(i => i.sentiment === 'NEGATIVE').length;
+      const neu = items.length - pos - neg;
       const headlines = items.slice(0, 3).map(i => i.title.replace(/\[.*?\]/g, '').trim()).join(' / ');
 
       const sectorTitle = currentSectorFilter === 'ALL'
-        ? '6대 섹터 통합 (맥스·레오·미아·루시·카이·클로이)'
+        ? '6대 섹터 + 시장·거시'
         : `${SECTOR_META[currentSectorFilter]?.agentName} 전담 (${SECTOR_META[currentSectorFilter]?.label})`;
 
-      return `[엘레나 취합 · 아서 승인 완료 | ${sectorTitle}] 총 ${items.length}건(긍정 ${positiveCount}건, 신중 ${negativeCount}건) 교차 검증 결과, 핵심 헤드라인은 '${headlines}' 등입니다.`;
+      return `[${sectorTitle}] 총 ${items.length}건 · 긍정 ${pos} / 중립 ${neu} / 부정 ${neg}. 최신 헤드라인: '${headlines}'. ※ 분류와 긍·부정은 키워드 규칙 기반 자동 판정이며, 기사 내용을 검증한 결과는 아닙니다.`;
     }
 
     async function togglePortfolioTable() {
@@ -1542,38 +2044,81 @@
         btn.classList.add('btn-active');
         btn.innerHTML = `<span>📉</span> 내 종목 닫기`;
         modeTag.textContent = "내 보유종목 모드";
-        modeTag.style.background = "#064e3b";
-        modeTag.style.color = "#6ee7b7";
+        modeTag.classList.add('holdings');
 
         renderPortfolioRows();
+        renderSummaryStats();
         fetchStockDataWithSilentFailover();
-        startStockRefreshTimer();
         if (hasRunOnce) updateBriefingDisplay();
       } else {
         container.style.display = 'none';
         btn.classList.remove('btn-active');
         btn.innerHTML = `<span>📈</span> 내 종목 보기`;
         modeTag.textContent = "전체 시장 모드";
-        modeTag.style.background = "#082f49";
-        modeTag.style.color = "#38bdf8";
+        modeTag.classList.remove('holdings');
+        renderSummaryStats();
         if (hasRunOnce) updateBriefingDisplay();
       }
     }
 
-    function renderKospiBanner() {
-      const kospiBanner = document.getElementById('kospi-banner');
-      kospiBanner.style.display = 'flex';
-      const curVal = KOSPI_STATE.currentPrice;
-      const prevClose = KOSPI_STATE.prevClose;
-      const diffVal = curVal - prevClose;
-      const rateVal = prevClose ? (diffVal / prevClose) * 100 : 0;
-
-      document.getElementById('kospi-current-val').textContent = curVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      const arrow = diffVal > 0 ? "▲" : diffVal < 0 ? "▼" : "─";
-      const color = diffVal > 0 ? "#fb7185" : diffVal < 0 ? "#38bdf8" : "#94a3b8";
-      const sign = diffVal > 0 ? "+" : "";
-      document.getElementById('kospi-diff-val').innerHTML = `<span style="color:${color};">${arrow} ${sign}${diffVal.toFixed(2)} (${sign}${rateVal.toFixed(2)}%)</span>`;
+    // 금액을 '1억 2,345만원' 형태로 축약 (요약 카드용)
+    function formatKRWCompact(v) {
+      const abs = Math.abs(v), sign = v < 0 ? '-' : '';
+      if (abs >= 1e8) {
+        const eok = Math.floor(abs / 1e8), man = Math.round((abs % 1e8) / 1e4);
+        return `${sign}${eok.toLocaleString()}억${man ? ' ' + man.toLocaleString() + '만' : ''}원`;
+      }
+      if (abs >= 1e4) return `${sign}${Math.round(abs / 1e4).toLocaleString()}만원`;
+      return `${sign}${Math.round(abs).toLocaleString()}원`;
     }
+
+    function setStat(id, valueHtml, subHtml, cls = '') {
+      const el = document.getElementById(id);
+      el.querySelector('.stat-value').innerHTML = valueHtml;
+      el.querySelector('.stat-value').className = `stat-value ${cls}`;
+      el.querySelector('.stat-sub').innerHTML = subHtml;
+    }
+
+    // 헤더 아래 요약 카드 3개: 총 평가금액 · 오늘 손익 · KOSPI
+    function renderSummaryStats() {
+      ['stat-total', 'stat-pnl'].forEach(id => document.getElementById(id).classList.toggle('locked', !isPortfolioOpen));
+      if (!isPortfolioOpen) {
+        setStat('stat-total', '🔒 잠김', '눌러서 내 종목 열기', 'num-none');
+        setStat('stat-pnl', '🔒 잠김', '비밀번호 입력 후 표시', 'num-none');
+      } else {
+        const loaded = MY_HOLDINGS.filter(h => h.loaded);
+        if (loaded.length === 0) {
+          setStat('stat-total', '불러오는 중…', '시세 연결 중', 'num-none');
+          setStat('stat-pnl', '-', '시세 연결 중', 'num-none');
+        } else {
+          const curr = loaded.reduce((n, h) => n + h.shares * h.currentPrice, 0);
+          const prev = loaded.reduce((n, h) => n + h.shares * h.prevClose, 0);
+          const diff = curr - prev, rate = prev ? diff / prev * 100 : 0;
+          const cls = diff > 0 ? 'num-up' : diff < 0 ? 'num-down' : 'num-flat';
+          const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '─';
+          const partial = loaded.length < MY_HOLDINGS.length ? ` · ${loaded.length}/${MY_HOLDINGS.length}종목 반영` : ` · ${MY_HOLDINGS.length}종목`;
+          setStat('stat-total', formatKRWCompact(curr), `전일 ${formatKRWCompact(prev)}<span class="desktop-only">${partial}</span>`);
+          setStat('stat-pnl', `${diff > 0 ? '+' : ''}${formatKRWCompact(diff)}`, `<span class="${cls}">${arrow} ${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%</span> 전일 대비`, cls);
+        }
+      }
+
+      if (KOSPI_STATE.loaded) {
+        const diff = KOSPI_STATE.currentPrice - KOSPI_STATE.prevClose;
+        const rate = KOSPI_STATE.prevClose ? diff / KOSPI_STATE.prevClose * 100 : 0;
+        const cls = diff > 0 ? 'num-up' : diff < 0 ? 'num-down' : 'num-flat';
+        const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '─';
+        const sign = diff > 0 ? '+' : '';
+        const t = KOSPI_STATE.updatedAt ? formatKST(KOSPI_STATE.updatedAt).slice(0, 5) : '';
+        setStat('stat-kospi',
+          KOSPI_STATE.currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          `<span class="${cls}">${arrow} <span class="desktop-only">${sign}${diff.toFixed(2)} (</span>${sign}${rate.toFixed(2)}%<span class="desktop-only">)</span></span>${t ? '<span class="desktop-only"> · ' + t + ' 기준</span>' : ''}`);
+      } else {
+        setStat('stat-kospi', '-', KOSPI_STATE.tried ? '<span class="num-down">시세 연결 실패</span>' : '연결 중…', 'num-none');
+      }
+    }
+
+    // (호환용) 기존 호출부 유지
+    function renderKospiBanner() { renderSummaryStats(); }
 
     function updateBriefingDisplay() {
       renderKospiBanner();
@@ -1599,25 +2144,29 @@
       newsList.style.display = 'flex';
 
       if (!items || items.length === 0) {
-        newsList.innerHTML = `<div style="text-align:center; padding:16px; color:#64748b; font-size:11px;">선택하신 세부 섹터의 뉴스가 없습니다. [전체 (All)] 탭을 눌러보세요.</div>`;
+        newsList.innerHTML = (LAST_FEED_STATUS.total && LAST_FEED_STATUS.ok === 0)
+          ? `<div class="news-empty">뉴스 피드에 연결하지 못했습니다. 네트워크 또는 프록시 상태를 확인한 뒤 다시 시도해 주세요.</div>`
+          : `<div class="news-empty">선택하신 세부 섹터의 뉴스가 없습니다. [전체 (All)] 탭을 눌러보세요.</div>`;
         return;
       }
 
       items.forEach(item => {
         const card = document.createElement('div');
         card.className = "news-card";
-        const sentimentColor = item.sentiment === 'POSITIVE' ? '#6ee7b7' : '#fb7185';
-        const sentimentBg = item.sentiment === 'POSITIVE' ? '#064e3b' : '#4c0519';
+        const sentimentCls = { POSITIVE: 'pos', NEGATIVE: 'neg', NEUTRAL: 'neu' }[item.sentiment] || 'neu';
+        const sentimentText = { POSITIVE: '긍정', NEGATIVE: '부정', NEUTRAL: '중립' }[item.sentiment] || '중립';
+        const sectorColor = /^#[0-9a-f]{6}$/i.test(item.sectorColor || '') ? item.sectorColor : 'currentColor';
 
+        // 외부 뉴스 텍스트는 모두 escapeHtml을 거쳐 삽입 (XSS 방지)
         card.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:11px; font-weight:bold; color:${item.sectorColor || '#e2e8f0'};">[${item.stockName}]</span>
-            <span style="font-size:8px; font-family:monospace; padding:2px 6px; border-radius:4px; background:${sentimentBg}; color:${sentimentColor};">${item.sentiment}</span>
+          <div class="news-head">
+            <span class="news-sector" style="--sc:${sectorColor};">[${escapeHtml(item.stockName)}]</span>
+            <span class="sentiment ${sentimentCls}">${sentimentText}</span>
           </div>
-          <a href="${item.url}" target="_blank" rel="noopener noreferrer">${item.title} ↗</a>
-          <p>${item.summary}</p>
+          <a href="${escapeHtml(safeHttpUrl(item.url))}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)} ↗</a>
+          <p>${escapeHtml(item.summary)}</p>
           <div class="news-meta">
-            <span style="color:#38bdf8;">${item.source}</span> · <span style="color:#94a3b8;">${item.publishedAt}</span>
+            <span class="src">${escapeHtml(item.source)}</span> · <span>${escapeHtml(item.publishedAt)}</span>
           </div>
         `;
         newsList.appendChild(card);
@@ -1651,14 +2200,14 @@
         const priceRate = loaded && stock.prevClose !== 0 ? (priceDiff / stock.prevClose) * 100 : null;
         const amountDiff = loaded ? currAmount - prevAmount : null;
 
-        const diffColor = !loaded ? "#64748b" : priceDiff > 0 ? "#fb7185" : priceDiff < 0 ? "#38bdf8" : "#94a3b8";
+        const diffCls = !loaded ? "num-none" : priceDiff > 0 ? "num-up" : priceDiff < 0 ? "num-down" : "num-flat";
         const arrow = !loaded ? "" : priceDiff > 0 ? "▲" : priceDiff < 0 ? "▼" : "─";
         const naverTotalUrl = `https://m.stock.naver.com/domestic/stock/${stock.code}/total?domesticStockExchange=KRX`;
         const priceText = value => Number.isFinite(value) ? value.toLocaleString() : "-";
         const signedNumber = value => Number.isFinite(value) ? `${value > 0 ? "+" : ""}${value.toLocaleString()}` : "-";
 
         const changePriceText = loaded
-          ? `<span style="font-size:12px;">${arrow}</span> ${signedNumber(priceDiff)} <span style="font-size:9px;">(${priceRate >= 0 ? "+" : ""}${priceRate.toFixed(2)}%)</span>`
+          ? `${arrow} ${signedNumber(priceDiff)} <span class="rate">(${priceRate >= 0 ? "+" : ""}${priceRate.toFixed(2)}%)</span>`
           : "-";
 
         const tr = document.createElement('tr');
@@ -1669,13 +2218,13 @@
               <span class="sector-mini-tag">${stock.sectorLabel}</span>
             </a>
           </td>
-          <td style="color:#cbd5e1;">${stock.shares.toLocaleString()}주</td>
-          <td style="color:#94a3b8;">${priceText(stock.prevClose)}</td>
-          <td style="color:#cbd5e1;">${priceText(prevAmount)}</td>
-          <td style="color:${diffColor}; font-weight:bold;">${priceText(stock.currentPrice)}</td>
-          <td style="color:${diffColor}; font-weight:bold;">${priceText(currAmount)}</td>
-          <td style="color:${diffColor}; font-weight:bold;">${changePriceText}</td>
-          <td style="color:${diffColor}; font-weight:bold;">${loaded ? signedNumber(amountDiff) : "-"}</td>
+          <td>${stock.shares.toLocaleString()}주</td>
+          <td class="muted">${priceText(stock.prevClose)}</td>
+          <td>${priceText(prevAmount)}</td>
+          <td class="${diffCls}">${priceText(stock.currentPrice)}</td>
+          <td class="${diffCls}">${priceText(currAmount)}</td>
+          <td class="${diffCls}">${changePriceText}</td>
+          <td class="${diffCls}">${loaded ? signedNumber(amountDiff) : "-"}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -1683,23 +2232,21 @@
       const allLoaded = loadedCount === targetHoldings.length && targetHoldings.length > 0;
       const totalDiff = allLoaded ? totalCurrAmount - totalPrevAmount : null;
       const totalRate = allLoaded && totalPrevAmount !== 0 ? (totalDiff / totalPrevAmount) * 100 : null;
-      const totalColor = !allLoaded ? "#64748b" : totalDiff > 0 ? "#fb7185" : totalDiff < 0 ? "#38bdf8" : "#94a3b8";
+      const totalCls = !allLoaded ? "num-none" : totalDiff > 0 ? "num-up" : totalDiff < 0 ? "num-down" : "num-flat";
       const totalArrow = !allLoaded ? "" : totalDiff > 0 ? "▲" : totalDiff < 0 ? "▼" : "─";
       const totalSign = allLoaded && totalDiff > 0 ? "+" : "";
 
       const totalTr = document.createElement('tr');
-      totalTr.style.backgroundColor = "#0f172a";
-      totalTr.style.fontWeight = "bold";
-      totalTr.style.borderTop = "2px solid rgba(99, 102, 241, 0.5)";
+      totalTr.className = "total-row";
       totalTr.innerHTML = `
-        <td style="text-align:left;color:#a5b4fc;">합계 (${targetHoldings.length}종목)</td>
-        <td style="color:#64748b;">-</td>
-        <td style="color:#64748b;">-</td>
-        <td style="color:${totalColor};">${allLoaded ? totalPrevAmount.toLocaleString() : "-"}</td>
-        <td style="color:#64748b;">-</td>
-        <td style="color:${totalColor};">${allLoaded ? totalCurrAmount.toLocaleString() : "-"}</td>
-        <td style="color:${totalColor};">${allLoaded ? `<span style="font-size:12px;">${totalArrow}</span> ${totalSign}${totalDiff.toLocaleString()} <span style="font-size:9px;">(${totalRate >= 0 ? "+" : ""}${totalRate.toFixed(2)}%)</span>` : "-"}</td>
-        <td style="color:${totalColor};">${allLoaded ? `${totalSign}${totalDiff.toLocaleString()}` : "-"}</td>
+        <td style="text-align:left;">합계 (${targetHoldings.length}종목)</td>
+        <td class="dim">-</td>
+        <td class="dim">-</td>
+        <td class="${totalCls}">${allLoaded ? totalPrevAmount.toLocaleString() : "-"}</td>
+        <td class="dim">-</td>
+        <td class="${totalCls}">${allLoaded ? totalCurrAmount.toLocaleString() : "-"}</td>
+        <td class="${totalCls}">${allLoaded ? `${totalArrow} ${totalSign}${totalDiff.toLocaleString()} <span class="rate">(${totalRate >= 0 ? "+" : ""}${totalRate.toFixed(2)}%)</span>` : "-"}</td>
+        <td class="${totalCls}">${allLoaded ? `${totalSign}${totalDiff.toLocaleString()}` : "-"}</td>
       `;
       tbody.appendChild(totalTr);
     }
@@ -1782,8 +2329,27 @@
       btnRun.style.opacity = "1";
     }
 
+    // 3D 오피스 접기/펼치기 (상태 저장)
+    function setOfficeCollapsed(collapsed) {
+      officeCollapsed = collapsed;
+      const wrapper = document.getElementById('office-3d-wrapper');
+      const btn = document.getElementById('btn-office-toggle');
+      wrapper.classList.toggle('collapsed', collapsed);
+      btn.textContent = collapsed ? '▼ 3D 펼치기' : '▲ 3D 접기';
+      btn.setAttribute('aria-expanded', String(!collapsed));
+      try { localStorage.setItem('pulse8-office-collapsed', collapsed ? '1' : '0'); } catch (_) {}
+      if (!collapsed) onWindowResize();
+      refresh3DLoop();
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
+      setTheme(getTheme());
       init3DOffice();
+      let savedCollapsed = false;
+      try { savedCollapsed = localStorage.getItem('pulse8-office-collapsed') === '1'; } catch (_) {}
+      setOfficeCollapsed(savedCollapsed);
+      renderSummaryStats();
+      autoRefreshTick(true);   // 첫 로드 시 장 마감이어도 KOSPI는 한 번 불러옴
     });
   </script>
 </body>
