@@ -496,6 +496,99 @@
     .mobile-only { display: none; }
     .summary-card { cursor: pointer; }
 
+    /* =========================================================
+       v7 — 오피스 라이프(말풍선) · 포트폴리오 표 · 뉴스 카드 업그레이드
+       ========================================================= */
+    :root { --cell-bg: #ffffff; --zebra-bg: #f8fafc; }
+    [data-theme="dark"] { --cell-bg: #0b1120; --zebra-bg: #0e1627; }
+
+    .office-activity { margin-left: 8px; color: var(--text-3); }
+
+    /* 대화 말풍선: 네임태그 위에 표시 */
+    .chat-bubble {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 6px);
+      transform: translateX(-50%) scale(0.9);
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 7px;
+      border-radius: 9px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+    }
+    .chat-bubble::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: -4px;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: #f8fafc;
+      border-bottom: 0;
+    }
+    .chat-bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
+
+    /* 포트폴리오 표: 숫자 정렬(tabular) · 종목 열 고정 · 줄무늬 · 등락 알약 · 비중 막대 */
+    table {
+      font-family: 'Pretendard', -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      font-variant-numeric: tabular-nums;
+      font-size: 12.5px;
+    }
+    th { font-size: 11px; font-weight: 700; color: var(--text-3); letter-spacing: 0.2px; padding: 8px 10px; }
+    td { padding: 8px 10px; }
+    [data-theme="dark"] .table-scroll { background: var(--cell-bg); }
+    th:first-child, td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: var(--cell-bg);
+      box-shadow: 1px 0 0 var(--border-soft);
+    }
+    th:first-child { background: var(--surface-3); z-index: 2; }
+    [data-theme="dark"] th:first-child { background: #0f172a; }
+    tbody tr:nth-child(even) td { background: var(--zebra-bg); }
+    tbody tr.total-row td { background: var(--total-bg); font-size: 13px; }
+    .sector-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sc, var(--text-4)); flex: none; }
+    .stock-link span.stock-name { font-weight: 700; }
+    .chg-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-weight: 700; }
+    .chg-pill.num-up { background: color-mix(in srgb, var(--up) 14%, transparent); }
+    .chg-pill.num-down { background: color-mix(in srgb, var(--down) 14%, transparent); }
+    .chg-pill.num-flat { background: var(--surface-3); }
+    .wcell { display: inline-flex; align-items: center; gap: 6px; justify-content: flex-end; color: var(--text-3); }
+    .wbar { width: 52px; height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
+    .wbar i { display: block; height: 100%; border-radius: 3px; background: var(--sc, var(--accent)); }
+
+    /* 뉴스 카드: 섹터 색 띠 + '내 종목 직접' 배지 + 종목별 커버리지 칩 */
+    .news-card { border-left: 3px solid color-mix(in srgb, var(--sc, var(--border)) 75%, transparent); }
+    [data-theme="dark"] .news-card { border-left-color: color-mix(in srgb, var(--sc, #334155) 80%, transparent); }
+    .news-tags { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .tag-direct, .tag-ref {
+      font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; flex: none;
+    }
+    .tag-direct { background: var(--hold-bg); color: var(--hold-fg); }
+    .tag-ref { background: var(--surface-3); color: var(--text-3); }
+    .holding-coverage { display: none; flex-wrap: wrap; gap: 5px; }
+    .cov-chip {
+      font-family: inherit; font-size: 11px; padding: 4px 9px; border-radius: 999px; cursor: pointer;
+      border: 1px solid var(--border); color: var(--text-2); background: var(--surface);
+    }
+    [data-theme="dark"] .cov-chip { background: #1e293b; }
+    .cov-chip b { color: var(--accent); margin-left: 4px; }
+    .cov-chip.zero { opacity: 0.5; }
+    .cov-chip.active { background: #0284c7; border-color: #38bdf8; color: #ffffff; }
+    .cov-chip.active b { color: #ffffff; }
+
+    /* 모바일: 고정된 종목 열이 화면을 다 차지하지 않도록 섹터 태그는 숨김(색 점으로 구분) */
+    @media (max-width: 600px) {
+      td:first-child .sector-mini-tag { display: none; }
+      th, td { padding: 8px 8px; }
+      .chat-bubble { font-size: 9.5px; }
+    }
     /* 모바일 (600px 이하): 줄바꿈 없이 한 줄 유지 — 넘치는 글은 … 처리, 표·로그는 가로 스크롤 */
     @media (max-width: 600px) {
       body { padding: 8px; }
@@ -624,14 +717,14 @@
     <!-- 2. 3D 가상 오피스 룸 (4x2 그리드로 8인 전원 한눈에 표시) -->
     <section class="section-card">
       <div class="card-topbar">
-        <span>FLOOR 01 · OPEN-PLAN 8-AGENT DESK <span class="topbar-accent">● 8</span></span>
+        <span>FLOOR 01 · LIVE OFFICE <span class="topbar-accent">● 8</span><span id="office-activity" class="office-activity"></span></span>
         <button type="button" id="btn-office-toggle" class="topbar-btn" aria-expanded="true" aria-controls="office-3d-wrapper" onclick="setOfficeCollapsed(!officeCollapsed)">▲ 3D 접기</button>
       </div>
 
       <div class="office-3d-wrapper" id="office-3d-wrapper">
         <canvas id="office-3d-canvas"></canvas>
         <div id="labels-overlay"></div>
-        <div class="canvas-hint">🖱️ 드래그로 사방 360° 회전 · 휠/핀치 줌 · 우클릭 드래그로 이동</div>
+        <div class="canvas-hint">🖱️ 드래그 360° 회전 · 휠/핀치 줌 · 직원들이 커피 바·토론 존을 오가며 일합니다</div>
       </div>
 
       <!-- 6대 세분화 섹터 필터 바 (1번 섹터: HD건설기계 전담 독립!) -->
@@ -667,6 +760,7 @@
                 <th>현재금액</th>
                 <th>증감단가</th>
                 <th>증감금액</th>
+                <th>비중</th>
               </tr>
             </thead>
             <tbody id="portfolio-tbody"></tbody>
@@ -681,7 +775,7 @@
           <span id="log-clock" style="color: #64748b;">11:55:00 KST</span>
         </div>
         <div id="terminal-body" class="terminal-body">
-          <div style="color: #64748b;">[SYSTEM] 8인 체제(6대 섹터 스카우트 + 엘레나 취합 + 아서 승인) 4x2 3D 오피스 가동 준비 완료.</div>
+          <div style="color: #64748b;">[SYSTEM] 8인 체제(6대 섹터 스카우트 + 엘레나 취합 + 아서 승인) 라이브 오피스 가동 준비 완료.</div>
         </div>
       </div>
     </section>
@@ -708,6 +802,9 @@
           </div>
           <p id="summary-content">뉴스 데이터를 수집 중입니다.</p>
         </div>
+
+        <!-- 내 종목 모드: 종목별 직접 뉴스 건수 칩 (누르면 해당 종목만 보기) -->
+        <div id="holding-coverage" class="holding-coverage"></div>
 
         <!-- 뉴스 리스트 피드 -->
         <div id="news-list"></div>
@@ -823,6 +920,9 @@
     let signCanvas, signCtx, signTexture;
     let tickerOffset = 0;
 
+    // 오피스 라이프(자리 이동·토론·커피) 진행 상태
+    const officeLife = { t: 0, nextPlanAt: 2.5, activities: [], spots: {}, forced: null, badgeHoldUntil: 0 };
+
     // =========================================================================
     // [테마] 라이트(기본) / 다크 — DOM은 CSS 변수, 3D 씬은 아래 팔레트로 전환
     // =========================================================================
@@ -830,7 +930,7 @@
       light: { fog: 0xdde5ef, fogDensity: 0.016, ambient: 1.05, floor: 0xe2e8f0, wall: 0xf8fafc, desk: 0xf1f5f9, leg: 0x94a3b8, chair: 0x475569, gridMain: 0x7dd3fc, gridSub: 0xcbd5e1, neon: 0.55 },
       dark:  { fog: 0x020617, fogDensity: 0.022, ambient: 0.74, floor: 0x091326, wall: 0x0b1528, desk: 0x1e293b, leg: 0x0f172a, chair: 0x1e293b, gridMain: 0x0284c7, gridSub: 0x1e293b, neon: 1.0 }
     };
-    const sceneRefs = { ambient: null, floorMat: null, wallMat: null, deskMat: null, legMat: null, chairMat: null, grid: null, neonLights: [] };
+    const sceneRefs = { ambient: null, floorMat: null, wallMat: null, deskMat: null, legMat: null, chairMat: null, grid: null, neonLights: [], themed: [] };
 
     function getTheme() {
       return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
@@ -858,6 +958,7 @@
       sceneRefs.legMat.color.setHex(p.leg);
       sceneRefs.chairMat.color.setHex(p.chair);
       sceneRefs.neonLights.forEach(l => { l.intensity = l.userData.base * p.neon; });
+      sceneRefs.themed.forEach(e => e.mat.color.setHex(t === 'light' ? e.light : e.dark));
       if (sceneRefs.grid) {
         scene.remove(sceneRefs.grid);
         sceneRefs.grid.geometry.dispose();
@@ -880,22 +981,132 @@
       appendTerminalLog("BRAND", `오피스 브랜드 네이밍 변경: [${name}]`, "#67e8f9");
     }
 
+    // ── 캔버스 그리기 공용 도우미
+    const CANVAS_FONT = 'Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+    const SIGN_W = 1280, SIGN_H = 300;
+
+    function roundRectPath(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function fitCanvasText(ctx, text, maxW) {
+      let s = String(text || '');
+      if (ctx.measureText(s).width <= maxW) return s;
+      while (s.length > 1 && ctx.measureText(s + '…').width > maxW) s = s.slice(0, -1);
+      return s + '…';
+    }
+
+    // 후방 네온 간판: 로고 마크 + 브랜드(자동 폭 맞춤) + LIVE 상태줄(1초마다 갱신)
     function drawRearWallSign() {
       if (!signCtx) return;
-      signCtx.fillStyle = '#050b18';
-      signCtx.fillRect(0, 0, 1024, 210);
-      signCtx.strokeStyle = '#38bdf8';
-      signCtx.lineWidth = 5;
-      signCtx.strokeRect(6, 6, 1012, 198);
+      const ctx = signCtx, W = SIGN_W, H = SIGN_H;
+      const pulse = 0.72 + 0.28 * Math.sin(Date.now() / 650);
+      ctx.save();
+      ctx.shadowBlur = 0;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
 
-      signCtx.fillStyle = '#f8fafc';
-      signCtx.font = 'bold 56px sans-serif';
-      signCtx.textAlign = 'center';
-      signCtx.fillText(CURRENT_BRAND_NAME, 512, 102);
+      const bg = ctx.createLinearGradient(0, 0, W, H);
+      bg.addColorStop(0, '#050b1c');
+      bg.addColorStop(0.55, '#0a1731');
+      bg.addColorStop(1, '#050a18');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
 
-      signCtx.fillStyle = '#38bdf8';
-      signCtx.font = 'bold 27px monospace';
-      signCtx.fillText(CURRENT_BRAND_SUB, 512, 162);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.07)';
+      ctx.lineWidth = 1;
+      for (let x = 40; x < W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+      for (let y = 40; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+      // 이중 네온 테두리
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 22 * pulse;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 5;
+      roundRectPath(ctx, 10, 10, W - 20, H - 20, 24);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(129, 140, 248, 0.55)';
+      ctx.lineWidth = 2;
+      roundRectPath(ctx, 22, 22, W - 44, H - 44, 16);
+      ctx.stroke();
+
+      // 로고 마크(맥박 파형)
+      const lg = ctx.createLinearGradient(52, 58, 202, 208);
+      lg.addColorStop(0, '#0ea5e9');
+      lg.addColorStop(1, '#6366f1');
+      ctx.fillStyle = lg;
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 18 * pulse;
+      roundRectPath(ctx, 52, 56, 150, 150, 32);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 9;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      [[72, 136], [98, 136], [112, 98], [130, 168], [146, 116], [158, 136], [182, 136]].forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
+      });
+      ctx.stroke();
+
+      // 브랜드명: 첫 단어는 흰색, 나머지는 네온 시안
+      const x0 = 236, maxW = W - x0 - 56;
+      const name = String(CURRENT_BRAND_NAME || '');
+      const cut = name.indexOf(' ');
+      const head = cut > 0 ? name.slice(0, cut) : name;
+      const tail = cut > 0 ? name.slice(cut) : '';
+      let size = 84;
+      do {
+        ctx.font = `800 ${size}px ${CANVAS_FONT}`;
+        if (ctx.measureText(name).width <= maxW) break;
+        size -= 4;
+      } while (size > 40);
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 26 * pulse;
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText(head, x0, 132);
+      ctx.fillStyle = '#7dd3fc';
+      ctx.fillText(tail, x0 + ctx.measureText(head).width, 132);
+      ctx.shadowBlur = 0;
+
+      const line = ctx.createLinearGradient(x0, 0, x0 + maxW, 0);
+      line.addColorStop(0, '#38bdf8');
+      line.addColorStop(1, 'rgba(99, 102, 241, 0)');
+      ctx.fillStyle = line;
+      ctx.fillRect(x0, 152, maxW, 4);
+
+      ctx.font = '600 26px ui-monospace, Menlo, Consolas, monospace';
+      ctx.fillStyle = '#7dd3fc';
+      ctx.fillText(fitCanvasText(ctx, CURRENT_BRAND_SUB, maxW), x0, 196);
+
+      // 상태줄: LIVE · 시각 · 인원 · KOSPI
+      ctx.fillStyle = `rgba(248, 113, 113, ${0.45 + 0.55 * pulse})`;
+      ctx.beginPath();
+      ctx.arc(x0 + 9, 246, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.font = `700 24px ${CANVAS_FONT}`;
+      ctx.fillStyle = '#fca5a5';
+      ctx.fillText('LIVE', x0 + 28, 255);
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillText(`${formatKST(new Date()).slice(0, 5)} KST`, x0 + 100, 255);
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('· 8 AGENTS ONLINE', x0 + 232, 255);
+      if (KOSPI_STATE.loaded) {
+        const d = KOSPI_STATE.currentPrice - KOSPI_STATE.prevClose;
+        const rate = KOSPI_STATE.prevClose ? d / KOSPI_STATE.prevClose * 100 : 0;
+        ctx.textAlign = 'right';
+        ctx.fillStyle = d > 0 ? '#fb7185' : d < 0 ? '#38bdf8' : '#94a3b8';
+        ctx.fillText(`KOSPI ${KOSPI_STATE.currentPrice.toFixed(2)} ${d > 0 ? '▲' : d < 0 ? '▼' : '─'} ${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`, W - 56, 255);
+      }
+      ctx.restore();
       if (signTexture) signTexture.needsUpdate = true;
     }
 
@@ -929,10 +1140,23 @@
       return new THREE.CanvasTexture(c);
     }
 
+    // 좌측 전광판 → 실데이터 상황판 (KOSPI · 최신 헤드라인 · 섹터별 뉴스 건수/긍부정 · 담당 요원 현재 상태)
+    const BOARD_W = 1400, BOARD_H = 296;
+    let BOARD_STATS = null;      // 섹터별 집계: [8인 업무 가동] 이후 채워짐
+    let BOARD_HEADLINES = [];    // 흐르는 헤드라인
+    const BOARD_CARDS = [
+      { key: 'CONST_INFRA',   title: '① 건설기계·인프라', agentId: 'scout-const' },
+      { key: 'SHIP_HOLDING',  title: '② 조선·해양·지주',  agentId: 'scout-ship' },
+      { key: 'AI_SEMI_IT',    title: '③ AI·반도체·IT',    agentId: 'scout-tech' },
+      { key: 'DEFENSE_METAL', title: '④ 방산·비철금속',   agentId: 'scout-def' },
+      { key: 'FIN_VALUE',     title: '⑤ 금융·밸류업',     agentId: 'scout-fin' },
+      { key: 'BIO_ENT',       title: '⑥ 바이오·K콘텐츠',  agentId: 'scout-bio' }
+    ];
+
     function initWallTickerTexture() {
       wallTickerCanvas = document.createElement('canvas');
-      wallTickerCanvas.width = 1024;
-      wallTickerCanvas.height = 210;
+      wallTickerCanvas.width = BOARD_W;
+      wallTickerCanvas.height = BOARD_H;
       wallTickerCtx = wallTickerCanvas.getContext('2d');
       wallTickerTexture = new THREE.CanvasTexture(wallTickerCanvas);
       updateWallTickerCanvas();
@@ -940,80 +1164,125 @@
 
     function updateWallTickerCanvas() {
       if (!wallTickerCtx) return;
-      const ctx = wallTickerCtx;
+      const ctx = wallTickerCtx, W = BOARD_W, H = BOARD_H;
+      ctx.save();
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
       ctx.fillStyle = '#04091a';
-      ctx.fillRect(0, 0, 1024, 210);
-
+      ctx.fillRect(0, 0, W, H);
       ctx.strokeStyle = '#0284c7';
       ctx.lineWidth = 4;
-      ctx.strokeRect(4, 4, 1016, 202);
+      ctx.strokeRect(4, 4, W - 8, H - 8);
 
-      // KOSPI: 실제 등락에 따라 화살표/색 표시 (한국식: 상승 빨강, 하락 파랑), 미연결 시 '--'
-      ctx.font = 'bold 23px monospace';
+      // KOSPI: 한국식 색상(상승 빨강, 하락 파랑), 미연결 시 '--'
+      ctx.font = `800 28px ${CANVAS_FONT}`;
       if (KOSPI_STATE.loaded) {
         const d = KOSPI_STATE.currentPrice - KOSPI_STATE.prevClose;
+        const rate = KOSPI_STATE.prevClose ? d / KOSPI_STATE.prevClose * 100 : 0;
         ctx.fillStyle = d > 0 ? '#fb7185' : d < 0 ? '#38bdf8' : '#94a3b8';
-        ctx.fillText(`KOSPI ${KOSPI_STATE.currentPrice.toFixed(2)} ${d > 0 ? '▲' : d < 0 ? '▼' : '─'}`, 20, 38);
+        ctx.fillText(`KOSPI ${KOSPI_STATE.currentPrice.toFixed(2)} ${d > 0 ? '▲' : d < 0 ? '▼' : '─'} ${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`, 24, 44);
       } else {
         ctx.fillStyle = '#64748b';
-        ctx.fillText('KOSPI  --', 20, 38);
+        ctx.fillText('KOSPI  --', 24, 44);
       }
 
-      // 흐르는 문구: KOSPI 영역을 침범하지 않도록 오른쪽 영역에서만 잘라서 표시
-      const tickerText = '[8인 가동] ①맥스(HD건설기계) · ②레오(조선) · ③미아(AI) · ④루시(방산) · ⑤카이(금융) · ⑥클로이(바이오) → ⑦엘레나 → ⑧아서';
-      ctx.font = 'bold 17px sans-serif';
+      // 흐르는 헤드라인: KOSPI 영역을 침범하지 않도록 오른쪽 영역에서만 잘라서 표시
+      const tickerText = BOARD_HEADLINES.length
+        ? BOARD_HEADLINES.join('   ◆   ')
+        : '[8인 업무 가동]을 누르면 6대 섹터 최신 헤드라인이 이곳에 흐릅니다   ◆   ①맥스 · ②레오 · ③미아 · ④루시 · ⑤카이 · ⑥클로이 → ⑦엘레나 취합 → ⑧아서 승인';
+      ctx.font = `700 22px ${CANVAS_FONT}`;
       const tw = ctx.measureText(tickerText).width;
-      const left = 290, right = 1012;
+      const left = 480, right = W - 20;
       ctx.save();
       ctx.beginPath();
-      ctx.rect(left, 12, right - left, 36);
+      ctx.rect(left, 12, right - left, 44);
       ctx.clip();
-      ctx.fillStyle = '#6ee7b7';
-      ctx.fillText(tickerText, right - (tickerOffset % (tw + (right - left))), 37);
+      ctx.fillStyle = '#a7f3d0';
+      ctx.fillText(tickerText, right - (tickerOffset % (tw + (right - left))), 44);
       ctx.restore();
 
-      const cards = [
-        { title: '①HD건설기계', val: '맥스', color: '#fb923c' },
-        { title: '②조선/지주', val: '레오', color: '#34d399' },
-        { title: '③AI/반도체', val: '미아', color: '#c084fc' },
-        { title: '④방산/비철', val: '루시', color: '#fbbf24' },
-        { title: '⑤금융/밸류', val: '카이', color: '#38bdf8' },
-        { title: '⑥바이오/엔터', val: '클로이', color: '#f472b6' }
-      ];
-      cards.forEach((c, idx) => {
-        const bx = 18 + idx * 165;
+      const gap = 12, cw = (W - 40 - gap * 5) / 6, cy = 70, ch = H - cy - 16;
+      BOARD_CARDS.forEach((c, idx) => {
+        const meta = SECTOR_META[c.key];
+        const bx = 20 + idx * (cw + gap);
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(bx, 56, 155, 134);
-        ctx.strokeStyle = c.color;
-        ctx.lineWidth = 2;
-        ctx.strokeRect(bx, 56, 155, 134);
+        ctx.fillRect(bx, cy, cw, ch);
+        ctx.fillStyle = meta.color;
+        ctx.fillRect(bx, cy, cw, 6);
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(bx, cy, cw, ch);
 
+        ctx.font = `700 19px ${CANVAS_FONT}`;
         ctx.fillStyle = '#e2e8f0';
-        ctx.font = 'bold 14px sans-serif';
-        ctx.fillText(c.title, bx + 8, 82);
-        ctx.fillStyle = c.color;
-        ctx.fillText(c.val, bx + 106, 82);
+        ctx.fillText(fitCanvasText(ctx, c.title, cw - 24), bx + 12, cy + 36);
 
-        ctx.beginPath();
-        ctx.strokeStyle = c.color;
-        ctx.lineWidth = 2.5;
-        ctx.moveTo(bx + 12, 168);
-        ctx.lineTo(bx + 45, 142);
-        ctx.lineTo(bx + 80, 154);
-        ctx.lineTo(bx + 115, 120);
-        ctx.lineTo(bx + 142, 105);
-        ctx.stroke();
+        // 담당 요원 + 지금 하는 일(자리/커피/토론 등)
+        const agent = agent3DObjects[c.agentId];
+        const doing = agent && agent.life ? agent.life.badgeText : '대기중';
+        ctx.font = `700 17px ${CANVAS_FONT}`;
+        ctx.fillStyle = meta.color;
+        ctx.fillText(meta.agentName, bx + 12, cy + 64);
+        const nameW = ctx.measureText(meta.agentName).width;
+        ctx.font = `500 15px ${CANVAS_FONT}`;
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText(fitCanvasText(ctx, `· ${doing}`, cw - 30 - nameW), bx + 18 + nameW, cy + 64);
+
+        const st = BOARD_STATS ? BOARD_STATS[c.key] : null;
+        if (st) {
+          ctx.font = `800 44px ${CANVAS_FONT}`;
+          ctx.fillStyle = '#f8fafc';
+          const numText = String(st.n);
+          ctx.fillText(numText, bx + 12, cy + 122);
+          const nw = ctx.measureText(numText).width;
+          ctx.font = `600 17px ${CANVAS_FONT}`;
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(st.direct ? `건 · 내 종목 ${st.direct}` : '건', bx + 18 + nw, cy + 122);
+
+          // 긍정/중립/부정 비율 막대
+          const barX = bx + 12, barW = cw - 24, barY = cy + 136, total = Math.max(1, st.n);
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(barX, barY, barW, 10);
+          const pw = barW * st.pos / total, uw = barW * st.neu / total, gw = barW * st.neg / total;
+          ctx.fillStyle = '#34d399'; ctx.fillRect(barX, barY, pw, 10);
+          ctx.fillStyle = '#64748b'; ctx.fillRect(barX + pw, barY, uw, 10);
+          ctx.fillStyle = '#fb7185'; ctx.fillRect(barX + pw + uw, barY, gw, 10);
+
+          // 맨 아랫줄: 내 종목을 연 상태면 섹터 보유분 등락률, 아니면 최신 헤드라인
+          const hs = MY_HOLDINGS.filter(h => h.sectorKey === c.key && h.loaded);
+          if (isPortfolioOpen && hs.length) {
+            const cur = hs.reduce((n, h) => n + h.shares * h.currentPrice, 0);
+            const prev = hs.reduce((n, h) => n + h.shares * h.prevClose, 0);
+            const r = prev ? (cur - prev) / prev * 100 : 0;
+            ctx.font = `700 17px ${CANVAS_FONT}`;
+            ctx.fillStyle = r > 0 ? '#fb7185' : r < 0 ? '#38bdf8' : '#94a3b8';
+            ctx.fillText(`보유 ${r > 0 ? '▲' : r < 0 ? '▼' : '─'} ${r >= 0 ? '+' : ''}${r.toFixed(2)}%`, bx + 12, cy + 178);
+          } else {
+            ctx.font = `500 15px ${CANVAS_FONT}`;
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText(fitCanvasText(ctx, st.headline || '수신 기사 없음', cw - 24), bx + 12, cy + 178);
+          }
+        } else {
+          ctx.font = `700 24px ${CANVAS_FONT}`;
+          ctx.fillStyle = '#475569';
+          ctx.fillText('가동 대기', bx + 12, cy + 122);
+          ctx.font = `500 15px ${CANVAS_FONT}`;
+          ctx.fillStyle = '#64748b';
+          ctx.fillText(fitCanvasText(ctx, meta.keywords.slice(0, 3).join(' · '), cw - 24), bx + 12, cy + 178);
+        }
       });
 
+      ctx.restore();
       wallTickerTexture.needsUpdate = true;
     }
 
     // =========================================================================
-    // [정교한 3D 캐릭터 빌더 함수]
+    // [정교한 3D 캐릭터 빌더] 관절 리그(골반·무릎·어깨·팔꿈치) — 앉기/서기/걷기/커피/대화 자세 전환용
+    //   · charGroup은 씬(월드) 좌표에서 직접 이동하고, 얼굴은 -Z 방향을 봄
+    //   · 모든 관절은 rotation.x(앞뒤)로 굽히고, 어깨만 rotation.z(안팎)를 추가로 사용
     // =========================================================================
     function createDetailedAgentCharacter(cfg) {
       const charGroup = new THREE.Group();
-      charGroup.position.set(0, 0, 0.64);
 
       const skinMat = new THREE.MeshStandardMaterial({ color: cfg.skinColor, roughness: 0.45 });
       const suitMat = new THREE.MeshStandardMaterial({ color: cfg.clothesColor, roughness: 0.5 });
@@ -1023,33 +1292,48 @@
       const tieMat = new THREE.MeshStandardMaterial({ color: cfg.tieColor, roughness: 0.3 });
       const darkMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.3, metalness: 0.6 });
 
-      // 1. 하체
+      // 0. 골반 기준점: 앉으면 y=0.56, 서면 y=0.86
+      const bodyRoot = new THREE.Group();
+      bodyRoot.position.set(0, 0.56, 0);
+      charGroup.add(bodyRoot);
+
       const pelvis = new THREE.Mesh(new THREE.BoxGeometry(0.40, 0.14, 0.30), pantsMat);
-      pelvis.position.set(0, 0.56, 0);
-      charGroup.add(pelvis);
+      bodyRoot.add(pelvis);
 
-      [-0.11, 0.11].forEach(lx => {
+      // 1. 다리 (고관절 → 무릎 관절)
+      function createLeg(lx) {
+        const hip = new THREE.Group();
+        hip.position.set(lx, 0, 0);
+
         const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.065, 0.34, 12), pantsMat);
-        thigh.rotation.x = Math.PI / 2;
-        thigh.position.set(lx, 0.56, -0.17);
-        charGroup.add(thigh);
+        thigh.position.set(0, -0.17, 0);
+        thigh.castShadow = true;
+        hip.add(thigh);
 
-        const knee = new THREE.Mesh(new THREE.SphereGeometry(0.068, 10, 10), pantsMat);
-        knee.position.set(lx, 0.56, -0.33);
-        charGroup.add(knee);
+        const knee = new THREE.Group();
+        knee.position.set(0, -0.33, 0);
+        hip.add(knee);
+
+        const kneeBall = new THREE.Mesh(new THREE.SphereGeometry(0.068, 10, 10), pantsMat);
+        knee.add(kneeBall);
 
         const calf = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.050, 0.42, 12), pantsMat);
-        calf.position.set(lx, 0.32, -0.33);
-        charGroup.add(calf);
+        calf.position.set(0, -0.22, 0);
+        knee.add(calf);
 
         const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.08, 0.19), darkMat);
-        shoe.position.set(lx, 0.08, -0.38);
-        charGroup.add(shoe);
-      });
+        shoe.position.set(0, -0.47, -0.05);
+        knee.add(shoe);
+
+        bodyRoot.add(hip);
+        return { hip, knee };
+      }
+      const legL = createLeg(-0.11);
+      const legR = createLeg(0.11);
 
       // 2. 상체 몸통
       const upperBodyGroup = new THREE.Group();
-      upperBodyGroup.position.set(0, 0.62, 0);
+      upperBodyGroup.position.set(0, 0.06, 0);
 
       const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.17, 0.48, 16), suitMat);
       torso.scale.set(1.15, 1, 0.72);
@@ -1166,53 +1450,64 @@
 
       upperBodyGroup.add(headGroup);
 
-      // 4. 관절 양팔
-      function createArticulatedArm(isLeft) {
-        const armRoot = new THREE.Group();
-        const sign = isLeft ? -1 : 1;
-        armRoot.position.set(sign * 0.23, 0.41, 0);
+      // 4. 팔 (어깨 관절 → 팔꿈치 관절). sign: -1 왼팔, +1 오른팔
+      function createArm(sign) {
+        const shoulder = new THREE.Group();
+        shoulder.position.set(sign * 0.23, 0.41, 0);
 
         const upperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.045, 0.24, 12), suitMat);
-        upperArm.position.set(0, -0.10, -0.06);
-        upperArm.rotation.x = 0.45;
-        armRoot.add(upperArm);
+        upperArm.position.set(0, -0.12, 0);
+        shoulder.add(upperArm);
 
-        const forearmGroup = new THREE.Group();
-        forearmGroup.position.set(0, -0.19, -0.11);
+        const elbow = new THREE.Group();
+        elbow.position.set(0, -0.24, 0);
+        shoulder.add(elbow);
+
+        const elbowBall = new THREE.Mesh(new THREE.SphereGeometry(0.046, 10, 10), suitMat);
+        elbow.add(elbowBall);
 
         const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.044, 0.038, 0.25, 12), suitMat);
-        forearm.rotation.x = Math.PI / 2 - 0.15;
-        forearm.position.set(sign * -0.03, -0.02, -0.11);
-        forearmGroup.add(forearm);
+        forearm.position.set(0, -0.125, 0);
+        elbow.add(forearm);
 
         const hand = new THREE.Mesh(new THREE.SphereGeometry(0.042, 12, 12), skinMat);
-        hand.scale.set(1, 0.65, 1.25);
-        hand.position.set(sign * -0.05, -0.04, -0.24);
-        forearmGroup.add(hand);
+        hand.scale.set(1, 1.25, 0.65);
+        hand.position.set(0, -0.27, 0);
+        elbow.add(hand);
 
-        armRoot.add(forearmGroup);
-        return { armRoot, forearmGroup };
+        upperBodyGroup.add(shoulder);
+        return { shoulder, elbow };
       }
+      const armL = createArm(-1);
+      const armR = createArm(1);
 
-      const leftArmObj = createArticulatedArm(true);
-      const rightArmObj = createArticulatedArm(false);
-      upperBodyGroup.add(leftArmObj.armRoot);
-      upperBodyGroup.add(rightArmObj.armRoot);
+      // 5. 오른손 머그컵 (커피를 내린 뒤에만 보임)
+      const cup = new THREE.Group();
+      cup.position.set(0, -0.29, -0.058);
+      cup.rotation.x = -Math.PI / 2;
+      const cupBody = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.035, 0.09, 12), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 }));
+      cup.add(cupBody);
+      const coffeeTop = new THREE.Mesh(new THREE.CylinderGeometry(0.036, 0.036, 0.006, 12), new THREE.MeshStandardMaterial({ color: 0x4b2e1a, roughness: 0.6 }));
+      coffeeTop.position.y = 0.043;
+      cup.add(coffeeTop);
+      cup.visible = false;
+      armR.elbow.add(cup);
 
-      charGroup.add(upperBodyGroup);
+      bodyRoot.add(upperBodyGroup);
 
-      return {
-        charGroup,
-        upperBodyGroup,
-        headGroup,
-        leftForearm: leftArmObj.forearmGroup,
-        rightForearm: rightArmObj.forearmGroup
-      };
+      return { charGroup, bodyRoot, upperBodyGroup, headGroup, legL, legR, armL, armR, cup };
     }
 
     // =========================================================================
-    // [3] Three.js 3D 오피스 초기화 (4x2 8인 전원이 한 화면에 들어오는 카메라 세팅)
+    // [3] Three.js 3D 오피스 초기화 (4x2 8인 데스크 + 커피 바 + 스탠딩 토론 존)
     // =========================================================================
+    const OFFICE_ZONES = {
+      // 우측 후방 커피 바: 카운터 앞 2자리
+      pantry: { x: 5.0, z: -4.2, spots: [{ id: 'pantry-0', x: 4.5, z: -3.3 }, { id: 'pantry-1', x: 5.5, z: -3.3 }] },
+      // 좌측 후방 토론 존: 스탠딩 테이블 둘레 3자리 (뒤에 화이트보드)
+      huddle: { x: -5.0, z: -3.55, spots: [{ id: 'huddle-0', x: -5.0, z: -2.62 }, { id: 'huddle-1', x: -5.88, z: -3.8 }, { id: 'huddle-2', x: -4.12, z: -3.8 }] }
+    };
+
     function init3DOffice() {
       const wrapper = document.getElementById('office-3d-wrapper');
       const canvas = document.getElementById('office-3d-canvas');
@@ -1221,7 +1516,7 @@
       scene = new THREE.Scene();
       scene.fog = new THREE.FogExp2(0x020617, 0.022);
 
-      // 요청 반영: 8인(4x2 그리드)이 좌우 잘림 없이 처음부터 전부 보이도록 중앙 대칭 앵글 적용
+      // 8인(4x2 그리드)이 좌우 잘림 없이 처음부터 전부 보이도록 중앙 대칭 앵글 적용
       camera = new THREE.PerspectiveCamera(36, wrapper.clientWidth / wrapper.clientHeight, 0.1, 120);
       camera.position.set(0.0, 6.8, 11.2);
 
@@ -1268,6 +1563,21 @@
       sceneRefs.legMat   = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.7 });
       sceneRefs.chairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
 
+      // 라이트/다크에서 색이 달라지는 추가 재질(러그·카운터 상판 등)
+      sceneRefs.themed = [];
+      const themedMat = (light, dark, opts) => {
+        const m = new THREE.MeshStandardMaterial(Object.assign({ color: dark, roughness: 0.85 }, opts || {}));
+        sceneRefs.themed.push({ mat: m, light, dark });
+        return m;
+      };
+      const addMesh = (parent, geo, mat, x, y, z, shadow) => {
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(x, y, z);
+        if (shadow) m.castShadow = true;
+        parent.add(m);
+        return m;
+      };
+
       // 오픈 플로어: 벽 없이 사방에서 볼 수 있도록 바닥을 넓힘 (16m x 12m)
       const floor = new THREE.Mesh(new THREE.PlaneGeometry(16, 12), sceneRefs.floorMat);
       floor.rotation.x = -Math.PI / 2;
@@ -1308,17 +1618,184 @@
         return board;
       }
 
-      // 좌측 독립형 증시 전광판
+      // 좌측 독립형 상황판
       initWallTickerTexture();
       createStandingBoard(wallTickerTexture, 7.0, 1.48, -6.9, 0.25, Math.PI / 2, 1.15);
 
-      // 후방 독립형 네온 간판
+      // 후방 독립형 네온 간판 (+ 위아래 네온 튜브)
       signCanvas = document.createElement('canvas');
-      signCanvas.width = 1024; signCanvas.height = 210;
+      signCanvas.width = SIGN_W; signCanvas.height = SIGN_H;
       signCtx = signCanvas.getContext('2d');
       signTexture = new THREE.CanvasTexture(signCanvas);
       drawRearWallSign();
-      createStandingBoard(signTexture, 7.4, 1.5, 0, -4.4, 0, 1.2);
+      createStandingBoard(signTexture, 6.4, 1.5, 0, -4.4, 0, 1.2);
+      const tubeMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+      addMesh(scene, new THREE.BoxGeometry(6.56, 0.035, 0.035), tubeMat, 0, 2.80, -4.4);
+      addMesh(scene, new THREE.BoxGeometry(6.56, 0.035, 0.035), tubeMat, 0, 1.10, -4.4);
+
+      // ── 커피 바 (우측 후방)
+      (function buildPantry() {
+        const P = OFFICE_ZONES.pantry;
+        const g = new THREE.Group();
+        g.position.set(P.x, 0, P.z);
+
+        addMesh(g, new THREE.BoxGeometry(2.6, 2.2, 0.1), sceneRefs.wallMat, 0, 1.1, -0.4, true);          // 뒷벽 패널
+        addMesh(g, new THREE.BoxGeometry(2.3, 0.86, 0.58), sceneRefs.deskMat, 0, 0.43, 0, true);           // 하부장
+        addMesh(g, new THREE.BoxGeometry(2.42, 0.06, 0.66), themedMat(0xd6c4a8, 0x4a3b2d, { roughness: 0.5 }), 0, 0.89, 0); // 상판
+        addMesh(g, new THREE.BoxGeometry(2.3, 0.04, 0.2), sceneRefs.deskMat, 0, 1.58, -0.28);              // 선반
+
+        // 커피 머신
+        const metal = new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.35, metalness: 0.7 });
+        addMesh(g, new THREE.BoxGeometry(0.38, 0.44, 0.30), metal, -0.62, 1.14, -0.08, true);
+        addMesh(g, new THREE.BoxGeometry(0.30, 0.07, 0.16), metal, -0.62, 1.24, 0.13);
+        addMesh(g, new THREE.BoxGeometry(0.30, 0.025, 0.2), metal, -0.62, 0.935, 0.12);
+        addMesh(g, new THREE.SphereGeometry(0.018, 8, 8), new THREE.MeshBasicMaterial({ color: 0x34d399 }), -0.49, 1.31, 0.075);
+        const white = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
+        addMesh(g, new THREE.CylinderGeometry(0.035, 0.03, 0.07, 10), white, -0.62, 0.985, 0.12);
+
+        // 머그컵 더미
+        for (let i = 0; i < 3; i++) addMesh(g, new THREE.CylinderGeometry(0.042, 0.035, 0.09, 10), white, -0.14 + i * 0.115, 0.965, -0.06);
+
+        // 간식 바구니
+        addMesh(g, new THREE.CylinderGeometry(0.13, 0.10, 0.07, 12), new THREE.MeshStandardMaterial({ color: 0x92400e, roughness: 0.8 }), 0.26, 0.955, 0.1);
+        const fruit = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.6 });
+        [[0.22, 0.08], [0.30, 0.12], [0.26, 0.15]].forEach(p => addMesh(g, new THREE.SphereGeometry(0.04, 10, 10), fruit, p[0], 1.0, p[1]));
+
+        // 정수기
+        addMesh(g, new THREE.BoxGeometry(0.26, 0.26, 0.26), white, 0.78, 1.05, -0.06);
+        addMesh(g, new THREE.CylinderGeometry(0.11, 0.11, 0.30, 14),
+          new THREE.MeshStandardMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.55, roughness: 0.1 }), 0.78, 1.33, -0.06);
+
+        // 커피 바 네온 간판
+        const cc = document.createElement('canvas');
+        cc.width = 512; cc.height = 116;
+        const cx = cc.getContext('2d');
+        cx.fillStyle = '#1a1006';
+        cx.fillRect(0, 0, 512, 116);
+        cx.strokeStyle = '#f59e0b';
+        cx.lineWidth = 4;
+        cx.shadowColor = '#f59e0b';
+        cx.shadowBlur = 14;
+        roundRectPath(cx, 8, 8, 496, 100, 18);
+        cx.stroke();
+        // 컵 아이콘
+        cx.lineWidth = 6;
+        cx.lineJoin = 'round';
+        cx.strokeStyle = '#fde68a';
+        cx.beginPath();
+        cx.moveTo(46, 44); cx.lineTo(52, 86); cx.lineTo(88, 86); cx.lineTo(94, 44); cx.closePath();
+        cx.stroke();
+        cx.beginPath(); cx.arc(100, 60, 12, -Math.PI / 2, Math.PI / 2); cx.stroke();
+        cx.lineWidth = 4;
+        cx.beginPath(); cx.moveTo(60, 34); cx.quadraticCurveTo(54, 26, 62, 18); cx.stroke();
+        cx.beginPath(); cx.moveTo(78, 34); cx.quadraticCurveTo(72, 26, 80, 18); cx.stroke();
+        cx.fillStyle = '#fde68a';
+        cx.font = `800 50px ${CANVAS_FONT}`;
+        cx.fillText('COFFEE BAR', 136, 76);
+        const cafeSign = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.385), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cc) }));
+        cafeSign.position.set(0, 1.9, -0.345);
+        g.add(cafeSign);
+
+        scene.add(g);
+
+        const rug = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 1.7), themedMat(0xf3e3c3, 0x2a1f14));
+        rug.rotation.x = -Math.PI / 2;
+        rug.position.set(P.x, 0.016, P.z + 1.05);
+        rug.receiveShadow = true;
+        scene.add(rug);
+      })();
+
+      // ── 스탠딩 토론 존 (좌측 후방): 화이트보드 + 하이 테이블
+      (function buildHuddle() {
+        const Hz = OFFICE_ZONES.huddle;
+
+        const wc = document.createElement('canvas');
+        wc.width = 640; wc.height = 360;
+        const wx = wc.getContext('2d');
+        wx.fillStyle = '#eef2f7';
+        wx.fillRect(0, 0, 640, 360);
+        wx.fillStyle = '#1d4ed8';
+        wx.font = `800 34px ${CANVAS_FONT}`;
+        wx.fillText('WEEKLY STRATEGY', 28, 52);
+        wx.strokeStyle = '#1d4ed8';
+        wx.lineWidth = 4;
+        wx.beginPath(); wx.moveTo(28, 64); wx.lineTo(330, 64); wx.stroke();
+        // 손으로 그린 듯한 차트
+        wx.strokeStyle = '#334155';
+        wx.lineWidth = 3;
+        wx.beginPath(); wx.moveTo(40, 110); wx.lineTo(40, 300); wx.lineTo(330, 300); wx.stroke();
+        wx.strokeStyle = '#dc2626';
+        wx.lineWidth = 5;
+        wx.lineJoin = 'round';
+        wx.beginPath();
+        [[50, 270], [95, 240], [140, 255], [185, 200], [230, 215], [275, 150], [318, 125]].forEach((p, i) => { if (i) wx.lineTo(p[0], p[1]); else wx.moveTo(p[0], p[1]); });
+        wx.stroke();
+        wx.strokeStyle = '#2563eb';
+        wx.setLineDash([10, 8]);
+        wx.beginPath(); wx.moveTo(50, 285); wx.lineTo(318, 190); wx.stroke();
+        wx.setLineDash([]);
+        // 포스트잇
+        [['#fde68a', 372, 40], ['#fbcfe8', 496, 56], ['#bbf7d0', 384, 176], ['#bae6fd', 506, 192]].forEach((n, i) => {
+          wx.fillStyle = n[0];
+          wx.fillRect(n[1], n[2], 108, 108);
+          wx.fillStyle = '#475569';
+          for (let l = 0; l < 3; l++) wx.fillRect(n[1] + 14, n[2] + 26 + l * 24, 80 - ((i + l) % 3) * 16, 6);
+        });
+        createStandingBoard(new THREE.CanvasTexture(wc), 2.3, 1.3, Hz.x, Hz.z - 1.2, 0, 0.8);
+
+        const g = new THREE.Group();
+        g.position.set(Hz.x, 0, Hz.z);
+        addMesh(g, new THREE.CylinderGeometry(0.5, 0.5, 0.05, 28), sceneRefs.deskMat, 0, 1.06, 0, true);
+        addMesh(g, new THREE.CylinderGeometry(0.05, 0.06, 1.02, 12), sceneRefs.legMat, 0, 0.53, 0, true);
+        addMesh(g, new THREE.CylinderGeometry(0.30, 0.34, 0.04, 20), sceneRefs.legMat, 0, 0.02, 0);
+        // 노트북 + 자료
+        const dark = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 });
+        addMesh(g, new THREE.BoxGeometry(0.30, 0.015, 0.20), dark, 0.1, 1.093, 0.04);
+        const lid = addMesh(g, new THREE.BoxGeometry(0.30, 0.19, 0.012), dark, 0.1, 1.185, -0.075);
+        lid.rotation.x = -0.25;
+        const lidScr = new THREE.Mesh(new THREE.PlaneGeometry(0.27, 0.16), new THREE.MeshBasicMaterial({ map: createMonitorChartTexture('#38bdf8') }));
+        lidScr.position.set(0.1, 1.186, -0.066);
+        lidScr.rotation.x = -0.25;
+        g.add(lidScr);
+        const paper = addMesh(g, new THREE.BoxGeometry(0.20, 0.008, 0.27), new THREE.MeshStandardMaterial({ color: 0xf1f5f9 }), -0.2, 1.09, 0.1);
+        paper.rotation.y = 0.4;
+        scene.add(g);
+
+        const rug = new THREE.Mesh(new THREE.CircleGeometry(1.75, 40), themedMat(0xdfe3fb, 0x1b1b3a));
+        rug.rotation.x = -Math.PI / 2;
+        rug.position.set(Hz.x, 0.016, Hz.z);
+        rug.receiveShadow = true;
+        scene.add(rug);
+      })();
+
+      // ── 화분
+      function addPlant(x, z, s) {
+        const g = new THREE.Group();
+        g.position.set(x, 0, z);
+        g.scale.setScalar(s || 1);
+        addMesh(g, new THREE.CylinderGeometry(0.2, 0.15, 0.34, 14), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.6 }), 0, 0.17, 0, true);
+        addMesh(g, new THREE.CylinderGeometry(0.185, 0.185, 0.02, 14), new THREE.MeshStandardMaterial({ color: 0x3f2a14 }), 0, 0.345, 0);
+        const leafA = new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.7 });
+        const leafB = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.7 });
+        for (let i = 0; i < 7; i++) {
+          const pivot = new THREE.Group();
+          pivot.position.y = 0.34;
+          pivot.rotation.y = (i / 7) * Math.PI * 2;
+          const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.8, 6), i % 2 ? leafA : leafB);
+          leaf.position.set(0, 0.36, 0.13);
+          leaf.rotation.x = 0.38;
+          leaf.castShadow = true;
+          pivot.add(leaf);
+          g.add(pivot);
+        }
+        const crown = addMesh(g, new THREE.SphereGeometry(0.2, 12, 12), leafB, 0, 0.82, 0, true);
+        crown.scale.set(1, 1.3, 1);
+        scene.add(g);
+      }
+      addPlant(-7.3, 5.0, 1.15);
+      addPlant(7.3, 5.0, 1.15);
+      addPlant(6.9, -0.4, 1.0);
+      addPlant(6.75, -4.3, 0.9);
 
       // 8인 에이전트 데스크 + 고디테일 캐릭터 생성
       AGENT_CONFIGS.forEach(cfg => {
@@ -1358,12 +1835,12 @@
 
         // 데스크 소품
         const kb = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.025, 0.16), new THREE.MeshStandardMaterial({ color: 0x334155 }));
-        kb.position.set(-0.04, 0.87, 0.20);
+        kb.position.set(0, 0.87, 0.27);
         group.add(kb);
 
         const mouse = new THREE.Mesh(new THREE.SphereGeometry(0.032, 10, 10), new THREE.MeshStandardMaterial({ color: 0xcbd5e1 }));
         mouse.scale.set(0.8, 0.5, 1.3);
-        mouse.position.set(0.32, 0.88, 0.20);
+        mouse.position.set(0.36, 0.88, 0.26);
         group.add(mouse);
 
         const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.038, 0.10, 12), new THREE.MeshStandardMaterial({ color: 0xf8fafc }));
@@ -1408,7 +1885,7 @@
           group.add(monGroup);
         });
 
-        // 디테일 오피스 체어
+        // 디테일 오피스 체어 (자리를 비우면 나가는 방향으로 살짝 돌아감)
         const chairGroup = new THREE.Group();
         chairGroup.position.set(0, 0, 0.66);
         const chairMat = sceneRefs.chairMat;
@@ -1442,39 +1919,68 @@
         }
         group.add(chairGroup);
 
-        // 캐릭터 생성 및 추가
-        const charParts = createDetailedAgentCharacter(cfg);
-        group.add(charParts.charGroup);
-
         const workLight = new THREE.PointLight(edgeColor, 0, 3.2);
         workLight.position.set(0, 1.4, 0.2);
         group.add(workLight);
 
-        const labelAnchor = new THREE.Object3D();
-        labelAnchor.position.set(0, 1.96, 0);
-        group.add(labelAnchor);
-
         scene.add(group);
+
+        // 캐릭터: 책상 그룹이 아니라 씬에 직접 추가 → 사무실 안을 걸어 다닐 수 있음
+        const charParts = createDetailedAgentCharacter(cfg);
+        const seatX = cfg.pos[0], seatZ = cfg.pos[1] + 0.64;
+        charParts.charGroup.position.set(seatX, 0, seatZ);
+        scene.add(charParts.charGroup);
+
+        // 네임태그 기준점은 몸을 따라다님(앉으면 낮아지고 서면 높아짐)
+        const labelAnchor = new THREE.Object3D();
+        labelAnchor.position.set(0, 1.36, 0);
+        charParts.bodyRoot.add(labelAnchor);
 
         const labelDiv = document.createElement('div');
         labelDiv.className = 'agent-label-3d';
         labelDiv.id = `label-3d-${cfg.id}`;
         labelDiv.innerHTML = `
+          <div class="chat-bubble" id="bubble-${cfg.id}"></div>
           <div class="label-role" style="color:${cfg.roleColor};">${cfg.role}</div>
           <div class="label-name">${cfg.name}</div>
           <span id="badge-${cfg.id}" class="label-badge">대기중</span>
         `;
         overlay.appendChild(labelDiv);
 
-        agent3DObjects[cfg.id] = {
+        // 자리(seat)·통로 진입점(entry)·자리 방문객이 서는 곳(dropSpot)
+        const outer = Math.abs(seatX) > 2;
+        const side = seatX < 0 ? -1 : 1;
+        const seatLoc = { x: seatX, z: seatZ, entry: { x: outer ? side * 5.3 : 0, z: seatZ } };
+        const dropSpot = { id: `drop-${cfg.pos[1] < 0 ? 'a' : 'b'}${side}`, x: side * 2.6, z: seatZ + 0.12 };
+
+        const obj = {
+          cfg,
           group,
+          chairGroup,
           ...charParts,
           screenMeshes,
+          screenHex: 0,
           workLight,
           labelAnchor,
           labelDiv,
-          isWorking: false
+          bubbleEl: labelDiv.querySelector('.chat-bubble'),
+          isWorking: false,
+          life: {
+            seat: seatLoc, dropSpot,
+            queue: [], step: null, stepT: 0,
+            anim: 'sit', seated: true, loc: seatLoc,
+            moving: false, running: false, walkPhase: 0, walkAmt: 0,
+            heading: 0, headingTarget: 0, chairYaw: 0,
+            hasCup: false, speaking: false, arrived: false,
+            activity: null, hostFor: null,
+            restUntil: Math.random() * 9, stretchUntil: 0,
+            typingUntil: 0, nextTypingAt: Math.random() * 4,
+            badgeKey: '', badgeText: '대기중',
+            pose: Object.assign({}, POSE_SIT), tgt: {}, add: {}
+          }
         };
+        applyAgentPose(obj, obj.life.pose, null);
+        agent3DObjects[cfg.id] = obj;
       });
 
       apply3DTheme(getTheme());
@@ -1487,6 +1993,537 @@
         }).observe(wrapper);
       }
       start3DLoop();
+    }
+
+    // =========================================================================
+    // [3-1] 오피스 라이프: 자리 이동 · 스탠딩 토론 · 커피 브레이크 · 자리 방문 대화 · 스트레칭
+    //   · 업무 가동(파이프라인) 중에는 전원 자리로 복귀해 일하고, 그 외 시간에 자연스럽게 움직임
+    //   · 이동은 책상 사이 통로(AISLE) 위로만 다니도록 최단 경로를 계산
+    // =========================================================================
+    const HALF_PI = Math.PI / 2;
+    const AISLE_X = [-5.3, -2.6, 0, 2.6, 5.3];     // 세로 통로(책상 사이·바깥)
+    const AISLE_Z = [-2.45, 0.45, 3.25];           // 가로 통로(뒤·가운데·앞)
+    const WALK_SPEED = 1.3, RUN_SPEED = 3.6;       // m/s — 업무 호출 시에는 뛰어서 복귀
+    const MAX_AWAY = 4;                            // 동시에 자리를 비울 수 있는 최대 인원
+
+    const POSE_KEYS = ['hipY', 'hipL', 'hipR', 'kneeL', 'kneeR', 'shLx', 'shRx', 'shLz', 'shRz', 'elL', 'elR', 'lean', 'twist', 'headX', 'headY'];
+    const POSE_SIT   = { hipY: 0.56, hipL: HALF_PI, hipR: HALF_PI, kneeL: -HALF_PI, kneeR: -HALF_PI, shLx: 0.45, shRx: 0.45, shLz: 0.12, shRz: -0.12, elL: 1.45, elR: 1.45, lean: 0, twist: 0, headX: 0, headY: 0 };
+    const POSE_STAND = { hipY: 0.86, hipL: 0, hipR: 0, kneeL: 0, kneeR: 0, shLx: 0.05, shRx: 0.05, shLz: -0.06, shRz: 0.06, elL: 0.2, elR: 0.2, lean: 0, twist: 0, headX: 0, headY: 0 };
+
+    const CHAT_LINES = {
+      huddle: ['수주 공시 봤어?', 'HBM 수요 어때?', '환율이 변수네', '실적 시즌 체크!', '외국인 수급은?', '이 차트 봐봐', '리스크 점검하자', '목표가 상향?', '좋은 포인트야', '섹터 순환매 같아', '브리핑에 넣자', '근거 데이터는?'],
+      coffee: ['커피 한 잔?', '오늘 장 어때?', '점심 뭐 먹지', '어제 미장 봤어?', '한숨 돌리자', '라떼로 할게', '좀 쉬었다 하자', '오후도 파이팅'],
+      dropby: ['이 기사 확인!', '자료 공유할게', '잠깐 시간 돼?', '숫자 맞는지 봐줘', '오, 좋은데?', '출처 다시 볼게', '이건 내 섹터네', '고마워!']
+    };
+    const LIFE_BADGES = {
+      desk:    ['모니터링', '#334155'],
+      stretch: ['스트레칭', '#475569'],
+      walk:    ['이동중', '#475569'],
+      walkcup: ['☕ 자리로', '#92400e'],
+      brew:    ['☕ 커피 내리는 중', '#92400e'],
+      coffee:  ['☕ 커피 타임', '#92400e'],
+      huddle:  ['💬 스탠딩 토론', '#4338ca'],
+      dropby:  ['💬 자리 방문', '#0f766e'],
+      host:    ['💬 대화중', '#0f766e']
+    };
+
+    function applyAgentPose(o, P, add) {
+      const v = k => P[k] + (add ? (add[k] || 0) : 0);
+      o.bodyRoot.position.y = v('hipY');
+      o.legL.hip.rotation.x = v('hipL');
+      o.legR.hip.rotation.x = v('hipR');
+      o.legL.knee.rotation.x = v('kneeL');
+      o.legR.knee.rotation.x = v('kneeR');
+      o.armL.shoulder.rotation.x = v('shLx');
+      o.armL.shoulder.rotation.z = v('shLz');
+      o.armR.shoulder.rotation.x = v('shRx');
+      o.armR.shoulder.rotation.z = v('shRz');
+      o.armL.elbow.rotation.x = v('elL');
+      o.armR.elbow.rotation.x = v('elR');
+      o.upperBodyGroup.rotation.x = v('lean');
+      o.upperBodyGroup.rotation.y = v('twist');
+      o.headGroup.rotation.x = v('headX');
+      o.headGroup.rotation.y = v('headY');
+    }
+
+    // 임의 지점에서 가장 가까운 통로 위의 점
+    function snapToAisle(p) {
+      let best = null, bestD = Infinity;
+      const consider = (x, z) => {
+        const d = Math.hypot(p.x - x, p.z - z);
+        if (d < bestD) { bestD = d; best = { x, z }; }
+      };
+      AISLE_X.forEach(ax => consider(ax, Math.max(AISLE_Z[0], Math.min(AISLE_Z[2], p.z))));
+      AISLE_Z.forEach((az, i) => {
+        const ext = i === 0 ? 6.2 : 5.3;
+        consider(Math.max(-ext, Math.min(ext, p.x)), az);
+      });
+      return best;
+    }
+
+    // 통로 격자 위 최단 경로(다익스트라, 노드 17개 이하). 결과는 [통로 진입점 … 목적지] 좌표 배열
+    function planRoute(from, to) {
+      const a = from.entry || snapToAisle(from);
+      const b = to.entry || snapToAisle(to);
+      const nodes = [a, b];
+      AISLE_X.forEach(x => AISLE_Z.forEach(z => nodes.push({ x, z })));
+      const onAisleX = x => AISLE_X.some(v => Math.abs(v - x) < 1e-3);
+      const onAisleZ = z => AISLE_Z.some(v => Math.abs(v - z) < 1e-3);
+      const linked = (p, q) =>
+        (Math.abs(p.x - q.x) < 1e-3 && onAisleX(p.x)) || (Math.abs(p.z - q.z) < 1e-3 && onAisleZ(p.z));
+
+      const n = nodes.length;
+      const dist = new Array(n).fill(Infinity), prev = new Array(n).fill(-1), done = new Array(n).fill(false);
+      dist[0] = 0;
+      for (let k = 0; k < n; k++) {
+        let u = -1;
+        for (let i = 0; i < n; i++) if (!done[i] && (u < 0 || dist[i] < dist[u])) u = i;
+        if (u < 0 || dist[u] === Infinity) break;
+        done[u] = true;
+        if (u === 1) break;
+        for (let v = 0; v < n; v++) {
+          if (done[v] || !linked(nodes[u], nodes[v])) continue;
+          const d = dist[u] + Math.hypot(nodes[u].x - nodes[v].x, nodes[u].z - nodes[v].z) + 0.001;
+          if (d < dist[v]) { dist[v] = d; prev[v] = u; }
+        }
+      }
+      const path = [];
+      if (dist[1] < Infinity) {
+        for (let v = 1; v !== -1; v = prev[v]) path.unshift({ x: nodes[v].x, z: nodes[v].z });
+      } else {
+        path.push({ x: a.x, z: a.z }, { x: b.x, z: b.z });   // 이론상 도달 불가 시 직선 이동(안전장치)
+      }
+      path.push({ x: to.x, z: to.z });
+      return path;
+    }
+
+    function setBubble(o, text) {
+      if (!o.bubbleEl) return;
+      if (text) {
+        o.bubbleEl.textContent = text;
+        o.bubbleEl.classList.add('show');
+        o.labelDiv.style.zIndex = '12';
+      } else {
+        o.bubbleEl.classList.remove('show');
+        o.labelDiv.style.zIndex = '';
+      }
+    }
+
+    function setCup(o, on) {
+      o.life.hasCup = !!on;
+      if (o.cup) o.cup.visible = !!on;
+    }
+
+    // 자리로 돌려보내기 (run=true면 뛰어서 복귀)
+    function sendAgentHome(o, run) {
+      const L = o.life;
+      L.speaking = false;
+      setBubble(o, null);
+      if (L.seated && !L.step && !L.queue.length) return;
+      const pos = o.charGroup.position;
+      const atSeat = Math.hypot(pos.x - L.seat.x, pos.z - L.seat.z) < 0.05;
+      L.step = null;
+      L.queue = atSeat
+        ? [{ type: 'sit' }]
+        : [{ type: 'walk', path: planRoute(L.loc || { x: pos.x, z: pos.z }, L.seat), run: !!run, dest: L.seat }, { type: 'sit' }];
+    }
+
+    function endActivity(act, run) {
+      const i = officeLife.activities.indexOf(act);
+      if (i >= 0) officeLife.activities.splice(i, 1);
+      act.spotIds.forEach(id => { delete officeLife.spots[id]; });
+      if (act.host) {
+        const HL = act.host.life;
+        HL.hostFor = null;
+        HL.speaking = false;
+        HL.restUntil = officeLife.t + 12 + Math.random() * 12;
+        setBubble(act.host, null);
+      }
+      act.members.forEach((o, idx) => {
+        const L = o.life;
+        L.activity = null;
+        L.arrived = false;
+        L.restUntil = officeLife.t + 22 + Math.random() * 26;
+        sendAgentHome(o, run);
+        // 동시에 출발하면 겹쳐 보이므로 조금씩 시차를 둠
+        if (!run && idx > 0 && L.queue.length) L.queue.unshift({ type: 'wait', dur: idx * 0.8 });
+      });
+    }
+
+    // 업무 가동 시 전원 즉시 자리로 복귀
+    function recallAllAgents() {
+      officeLife.activities.slice().forEach(act => endActivity(act, true));
+      officeLife.spots = {};
+      Object.values(agent3DObjects).forEach(o => {
+        o.life.stretchUntil = 0;
+        o.life.hostFor = null;
+        sendAgentHome(o, true);
+      });
+    }
+
+    function startActivity(type, members, talkFor, host) {
+      const act = { type, members, host: host || null, spotIds: [], startedAt: officeLife.t, talkFor, endAt: 0, ready: false, speaker: -1, nextSwitchAt: 0, side: 0 };
+      officeLife.activities.push(act);
+      members.forEach(o => { o.life.activity = act; o.life.arrived = false; });
+      return act;
+    }
+
+    function leaveSeatSteps(o, idx, spot) {
+      const steps = [];
+      if (idx > 0) steps.push({ type: 'wait', dur: idx * 0.7 });
+      steps.push({ type: 'stand' }, { type: 'walk', path: planRoute(o.life.seat, spot), dest: spot });
+      return steps;
+    }
+
+    // ☕ 커피 브레이크: 커피 바에서 커피를 내리고(1~2명) 마시며 대화 후 컵을 들고 복귀
+    function planCoffee(pool, room) {
+      const spots = OFFICE_ZONES.pantry.spots.filter(s => !officeLife.spots[s.id]);
+      const count = Math.min(spots.length, pool.length, room, Math.random() < 0.65 ? 2 : 1);
+      if (count < 1) return false;
+      const members = pool.splice(0, count);
+      const act = startActivity('coffee', members, count > 1 ? 9 + Math.random() * 6 : 6 + Math.random() * 3);
+      members.forEach((o, i) => {
+        const spot = spots[i];
+        officeLife.spots[spot.id] = o;
+        act.spotIds.push(spot.id);
+        const lookAt = count > 1 ? spots[1 - i] : { x: spot.x * 0.3, z: 3 };   // 혼자면 사무실 쪽을 바라봄
+        o.life.queue = leaveSeatSteps(o, i, spot).concat([
+          { type: 'act', anim: 'brew', dur: 2.2 + i * 0.6, face: { x: spot.x, z: spot.z - 2 } },
+          { type: 'call', fn: () => { setCup(o, true); o.life.arrived = true; } },
+          { type: 'act', anim: 'coffee', dur: null, face: lookAt }
+        ]);
+      });
+      return true;
+    }
+
+    // 💬 스탠딩 토론: 화이트보드 앞 하이 테이블에 2~3명이 모여 번갈아 발언
+    function planHuddle(pool, room, forced) {
+      const spots = OFFICE_ZONES.huddle.spots;
+      if (spots.some(s => officeLife.spots[s.id])) return false;
+      let members = forced;
+      if (!members) {
+        const count = Math.min(pool.length, room, Math.random() < 0.5 ? 3 : 2);
+        if (count < 2) return false;
+        members = pool.splice(0, count);
+      }
+      if (members.length < 2) return false;
+      const center = OFFICE_ZONES.huddle;
+      const act = startActivity('huddle', members, 11 + Math.random() * 7);
+      members.forEach((o, i) => {
+        const spot = spots[i];
+        officeLife.spots[spot.id] = o;
+        act.spotIds.push(spot.id);
+        o.life.queue = leaveSeatSteps(o, i, spot).concat([
+          { type: 'call', fn: () => { o.life.arrived = true; } },
+          { type: 'act', anim: 'talk', dur: null, face: { x: center.x, z: center.z } }
+        ]);
+      });
+      return true;
+    }
+
+    // 💬 자리 방문: 동료 자리 옆으로 가서 대화 — 앉아 있는 동료는 몸을 돌려 응대
+    function planDropBy(pool, idle, room) {
+      if (room < 1 || !pool.length) return false;
+      const visitor = pool[0];
+      const hosts = idle.filter(h => h !== visitor && !officeLife.spots[h.life.dropSpot.id]);
+      if (!hosts.length) return false;
+      const host = hosts[Math.floor(Math.random() * hosts.length)];
+      pool.shift();
+      const hi = pool.indexOf(host);
+      if (hi >= 0) pool.splice(hi, 1);
+      const spot = host.life.dropSpot;
+      const act = startActivity('dropby', [visitor], 7 + Math.random() * 5, host);
+      act.side = Math.sign(spot.x - host.life.seat.x) || 1;
+      host.life.hostFor = act;
+      officeLife.spots[spot.id] = visitor;
+      act.spotIds.push(spot.id);
+      visitor.life.queue = leaveSeatSteps(visitor, 0, spot).concat([
+        { type: 'call', fn: () => { visitor.life.arrived = true; } },
+        { type: 'act', anim: 'talk', dur: null, face: { x: host.life.seat.x, z: host.life.seat.z } }
+      ]);
+      return true;
+    }
+
+    // 몇 초마다 한 번씩 "다음에 누가 무엇을 할지" 결정
+    function planOfficeLife(t) {
+      if (t < officeLife.nextPlanAt) return;
+      officeLife.nextPlanAt = t + 4.5 + Math.random() * 4;
+      if (isPipelineRunning) return;
+
+      const all = Object.values(agent3DObjects);
+      const idle = all.filter(o => {
+        const L = o.life;
+        return L.seated && !L.step && !L.queue.length && !o.isWorking && !L.hostFor && !L.activity && L.stretchUntil <= t;
+      });
+      const room = MAX_AWAY - all.filter(o => !o.life.seated).length;
+
+      // 브리핑 발행 직후: 엘레나·아서가 스카우트 1명과 결과 리뷰 토론
+      if (officeLife.forced) {
+        const members = officeLife.forced.map(id => agent3DObjects[id]).filter(o => idle.includes(o));
+        officeLife.forced = null;
+        if (members.length >= 2 && room >= members.length && planHuddle([], room, members)) return;
+      }
+
+      const rested = idle.filter(o => t >= o.life.restUntil);
+      for (let i = rested.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [rested[i], rested[j]] = [rested[j], rested[i]];
+      }
+      if (!rested.length) return;
+      if (room < 1) { if (Math.random() < 0.4) rested[0].life.stretchUntil = t + 2.8; return; }
+
+      const r = Math.random();
+      const order = r < 0.34 ? ['coffee', 'dropby', 'huddle'] : r < 0.62 ? ['huddle', 'coffee', 'dropby'] : r < 0.9 ? ['dropby', 'coffee', 'huddle'] : [];
+      for (const kind of order) {
+        const ok = kind === 'coffee' ? planCoffee(rested, room)
+          : kind === 'huddle' ? planHuddle(rested, room)
+          : planDropBy(rested, idle, room);
+        if (ok) return;
+      }
+      rested[0].life.stretchUntil = t + 2.8;
+      rested[0].life.restUntil = t + 8;
+    }
+
+    // 진행 중인 모임 관리: 전원 도착 → 대화 시작 → 발언자 교대(말풍선) → 시간이 되면 해산
+    function updateActivities(t) {
+      for (let i = officeLife.activities.length - 1; i >= 0; i--) {
+        const act = officeLife.activities[i];
+        if (!act.ready) {
+          if (act.members.every(o => o.life.arrived)) {
+            act.ready = true;
+            act.endAt = t + act.talkFor;
+            act.nextSwitchAt = t + 0.4;
+          } else if (t - act.startedAt > 30) {
+            endActivity(act, false);
+          }
+          continue;
+        }
+        if (t >= act.endAt) { endActivity(act, false); continue; }
+        if (t >= act.nextSwitchAt) {
+          const talkers = act.host ? act.members.concat([act.host]) : act.members;
+          talkers.forEach(o => { o.life.speaking = false; setBubble(o, null); });
+          if (talkers.length > 1) {
+            act.speaker = (act.speaker + 1 + (talkers.length > 2 ? Math.floor(Math.random() * 2) : 0)) % talkers.length;
+            const sp = talkers[act.speaker];
+            const lines = CHAT_LINES[act.type] || CHAT_LINES.huddle;
+            sp.life.speaking = true;
+            setBubble(sp, lines[Math.floor(Math.random() * lines.length)]);
+          }
+          act.nextSwitchAt = t + 2.2 + Math.random() * 1.4;
+        }
+      }
+    }
+
+    // 한 사람의 행동 큐 진행 (일어서기 → 걷기 → 행동 → 앉기)
+    function updateAgentLife(o, t, dt) {
+      const L = o.life;
+      if (!L.step && L.queue.length) { L.step = L.queue.shift(); L.stepT = 0; }
+      const s = L.step;
+      L.moving = false;
+      if (!s) {
+        if (L.seated) L.anim = 'sit';
+        else sendAgentHome(o, false);      // 안전장치: 할 일 없이 서 있으면 자리로
+        return;
+      }
+      L.stepT += dt;
+      const pos = o.charGroup.position;
+      if (s.type === 'wait') {
+        if (L.stepT >= s.dur) L.step = null;
+      } else if (s.type === 'stand') {
+        L.seated = false;
+        L.anim = 'stand';
+        L.chairYaw = -Math.sign(L.seat.entry.x - L.seat.x) * 0.8;
+        if (L.stepT >= 0.45) L.step = null;
+      } else if (s.type === 'walk') {
+        L.seated = false;
+        L.anim = 'stand';
+        L.loc = null;
+        const speed = s.run ? RUN_SPEED : WALK_SPEED;
+        let remain = speed * dt;
+        while (remain > 0 && s.path.length) {
+          const wp = s.path[0];
+          const dx = wp.x - pos.x, dz = wp.z - pos.z, d = Math.hypot(dx, dz);
+          if (d <= remain) {
+            pos.x = wp.x; pos.z = wp.z;
+            remain -= d;
+            s.path.shift();
+          } else {
+            pos.x += dx / d * remain;
+            pos.z += dz / d * remain;
+            L.headingTarget = Math.atan2(-dx, -dz);
+            remain = 0;
+          }
+        }
+        L.moving = true;
+        L.running = !!s.run;
+        L.walkPhase += speed * dt * 4.4;
+        if (!s.path.length) { L.step = null; L.loc = s.dest || null; }
+      } else if (s.type === 'sit') {
+        const k = Math.min(1, dt * 10);
+        pos.x += (L.seat.x - pos.x) * k;
+        pos.z += (L.seat.z - pos.z) * k;
+        L.headingTarget = 0;
+        L.anim = 'sit';
+        L.chairYaw = 0;
+        L.loc = L.seat;
+        if (L.stepT >= 0.5) {
+          pos.x = L.seat.x; pos.z = L.seat.z;
+          L.seated = true;
+          setCup(o, false);
+          L.step = null;
+        }
+      } else if (s.type === 'act') {
+        L.anim = s.anim;
+        if (s.face) L.headingTarget = Math.atan2(-(s.face.x - pos.x), -(s.face.z - pos.z));
+        if (s.dur != null && L.stepT >= s.dur) L.step = null;
+      } else if (s.type === 'call') {
+        L.step = null;
+        try { s.fn(); } catch (_) {}
+      } else {
+        L.step = null;
+      }
+    }
+
+    // 현재 행동에 맞는 목표 자세를 정하고 부드럽게 보간
+    function updateAgentPose(o, t, dt, idx) {
+      const L = o.life, P = L.pose, tgt = L.tgt, add = L.add;
+      const sitting = L.anim === 'sit';
+      const base = sitting ? POSE_SIT : POSE_STAND;
+      for (const k of POSE_KEYS) { tgt[k] = base[k]; add[k] = 0; }
+      const working = o.isWorking && L.seated;
+
+      if (sitting) {
+        if (working) {
+          // 업무 가동: 빠른 타이핑 + 모니터를 바쁘게 훑어봄
+          add.elL = Math.sin(t * 30 + idx) * 0.09;
+          add.elR = Math.cos(t * 30 + idx) * 0.09;
+          tgt.headY = Math.sin(t * 4.5 + idx) * 0.22;
+          tgt.headX = Math.sin(t * 6 + idx) * 0.05;
+        } else if (L.hostFor && L.hostFor.ready) {
+          // 자리 방문 응대: 방문자 쪽으로 몸과 고개를 돌림
+          const side = L.hostFor.side;
+          tgt.twist = -side * 0.55;
+          tgt.headY = -side * 0.45;
+          if (L.speaking) {
+            const key = side > 0 ? 'R' : 'L';
+            tgt['sh' + key + 'x'] = 0.75;
+            tgt['el' + key] = 1.5 + Math.sin(t * 5 + idx) * 0.3;
+          } else {
+            add.headX = Math.sin(t * 3.2 + idx) * 0.06;
+          }
+        } else if (L.stretchUntil > t) {
+          // 기지개
+          tgt.shLx = tgt.shRx = 2.75;
+          tgt.shLz = -0.3; tgt.shRz = 0.3;
+          tgt.elL = tgt.elR = 0.3;
+          tgt.lean = 0.2;
+          tgt.headX = 0.22;
+        } else {
+          // 평상시: 간헐적 타이핑 + 느긋하게 모니터 확인
+          if (t > L.nextTypingAt) {
+            L.typingUntil = t + 2.5 + Math.random() * 4;
+            L.nextTypingAt = L.typingUntil + 1.5 + Math.random() * 5;
+          }
+          if (t < L.typingUntil) {
+            add.elL = Math.sin(t * 22 + idx) * 0.07;
+            add.elR = Math.cos(t * 22 + idx) * 0.07;
+          }
+          tgt.headY = Math.sin(t * 0.9 + idx * 1.7) * 0.14;
+        }
+      } else {
+        if (L.hasCup) { tgt.shRx = 0.35; tgt.shRz = -0.15; tgt.elR = 1.45; }   // 컵은 오른손에
+        if (L.anim === 'brew') {
+          tgt.shRx = 1.1; tgt.shRz = 0; tgt.elR = 0.5;      // 머신 쪽으로 손을 뻗음
+          tgt.shLx = 0.4; tgt.elL = 0.9;
+          tgt.headX = -0.18;
+        } else if (L.anim === 'coffee') {
+          const cyc = (t * 0.3 + idx * 0.37) % 1;           // 약 3.3초에 한 모금
+          if (!L.speaking && cyc > 0.6 && cyc < 0.9) {
+            tgt.shRx = 1.25; tgt.shRz = -0.5; tgt.elR = 1.75;
+            tgt.headY = -0.3; tgt.headX = 0.08;
+          } else {
+            tgt.headY = Math.sin(t * 0.8 + idx) * 0.12;
+          }
+          if (L.speaking) { tgt.shLx = 0.5; tgt.elL = 1.35 + Math.sin(t * 5 + idx) * 0.3; }
+        } else if (L.anim === 'talk') {
+          tgt.twist = Math.sin(t * 0.7 + idx) * 0.08;
+          if (L.speaking) {
+            tgt.shRx = 0.55; tgt.elR = 1.5 + Math.sin(t * 5.5 + idx) * 0.35;
+            tgt.shLx = 0.3;  tgt.elL = 1.0 + Math.cos(t * 4 + idx) * 0.2;
+          } else {
+            tgt.shLx = 0.15; tgt.elL = 0.9;
+            add.headX = Math.sin(t * 3.2 + idx) * 0.06;      // 끄덕임
+          }
+        }
+      }
+
+      // 걷기/뛰기: 다리·팔 스윙을 자세 위에 덧씌움
+      L.walkAmt += ((L.moving ? 1 : 0) - L.walkAmt) * Math.min(1, dt * 8);
+      const w = L.walkAmt;
+      if (w > 0.01) {
+        const ph = L.walkPhase, amp = L.running ? 0.8 : 0.5;
+        add.hipL += Math.sin(ph) * amp * w;
+        add.hipR -= Math.sin(ph) * amp * w;
+        add.kneeL -= Math.max(0, Math.cos(ph)) * (amp + 0.3) * w;
+        add.kneeR -= Math.max(0, -Math.cos(ph)) * (amp + 0.3) * w;
+        add.shLx -= Math.sin(ph) * amp * 0.8 * w;
+        if (!L.hasCup) add.shRx += Math.sin(ph) * amp * 0.8 * w;
+        add.hipY += Math.abs(Math.cos(ph)) * 0.02 * w;
+        if (L.running) { tgt.lean = -0.14; tgt.elL = 1.2; if (!L.hasCup) tgt.elR = 1.2; }
+        else { tgt.elL = 0.35; if (!L.hasCup) tgt.elR = 0.35; }
+      }
+
+      const k = Math.min(1, dt * 9);
+      for (const key of POSE_KEYS) P[key] += (tgt[key] - P[key]) * k;
+      applyAgentPose(o, P, add);
+      o.upperBodyGroup.position.y = 0.06 + Math.sin(t * 2 + idx) * 0.008;   // 호흡
+
+      let dh = L.headingTarget - L.heading;
+      dh = Math.atan2(Math.sin(dh), Math.cos(dh));
+      L.heading += dh * Math.min(1, dt * 8);
+      o.charGroup.rotation.y = L.heading;
+      o.chairGroup.rotation.y += (L.chairYaw - o.chairGroup.rotation.y) * Math.min(1, dt * 5);
+    }
+
+    // 네임태그 배지에 지금 하는 일을 표시 (업무 가동 중에는 파이프라인 상태가 우선)
+    function refreshLifeBadge(o, t) {
+      if (isPipelineRunning) return;
+      const L = o.life;
+      let key;
+      if (!L.seated) {
+        if (L.moving) key = L.hasCup ? 'walkcup' : 'walk';
+        else if (L.anim === 'brew') key = 'brew';
+        else if (L.anim === 'coffee') key = 'coffee';
+        else if (L.anim === 'talk') key = L.activity && L.activity.type === 'dropby' ? 'dropby' : 'huddle';
+        else key = L.badgeKey || 'walk';
+      } else if (L.hostFor && L.hostFor.ready) key = 'host';
+      else if (L.stretchUntil > t) key = 'stretch';
+      else key = 'desk';
+      if (key === 'desk' && L.badgeKey === 'pipeline' && t < officeLife.badgeHoldUntil) return;   // 승인 결과 배지를 잠시 유지
+      if (key === L.badgeKey) return;
+      L.badgeKey = key;
+      const def = LIFE_BADGES[key] || LIFE_BADGES.desk;
+      L.badgeText = def[0];
+      const badge = document.getElementById(`badge-${o.cfg.id}`);
+      if (badge) { badge.textContent = def[0]; badge.style.backgroundColor = def[1]; }
+      o.labelDiv.style.borderColor = 'rgba(56, 189, 248, 0.45)';
+      o.labelDiv.style.boxShadow = '0 3px 10px rgba(0,0,0,0.6)';
+    }
+
+    // 상단 바 요약: 자리 / 커피 / 대화 / 이동 인원
+    function updateOfficeActivitySummary() {
+      const el = document.getElementById('office-activity');
+      if (!el) return;
+      let desk = 0, coffee = 0, talk = 0, move = 0;
+      Object.values(agent3DObjects).forEach(o => {
+        const L = o.life;
+        if (L.seated) { if (L.hostFor && L.hostFor.ready) talk++; else desk++; }
+        else if (L.anim === 'brew' || L.anim === 'coffee') coffee++;
+        else if (L.anim === 'talk') talk++;
+        else move++;
+      });
+      const text = ` · 💻 ${desk}` + (coffee ? ` ☕ ${coffee}` : '') + (talk ? ` 💬 ${talk}` : '') + (move ? ` 🚶 ${move}` : '');
+      if (el.textContent !== text) el.textContent = text;
     }
 
     function reset3DCamera() {
@@ -1537,36 +2574,49 @@
     }
     function refresh3DLoop() { shouldRender3D() ? start3DLoop() : stop3DLoop(); }
 
+    let lastSignDraw = 0;
+    let lastSummaryAt = 0;
+
     function animate3D() {
       if (!shouldRender3D()) { rafId = null; return; }
       rafId = requestAnimationFrame(animate3D);
-      const elapsed = clock3D.getElapsedTime();
+      const dt = Math.min(clock3D.getDelta(), 0.1);   // 탭 복귀 직후 큰 시간 점프 방지
+      const elapsed = clock3D.elapsedTime;
+      officeLife.t += dt;
+      const t = officeLife.t;
 
-      // 전광판 캔버스 재작성·GPU 업로드는 초당 약 12회로 제한 (기존: 매 프레임 절반)
-      if (elapsed - lastTickerDraw > 0.08) {
-        tickerOffset += (elapsed - lastTickerDraw) * 45;
+      // 상황판 캔버스 재작성·GPU 업로드는 초당 약 10회, 간판은 1초에 1회로 제한
+      if (elapsed - lastTickerDraw > 0.1) {
+        tickerOffset += Math.min(elapsed - lastTickerDraw, 0.5) * 60;
         lastTickerDraw = elapsed;
         updateWallTickerCanvas();
       }
+      if (elapsed - lastSignDraw > 1) {
+        lastSignDraw = elapsed;
+        drawRearWallSign();
+      }
 
-      Object.values(agent3DObjects).forEach((obj, idx) => {
-        if (obj.isWorking) {
-          obj.leftForearm.rotation.x = Math.sin(elapsed * 30 + idx) * 0.16;
-          obj.rightForearm.rotation.x = Math.cos(elapsed * 30 + idx) * 0.16;
-          obj.headGroup.rotation.y = Math.sin(elapsed * 4.5 + idx) * 0.22;
-          obj.headGroup.rotation.x = Math.sin(elapsed * 6 + idx) * 0.05;
-          obj.workLight.intensity = 1.9 + Math.sin(elapsed * 10) * 0.4;
-          obj.screenMeshes.forEach(s => s.material.color.setHex(0xffffff));
-        } else {
-          obj.leftForearm.rotation.x = 0;
-          obj.rightForearm.rotation.x = 0;
-          obj.headGroup.rotation.y = Math.sin(elapsed * 1.2 + idx) * 0.08;
-          obj.headGroup.rotation.x = 0;
-          obj.upperBodyGroup.position.y = 0.62 + Math.sin(elapsed * 2 + idx) * 0.008;
-          obj.workLight.intensity = 0.15;
-          obj.screenMeshes.forEach(s => s.material.color.setHex(0x94a3b8));
-        }
-      });
+      // 오피스 라이프(이동·토론·커피)는 실패해도 렌더링을 멈추지 않도록 격리
+      try {
+        planOfficeLife(t);
+        updateActivities(t);
+        Object.values(agent3DObjects).forEach((obj, idx) => {
+          updateAgentLife(obj, t, dt);
+          updateAgentPose(obj, t, dt, idx);
+          refreshLifeBadge(obj, t);
+
+          const L = obj.life;
+          const working = obj.isWorking && L.seated;
+          obj.workLight.intensity = working ? 1.9 + Math.sin(t * 10) * 0.4 : (L.seated ? 0.15 : 0.04);
+          // 모니터 밝기: 업무 가동 > 타이핑 중 > 대기 > 자리 비움
+          const hex = working ? 0xffffff : !L.seated ? 0x566174 : (t < L.typingUntil ? 0xc4cfdd : 0x94a3b8);
+          if (obj.screenHex !== hex) {
+            obj.screenHex = hex;
+            obj.screenMeshes.forEach(s => s.material.color.setHex(hex));
+          }
+        });
+        if (t - lastSummaryAt > 0.5) { lastSummaryAt = t; updateOfficeActivitySummary(); }
+      } catch (_) {}
 
       if (controls) controls.update();
       if (renderer && scene && camera) {
@@ -1580,6 +2630,7 @@
     // =========================================================================
     function setSectorFilter(sectorKey, btnEl) {
       currentSectorFilter = sectorKey;
+      currentHoldingFilter = null;
       document.querySelectorAll('.sector-chip').forEach(b => b.classList.remove('active'));
       if (btnEl) btnEl.classList.add('active');
 
@@ -1658,13 +2709,45 @@
       throw lastError || new Error("시세 경로 실패");
     }
 
-    async function fetchRawWithCors(targetUrl) {
+    // =========================================================================
+    // 뉴스용 프록시 수집기 v2
+    //   · 프록시를 순서대로 6초씩 기다리던 방식 → "헤지 요청": 먼저 보낸 곳이 2.2초 안에 답이 없으면
+    //     다음 프록시를 동시에 띄우고, 가장 먼저 온 '정상 피드'만 채택
+    //   · HTTP 200이어도 오류 페이지(HTML)면 버리도록 내용 검증
+    //   · 프록시별 성공/실패 점수를 기억해 잘 되는 곳부터 사용, 요청마다 시작 프록시를 분산(레이트리밋 완화)
+    // =========================================================================
+    // 본인 소유 프록시(예: Cloudflare Worker)가 있으면 주소를 넣으세요. 넣으면 항상 1순위로 사용합니다.
+    //   예) const SELF_PROXY = "https://my-worker.example.workers.dev/?url=";
+    const SELF_PROXY = "";
+
+    const NEWS_PROXIES = [
+      { id: 'allorigins', build: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
+      { id: 'codetabs',   build: u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}` },
+      { id: 'corsproxy',  build: u => `https://corsproxy.io/?url=${encodeURIComponent(u)}` },
+      { id: 'corsdev',    build: u => `https://proxy.cors.dev/${u}` }
+    ];
+    const PROXY_SCORE_KEY = 'pulse8-proxy-score';
+    let PROXY_SCORE = {};
+    try {
+      const saved = JSON.parse(localStorage.getItem(PROXY_SCORE_KEY) || '{}');
+      // 지난 방문의 점수는 절반만 반영(어제 죽었던 프록시도 다시 기회를 줌)
+      NEWS_PROXIES.forEach(p => { PROXY_SCORE[p.id] = Math.trunc((Number(saved[p.id]) || 0) / 2); });
+    } catch (_) { PROXY_SCORE = {}; }
+
+    // 실패 원인 진단 기록(터미널 로그에 표시)
+    const NEWS_DIAG = {};
+    function noteDiag(id, err) {
+      NEWS_DIAG[id] = !err ? '정상' : (err.name === 'AbortError' ? '시간초과' : String(err.message || '실패').slice(0, 40));
+    }
+
+    // 기존(stock06) 수집 경로를 그대로 보존: 일반 피드는 항상 이 경로를 먼저 시도 → 이전 버전보다 나빠질 수 없음
+    async function legacyFetchRaw(targetUrl) {
       const proxies = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-        `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
-        `https://proxy.cors.dev/${targetUrl}`
+        ['기존-allorigins', `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`],
+        ['기존-corsproxy', `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`],
+        ['기존-corsdev', `https://proxy.cors.dev/${targetUrl}`]
       ];
-      for (const proxy of proxies) {
+      for (const [id, proxy] of proxies) {
         try {
           const controller = new AbortController();
           const timeout = setTimeout(() => controller.abort(), 6000);
@@ -1674,13 +2757,90 @@
             headers: { 'Accept': 'application/xml,text/xml,*/*' }
           });
           clearTimeout(timeout);
-          if (res.ok) {
-            const text = await res.text();
-            if (text && text.length > 200) return text;
-          }
-        } catch (_) {}
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const text = await res.text();
+          if (text && text.length > 200) { noteDiag(id, null); return text; }
+          throw new Error('빈 응답');
+        } catch (err) { noteDiag(id, err); }
       }
       throw new Error("Proxy Feed Fail");
+    }
+
+    function markProxy(id, ok) {
+      if (id === 'self') return;
+      const cur = PROXY_SCORE[id] || 0;
+      PROXY_SCORE[id] = Math.max(-6, Math.min(10, cur + (ok ? 2 : -1)));
+      try { localStorage.setItem(PROXY_SCORE_KEY, JSON.stringify(PROXY_SCORE)); } catch (_) {}
+    }
+
+    function rankedProxies(slot) {
+      const sorted = NEWS_PROXIES.slice().sort((a, b) => (PROXY_SCORE[b.id] || 0) - (PROXY_SCORE[a.id] || 0));
+      const healthy = sorted.filter(p => (PROXY_SCORE[p.id] || 0) > -3);
+      const weak = sorted.filter(p => (PROXY_SCORE[p.id] || 0) <= -3);
+      const shift = healthy.length ? (slot || 0) % healthy.length : 0;
+      const order = healthy.slice(shift).concat(healthy.slice(0, shift), weak);
+      if (SELF_PROXY) order.unshift({ id: 'self', build: u => SELF_PROXY + encodeURIComponent(u) });
+      return order;
+    }
+
+    // validate(text): 정상이면 값을, 아니면 null/false를 돌려주는 함수
+    function fetchViaProxies(targetUrl, validate, slot) {
+      const order = rankedProxies(slot);
+      const HEDGE_MS = 2200, TIMEOUT_MS = 7000;
+      return new Promise((resolve, reject) => {
+        let settled = false, pending = 0, next = 0;
+        const timers = [], controllers = [];
+        const finish = (ok, value) => {
+          if (settled) return;
+          settled = true;
+          timers.forEach(clearTimeout);
+          controllers.forEach(c => { try { c.abort(); } catch (_) {} });
+          if (ok) resolve(value); else reject(value);
+        };
+        const launch = () => {
+          if (settled || next >= order.length) return;
+          const proxy = order[next++];
+          pending++;
+          const ctrl = new AbortController();
+          controllers.push(ctrl);
+          timers.push(setTimeout(() => { try { ctrl.abort(); } catch (_) {} }, TIMEOUT_MS));
+          const hedge = setTimeout(launch, HEDGE_MS);
+          timers.push(hedge);
+          let url;
+          try { url = proxy.build(targetUrl); } catch (_) { url = null; }
+          Promise.resolve()
+            .then(() => {
+              if (!url) throw new Error('bad url');
+              return fetch(url, { method: 'GET', cache: 'no-store', signal: ctrl.signal });
+            })
+            .then(res => {
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              return res.text();
+            })
+            .then(text => {
+              const value = validate(text);
+              if (value === null || value === undefined || value === false) throw new Error('invalid body');
+              markProxy(proxy.id, true);
+              noteDiag(proxy.id, null);
+              finish(true, value);
+            })
+            .catch(err => {
+              if (settled) return;
+              noteDiag(proxy.id, err);
+              markProxy(proxy.id, false);
+              pending--;
+              clearTimeout(hedge);
+              if (next < order.length) launch();
+              else if (pending <= 0) finish(false, new Error('all proxies failed'));
+            });
+        };
+        launch();
+      });
+    }
+
+    // (호환용) 기존 이름 유지 — RSS/Atom 본문만 통과
+    function fetchRawWithCors(targetUrl) {
+      return fetchViaProxies(targetUrl, t => (/<(rss|feed|rdf:RDF)[\s>]/i.test(t) ? t : null), 0);
     }
 
     function toNumber(value) {
@@ -1923,102 +3083,446 @@
       return score > 0 ? 'POSITIVE' : score < 0 ? 'NEGATIVE' : 'NEUTRAL';
     }
 
-    let LAST_FEED_STATUS = { ok: 0, total: 0 };
-
-    async function fetchSixSectorNewsPipeline(mode) {
-      const holdingNames = MY_HOLDINGS.map(h => h.name);
-      let feedOkCount = 0;
-      const rawResults = await Promise.all(
-        FEEDS_REGISTRY.map(async feed => {
-          const list = [];
-          try {
-            const rawXml = await fetchRawWithCors(feed.url);
-            feedOkCount++;
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(rawXml, "text/xml");
-            const nodes = xmlDoc.querySelectorAll("item");
-
-            nodes.forEach(node => {
-              const title = sanitizeText(node.querySelector("title")?.textContent);
-              const link = (node.querySelector("link")?.textContent || "").trim();
-              const desc = sanitizeText(node.querySelector("description")?.textContent || title);
-              const pubDateStr = (node.querySelector("pubDate")?.textContent || "").trim();
-
-              if (!title || !link || !link.startsWith("http")) return;
-              const classified = classifyArticleSector(title, desc);
-
-              const parsedDate = pubDateStr ? new Date(pubDateStr) : null;
-              const pubDate = parsedDate && !isNaN(parsedDate) ? parsedDate : new Date();
-              const pubTs = parsedDate && !isNaN(parsedDate) ? parsedDate.getTime() : 0;
-              const dateStr = `${pubDate.getFullYear()}.${String(pubDate.getMonth()+1).padStart(2,'0')}.${String(pubDate.getDate()).padStart(2,'0')} ${String(pubDate.getHours()).padStart(2,'0')}:${String(pubDate.getMinutes()).padStart(2,'0')}`;
-
-              list.push({
-                stockName: classified.matchedKeyword ? `${classified.sectorLabel} (${classified.matchedKeyword})` : classified.sectorLabel,
-                sectorKey: classified.sectorKey,
-                sectorColor: classified.color,
-                sentiment: judgeSentiment(title, desc),
-                ts: pubTs,
-                title,
-                summary: desc.length > 110 ? desc.slice(0, 110) + '...' : desc,
-                source: feed.name.split(' ')[0],
-                publishedAt: dateStr,
-                url: link
-              });
-            });
-          } catch (_) {}
-          return list;
-        })
-      );
-
-      LAST_FEED_STATUS = { ok: feedOkCount, total: FEEDS_REGISTRY.length };
-      // 최신 기사 우선 정렬 (날짜 없는 기사는 뒤로)
-      const allItems = rawResults.flat().sort((a, b) => b.ts - a.ts);
-
-      const counts = { CONST_INFRA: 0, SHIP_HOLDING: 0, AI_SEMI_IT: 0, DEFENSE_METAL: 0, FIN_VALUE: 0, BIO_ENT: 0, MACRO: 0 };
-      allItems.forEach(i => { if (counts[i.sectorKey] !== undefined) counts[i.sectorKey]++; });
-
-      appendTerminalLog("MAX (①건설기계)", `HD건설기계·글로벌 인프라 뉴스 ${counts.CONST_INFRA}건 선별 완료.`, "#fb923c");
-      appendTerminalLog("LEO (②조선·지주)", `HD한국조선해양·HD현대 뉴스 ${counts.SHIP_HOLDING}건 선별 완료.`, "#34d399");
-      appendTerminalLog("MIA (③AI·반도체)", `삼성전자·SK하이닉스·NAVER 뉴스 ${counts.AI_SEMI_IT}건 선별 완료.`, "#c084fc");
-      appendTerminalLog("LUCY (④방산·비철)", `풍산·방산·구리 원자재 뉴스 ${counts.DEFENSE_METAL}건 선별 완료.`, "#fbbf24");
-      appendTerminalLog("KAI (⑤금융·밸류업)", `KB금융·밸류업·거시지수 뉴스 ${counts.FIN_VALUE}건 선별 완료.`, "#38bdf8");
-      appendTerminalLog("CHLOE (⑥바이오·엔터)", `셀트리온·에스엠 뉴스 ${counts.BIO_ENT}건 선별 완료.`, "#f472b6");
-      appendTerminalLog("SYSTEM", `섹터 키워드 미해당 시장·거시 기사 ${counts.MACRO}건 · 뉴스 피드 연결 ${feedOkCount}/${FEEDS_REGISTRY.length}`, feedOkCount ? "#94a3b8" : "#fb7185");
-
-      let combined = [];
-      if (mode === 'HOLDINGS') {
-        const isHoldingNews = (item) => holdingNames.some(name => item.title.includes(name) || item.stockName.includes(name));
-        combined = [
-          ...allItems.filter(isHoldingNews),
-          ...allItems.filter(i => !isHoldingNews(i))
-        ];
-      } else {
-        combined = allItems;
+    // =========================================================================
+    // [내 종목 직접 뉴스] 종목별 전용 검색(구글 뉴스 RSS) + 제목 일치 검증 + 직접성 점수
+    //   terms   : 종목별 검색어 (제목 검색 intitle: 로 질의)
+    //   direct  : 제목에 이 패턴이 있어야 '직접 뉴스'로 인정 (동명이인·계열사 오탐 차단)
+    //   related : 계열사 등 간접 관련(점수 낮음)
+    //   context : 이름이 흔한 종목은 이 단어 중 하나가 함께 있어야 인정 (예: 풍산개, 풍산읍 제외)
+    // =========================================================================
+    const HOLDING_NEWS_RULES = {
+      "267270": { terms: ["HD건설기계", "HD현대건설기계"], direct: [/HD\s?건설기계/i, /HD\s?현대건설기계/i, /현대건설기계/] },
+      "009540": { terms: ["HD한국조선해양"], direct: [/HD\s?한국조선해양/i, /한국조선해양/] },
+      "267250": {
+        terms: ["HD현대"],
+        direct: [/HD\s?현대(?!\s?(건설기계|중공업|일렉트릭|오일뱅크|마린|미포|삼호|로보틱스|인프라코어|에너지솔루션|사이트솔루션|케미칼))/i],
+        related: [/HD\s?현대\s?(중공업|일렉트릭|오일뱅크|마린|미포|삼호|로보틱스)/i]
+      },
+      "005930": { terms: ["삼성전자"], direct: [/삼성전자(?!서비스|판매|로지텍)/] },
+      "000660": { terms: ["SK하이닉스"], direct: [/SK\s?하이닉스/i, /하이닉스/] },
+      "035420": {
+        terms: ["네이버", "NAVER"],
+        direct: [/네이버/, /(^|[^A-Za-z])NAVER(?![A-Za-z])/],
+        context: ["주가", "실적", "AI", "커머스", "웹툰", "클라우드", "최수연", "이해진", "영업이익", "매출", "인수", "투자", "두나무", "하이퍼클로바", "검색", "광고", "쇼핑", "페이", "목표가", "증권", "플랫폼", "라인", "주식", "특징주", "자사주", "데이터센터", "핀테크", "코스피", "분기", "주주", "대표", "서비스", "출시", "협력", "제휴", "스테이블코인"]
+      },
+      "103140": {
+        terms: ["풍산"],
+        direct: [/풍산(?!개|읍|면|동|리|역|홀딩스|자이|고)/],
+        context: ["방산", "구리", "탄약", "주가", "실적", "영업이익", "목표가", "수출", "신동", "포탄", "증권", "특징주", "코스피", "공시", "매수", "상승", "하락", "강세", "약세", "급등", "급락", "류진", "구리값", "비철", "주식", "수주"]
+      },
+      "105560": { terms: ["KB금융"], direct: [/KB\s?금융/i] },
+      "068270": { terms: ["셀트리온"], direct: [/셀트리온/] },
+      "041510": {
+        terms: ["SM엔터", "SM엔터테인먼트", "에스엠엔터테인먼트"],
+        direct: [/SM\s?엔터/i, /에스엠\s?엔터/, /(^|[^가-힣A-Za-z])에스엠(?!코어|벡셀|씨지|티|이엔티|스틸|상선|하이플러스|라이프|[A-Za-z])/]
       }
+    };
 
-      const unique = [];
-      combined.forEach(item => {
-        if (!unique.some(u => u.title === item.title || u.url === item.url)) unique.push(item);
-      });
-      return unique.slice(0, 16);
+    // 종목 이벤트성 단어(+) / 여러 종목을 나열하는 시황·종합 기사(−)
+    const EVENT_WORDS = ["실적", "영업이익", "매출", "수주", "계약", "공시", "목표가", "투자의견", "자사주", "배당", "인수", "합병", "증설", "신고가", "신저가", "급등", "급락", "상한가", "리포트", "컨센서스", "어닝", "가이던스", "공급", "출시", "임상", "허가", "승인", "수출", "블록딜", "유상증자", "분할", "MOU", "협약"];
+    const ROUNDUP_WORDS = ["마감시황", "장마감", "개장시황", "오늘의 증시", "증시 요약", "주간 증시", "특징주 종합", "코스피 마감", "[표]", "52주", "시총 상위", "순매수 상위", "순매도 상위"];
+
+    // 기사 한 건이 어떤 보유종목과 얼마나 직접 관련되는지 판정
+    function matchHoldings(title, desc) {
+      const out = [];
+      for (const h of MY_HOLDINGS) {
+        const rule = HOLDING_NEWS_RULES[h.code];
+        if (!rule) continue;
+        let at = -1;
+        for (const re of rule.direct) {
+          const m = re.exec(title);
+          if (m && (at < 0 || m.index < at)) at = m.index;
+        }
+        let level = at >= 0 ? 'title' : null;
+        if (!level && rule.related && rule.related.some(re => re.test(title))) level = 'related';
+        if (!level && desc && rule.direct.some(re => re.test(desc))) level = 'desc';
+        if (!level) continue;
+        if (rule.context && !rule.context.some(w => title.includes(w) || (desc || '').includes(w))) continue;
+        out.push({ holding: h, level, at: at >= 0 ? at : 999 });
+      }
+      return out;
     }
 
-    function generateDynamicSummary(items) {
-      if (LAST_FEED_STATUS.total && LAST_FEED_STATUS.ok === 0) {
-        return "뉴스 피드 4곳 모두 연결에 실패했습니다(CORS 프록시 응답 없음). 잠시 후 [8인 업무 가동]을 다시 눌러주세요.";
+    function scoreHoldingNews(title, m, ts, titleMatchCount, now) {
+      let s = m.level === 'title' ? 10 : m.level === 'related' ? 5 : 4;
+      if (m.level === 'title') s += m.at <= 10 ? 3 : m.at <= 24 ? 1 : 0;      // 제목 앞머리에 종목명이 올수록 주인공
+      if (EVENT_WORDS.some(w => title.includes(w))) s += 2;
+      if (ROUNDUP_WORDS.some(w => title.includes(w))) s -= 6;
+      if (titleMatchCount >= 3) s -= 3;                                       // 내 종목이 3개 이상 나열된 종합 기사
+      if (ts) {
+        const hours = (now - ts) / 3600000;
+        s += hours < 6 ? 3 : hours < 24 ? 2 : hours < 48 ? 1 : hours > 96 ? -3 : 0;
+      } else {
+        s -= 1;
+      }
+      return s;
+    }
+
+    function formatNewsTime(ts) {
+      if (!ts) return '시간 미상';
+      const k = new Date(ts + 9 * 3600 * 1000);   // KST 고정 표기
+      const p = n => String(n).padStart(2, '0');
+      const base = `${k.getUTCFullYear()}.${p(k.getUTCMonth() + 1)}.${p(k.getUTCDate())} ${p(k.getUTCHours())}:${p(k.getUTCMinutes())}`;
+      const mins = Math.round((Date.now() - ts) / 60000);
+      const rel = mins < 0 ? '' : mins < 60 ? ` (${Math.max(1, mins)}분 전)` : mins < 1440 ? ` (${Math.floor(mins / 60)}시간 전)` : ` (${Math.floor(mins / 1440)}일 전)`;
+      return base + rel;
+    }
+
+    // 피드 원문 → {title, link, desc, pub, source}[]  (XML 파서 실패 시 정규식 파서로 재시도)
+    function parseFeedXml(xmlText) {
+      const rows = [];
+      let doc = null;
+      try { doc = new DOMParser().parseFromString(xmlText, "text/xml"); } catch (_) { doc = null; }
+      if (doc && !doc.querySelector('parsererror')) {
+        doc.querySelectorAll('item, entry').forEach(node => {
+          const text = sel => { const el = node.querySelector(sel); return el ? (el.textContent || '') : ''; };
+          const linkEl = node.querySelector('link');
+          const dcDate = node.getElementsByTagName('dc:date')[0];
+          rows.push({
+            title: text('title'),
+            link: linkEl ? ((linkEl.textContent || '').trim() || linkEl.getAttribute('href') || '') : '',
+            desc: text('description') || text('summary'),
+            pub: text('pubDate') || text('published') || text('updated') || (dcDate ? dcDate.textContent : ''),
+            source: text('source')
+          });
+        });
+      } else {
+        const pick = (block, tag) => {
+          const m = block.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)</${tag}>`, 'i'));
+          return m ? m[1].replace(/^\s*<!\[CDATA\[/, '').replace(/\]\]>\s*$/, '') : '';
+        };
+        String(xmlText).split(/<item[\s>]/i).slice(1).forEach(block => {
+          rows.push({ title: pick(block, 'title'), link: pick(block, 'link'), desc: pick(block, 'description'), pub: pick(block, 'pubDate') || pick(block, 'dc:date'), source: pick(block, 'source') });
+        });
+      }
+      return rows;
+    }
+
+    // 피드 1개 수집: 프록시(헤지) → 실패 시 RSS→JSON 변환 서비스. 어떤 경우에도 예외를 던지지 않음
+    async function fetchFeedRows(feedUrl, slot, legacyFirst) {
+      if (legacyFirst) {
+        try {
+          const rows = parseFeedXml(await legacyFetchRaw(feedUrl));
+          if (rows.length) return { ok: true, rows };
+        } catch (_) {}
+      }
+      try {
+        const xml = await fetchViaProxies(feedUrl, t => (/<(rss|feed|rdf:RDF)[\s>]/i.test(t) ? t : null), slot);
+        return { ok: true, rows: parseFeedXml(xml) };
+      } catch (_) {}
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 6000);
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`, { signal: ctrl.signal });
+        clearTimeout(timer);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.status === 'ok' && Array.isArray(data.items)) {
+            return {
+              ok: true,
+              rows: data.items.map(it => ({
+                title: it.title || '', link: it.link || '', desc: it.description || '',
+                pub: it.pubDate ? String(it.pubDate).replace(' ', 'T') + 'Z' : '', source: it.author || ''
+              }))
+            };
+          }
+        }
+      } catch (_) {}
+      return { ok: false, rows: [] };
+    }
+
+    // 원시 행 → 브리핑 카드 데이터. forHolding이 있으면(종목 전용 검색) 그 종목과의 일치를 우선 확인
+    function buildNewsItem(row, fallbackSource, forHolding, now) {
+      try {
+        let title = sanitizeText(row.title);
+        const link = String(row.link || '').trim();
+        const source = sanitizeText(row.source) || fallbackSource;
+        if (!title || !/^https?:\/\//i.test(link)) return null;
+        // 구글 뉴스는 제목 끝에 ' - 언론사'가 붙고, 설명은 제목 반복이므로 정리
+        if (source && title.endsWith(' - ' + source)) title = title.slice(0, -(source.length + 3)).trim();
+        let desc = sanitizeText(row.desc);
+        const squash = s => s.replace(/\s+/g, '');
+        if (desc && squash(desc).startsWith(squash(title).slice(0, 18))) desc = '';
+        if (!title) return null;
+
+        const parsed = row.pub ? new Date(String(row.pub).trim()) : null;
+        const ts = parsed && !isNaN(parsed) ? parsed.getTime() : 0;
+        const classified = classifyArticleSector(title, desc);
+
+        const item = {
+          stockName: classified.matchedKeyword ? `${classified.sectorLabel} (${classified.matchedKeyword})` : classified.sectorLabel,
+          sectorKey: classified.sectorKey,
+          sectorColor: classified.color,
+          sentiment: judgeSentiment(title, desc),
+          ts,
+          title,
+          summary: desc.length > 110 ? desc.slice(0, 110) + '...' : desc,
+          source,
+          publishedAt: formatNewsTime(ts),
+          url: link,
+          holdingCode: null, holdingName: null, directLevel: null, score: 0, cached: false
+        };
+
+        const matches = matchHoldings(title, desc);
+        if (matches.length) {
+          const titleCount = matches.filter(m => m.level === 'title').length;
+          const rank = { title: 0, related: 1, desc: 2 };
+          matches.sort((a, b) => rank[a.level] - rank[b.level] || a.at - b.at);
+          let primary = matches[0];
+          if (forHolding) {
+            const own = matches.find(m => m.holding.code === forHolding.code && m.level !== 'desc');
+            if (own && (own.level === 'title' || primary.level !== 'title')) primary = own;
+          }
+          const h = primary.holding, meta = SECTOR_META[h.sectorKey];
+          item.holdingCode = h.code;
+          item.holdingName = h.name;
+          item.directLevel = primary.level;
+          item.score = scoreHoldingNews(title, primary, ts, titleCount, now || Date.now());
+          item.sectorKey = h.sectorKey;
+          item.sectorColor = meta.color;
+          item.stockName = `${h.name} · ${meta.agentName}`;
+        }
+        return item;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    // 동시에 limit개씩만 실행 (무료 프록시의 분당 호출 제한을 넘지 않도록)
+    async function runPool(tasks, limit) {
+      let cursor = 0;
+      const worker = async () => {
+        while (cursor < tasks.length) {
+          const mine = cursor++;
+          try { await tasks[mine](); } catch (_) {}
+        }
+      };
+      await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, worker));
+    }
+    const withDeadline = (promise, ms) => Promise.race([promise, new Promise(resolve => setTimeout(resolve, ms))]);
+
+    // 수집 결과 보관소: general=일반 경제 피드, direct=종목 전용 검색
+    const NEWS_POOL = { general: [], direct: [], directAt: 0, directOk: 0, directLoading: false };
+    let LAST_FEED_STATUS = { ok: 0, total: 0 };
+    let currentHoldingFilter = null;   // 커버리지 칩으로 고른 종목 코드
+
+    async function fetchGeneralNews() {
+      const collected = [];
+      let ok = 0;
+      const now = Date.now();
+      await withDeadline(runPool(FEEDS_REGISTRY.map((feed, i) => async () => {
+        const r = await fetchFeedRows(feed.url, i, true);
+        if (r.ok && r.rows.length) ok++;
+        r.rows.forEach(row => {
+          const item = buildNewsItem(row, feed.name.split(' ')[0], null, now);
+          if (item) { item.source = feed.name.split(' ')[0]; collected.push(item); }
+        });
+      }), 4), 26000);
+      LAST_FEED_STATUS = { ok, total: FEEDS_REGISTRY.length };
+      return collected;
+    }
+
+    // 직전 성공분 보관: 이번에 특정 종목 검색이 실패하면 36시간 이내 캐시로 대신 채움
+    const HOLDING_NEWS_CACHE_KEY = 'pulse8-holding-news-v1';
+    function loadHoldingNewsCache() {
+      try {
+        const c = JSON.parse(localStorage.getItem(HOLDING_NEWS_CACHE_KEY) || 'null');
+        if (c && Array.isArray(c.items) && Date.now() - c.t < 36 * 3600 * 1000) {
+          return c.items.filter(i => i && typeof i.title === 'string' && typeof i.url === 'string' && i.holdingCode);
+        }
+      } catch (_) {}
+      return [];
+    }
+    function saveHoldingNewsCache(items) {
+      try {
+        const slim = items.slice(0, 90).map(i => ({
+          stockName: i.stockName, sectorKey: i.sectorKey, sectorColor: i.sectorColor, sentiment: i.sentiment, ts: i.ts,
+          title: i.title, summary: i.summary, source: i.source, url: i.url,
+          holdingCode: i.holdingCode, holdingName: i.holdingName, directLevel: i.directLevel, score: i.score
+        }));
+        localStorage.setItem(HOLDING_NEWS_CACHE_KEY, JSON.stringify({ t: Date.now(), items: slim }));
+      } catch (_) {}
+    }
+
+    async function fetchHoldingNews() {
+      const collected = [];
+      const okCodes = new Set();
+      const now = Date.now();
+      const feedUrl = q => `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=ko&gl=KR&ceid=${encodeURIComponent('KR:ko')}`;
+
+      await withDeadline(runPool(MY_HOLDINGS.map((h, i) => async () => {
+        const rule = HOLDING_NEWS_RULES[h.code];
+        if (!rule) return;
+        const usable = rows => rows
+          .map(row => buildNewsItem(row, 'Google뉴스', h, now))
+          .filter(item => item && item.holdingCode === h.code);
+
+        // 1차: 제목에 종목명이 들어간 최근 3일 기사
+        let r = await fetchFeedRows(feedUrl(rule.terms.map(t => `intitle:"${t}"`).join(' OR ') + ' when:3d'), i);
+        let items = usable(r.rows);
+        // 2차: 결과가 없으면 조건을 풀어 최근 7일 일반 검색 (그래도 제목 일치 검증은 그대로 적용)
+        if (!items.length) {
+          const r2 = await fetchFeedRows(feedUrl(rule.terms.map(t => `"${t}"`).join(' OR ') + ' when:7d'), i + 1);
+          items = usable(r2.rows);
+          r = { ok: r.ok || r2.ok };
+        }
+        if (r.ok) okCodes.add(h.code);
+        items.forEach(item => collected.push(item));
+      }), 3), 16000);
+
+      // 이번에 못 받은 종목은 캐시로 보충
+      const have = new Set(collected.map(i => i.holdingCode));
+      const cached = loadHoldingNewsCache().filter(i => !have.has(i.holdingCode));
+      cached.forEach(i => { i.cached = true; i.publishedAt = formatNewsTime(i.ts); collected.push(i); });
+      if (collected.some(i => !i.cached)) saveHoldingNewsCache(collected);
+
+      NEWS_POOL.direct = collected;
+      NEWS_POOL.directAt = Date.now();
+      NEWS_POOL.directOk = okCodes.size;
+      return collected;
+    }
+
+    // 같은 기사·같은 사건 중복 제거 (URL 동일, 제목 동일, 또는 제목 2글자 조각이 72% 이상 겹침)
+    function dedupeNews(items) {
+      const kept = [], meta = [];
+      for (const it of items) {
+        const key = it.title.replace(/\[[^\]]*\]|\([^)]*\)/g, '').replace(/[^가-힣A-Za-z0-9]/g, '').toLowerCase();
+        const grams = new Set();
+        for (let i = 0; i < key.length - 1; i++) grams.add(key.slice(i, i + 2));
+        let dup = false;
+        for (let k = 0; k < kept.length && !dup; k++) {
+          if (kept[k].url === it.url || meta[k].key === key) { dup = true; break; }
+          if (key.length < 12 || meta[k].key.length < 12) continue;
+          let inter = 0;
+          for (const g of grams) if (meta[k].grams.has(g)) inter++;
+          if (inter / Math.max(1, Math.min(grams.size, meta[k].grams.size)) >= 0.72) dup = true;
+        }
+        if (!dup) { kept.push(it); meta.push({ key, grams }); }
+      }
+      return kept;
+    }
+
+    // 내 종목 직접 뉴스 후보(점수순). 일반 피드에서 제목에 종목명이 걸린 기사도 함께 승격
+    function getDirectPool() {
+      const all = NEWS_POOL.direct.concat(NEWS_POOL.general.filter(i => i.holdingCode));
+      return dedupeNews(all.filter(i => i.score >= 7).sort((a, b) => b.score - a.score || b.ts - a.ts));
+    }
+
+    // 화면에 보여줄 브리핑 목록 구성
+    //   MARKET   : 일반 피드 최신순 16건
+    //   HOLDINGS : 종목별 직접 뉴스를 한 바퀴씩 돌아가며(모든 종목이 상단에 1건씩) → 섹터 참고 기사 최대 4건
+    function buildBriefingList(mode) {
+      const sectorOk = i => currentSectorFilter === 'ALL' || i.sectorKey === currentSectorFilter;
+      const general = dedupeNews(NEWS_POOL.general.filter(sectorOk).sort((a, b) => b.ts - a.ts));
+      if (mode !== 'HOLDINGS') return general.slice(0, 16);
+
+      const holdings = MY_HOLDINGS.filter(h =>
+        (currentSectorFilter === 'ALL' || h.sectorKey === currentSectorFilter) &&
+        (!currentHoldingFilter || h.code === currentHoldingFilter));
+      const per = {};
+      getDirectPool().forEach(i => { (per[i.holdingCode] = per[i.holdingCode] || []).push(i); });
+
+      const rounds = holdings.length <= 1 ? 8 : holdings.length <= 3 ? 5 : 3;   // 범위를 좁힐수록 종목당 더 깊게
+      const direct = [];
+      for (let round = 0; round < rounds; round++) {
+        holdings.map(h => (per[h.code] || [])[round]).filter(Boolean)
+          .sort((a, b) => b.score - a.score || b.ts - a.ts)
+          .forEach(i => direct.push(i));
+      }
+      const used = new Set(direct.map(i => i.url));
+      const refs = currentHoldingFilter ? [] : general
+        .filter(i => !i.holdingCode && i.sectorKey !== MACRO_BUCKET.key && !used.has(i.url))
+        .slice(0, 4)
+        .map(i => Object.assign({}, i, { isRef: true }));
+      return direct.slice(0, 24).concat(refs);
+    }
+
+    function updateBoardStats() {
+      const stats = {};
+      Object.keys(SECTOR_META).forEach(k => { stats[k] = { n: 0, pos: 0, neu: 0, neg: 0, direct: 0, headline: '', ts: -1 }; });
+      const direct = isPortfolioOpen ? getDirectPool() : [];
+      dedupeNews(direct.concat(NEWS_POOL.general)).forEach(i => {
+        const s = stats[i.sectorKey];
+        if (!s) return;
+        s.n++;
+        if (i.sentiment === 'POSITIVE') s.pos++; else if (i.sentiment === 'NEGATIVE') s.neg++; else s.neu++;
+        if (isPortfolioOpen && i.holdingCode && i.directLevel === 'title') s.direct++;
+        if (i.ts > s.ts) { s.ts = i.ts; s.headline = i.title; }
+      });
+      BOARD_STATS = stats;
+      BOARD_HEADLINES = buildBriefingList(isPortfolioOpen ? 'HOLDINGS' : 'MARKET').slice(0, 8)
+        .map(i => i.title.replace(/\[.*?\]/g, '').trim());
+      return stats;
+    }
+
+    // 8인 업무 가동 시 호출: 일반 피드는 항상, 종목 전용 검색은 '내 종목'이 열려 있을 때만 수집
+    async function collectNewsForPipeline(mode) {
+      const jobs = [fetchGeneralNews().then(items => { NEWS_POOL.general = items; })];
+      if (mode === 'HOLDINGS') jobs.push(fetchHoldingNews());
+      await Promise.all(jobs.map(j => j.catch(() => {})));
+
+      const stats = updateBoardStats();
+      const tail = k => (mode === 'HOLDINGS' ? ` (내 종목 직접 ${stats[k].direct}건 포함)` : '');
+      appendTerminalLog("MAX (①건설기계)", `HD건설기계·글로벌 인프라 뉴스 ${stats.CONST_INFRA.n}건 선별 완료.${tail('CONST_INFRA')}`, "#fb923c");
+      appendTerminalLog("LEO (②조선·지주)", `HD한국조선해양·HD현대 뉴스 ${stats.SHIP_HOLDING.n}건 선별 완료.${tail('SHIP_HOLDING')}`, "#34d399");
+      appendTerminalLog("MIA (③AI·반도체)", `삼성전자·SK하이닉스·NAVER 뉴스 ${stats.AI_SEMI_IT.n}건 선별 완료.${tail('AI_SEMI_IT')}`, "#c084fc");
+      appendTerminalLog("LUCY (④방산·비철)", `풍산·방산·구리 원자재 뉴스 ${stats.DEFENSE_METAL.n}건 선별 완료.${tail('DEFENSE_METAL')}`, "#fbbf24");
+      appendTerminalLog("KAI (⑤금융·밸류업)", `KB금융·밸류업·거시지수 뉴스 ${stats.FIN_VALUE.n}건 선별 완료.${tail('FIN_VALUE')}`, "#38bdf8");
+      appendTerminalLog("CHLOE (⑥바이오·엔터)", `셀트리온·에스엠 뉴스 ${stats.BIO_ENT.n}건 선별 완료.${tail('BIO_ENT')}`, "#f472b6");
+      const macro = NEWS_POOL.general.filter(i => i.sectorKey === MACRO_BUCKET.key).length;
+      appendTerminalLog("SYSTEM", `시장·거시 기사 ${macro}건 · 일반 피드 연결 ${LAST_FEED_STATUS.ok}/${LAST_FEED_STATUS.total}` +
+        (mode === 'HOLDINGS' ? ` · 종목 전용 검색 ${NEWS_POOL.directOk}/${MY_HOLDINGS.length}` : ''),
+        LAST_FEED_STATUS.ok || NEWS_POOL.directOk ? "#94a3b8" : "#fb7185");
+      if (!LAST_FEED_STATUS.ok) {
+        const diag = Object.entries(NEWS_DIAG).map(([k, v]) => `${k}=${v}`).join(' · ');
+        appendTerminalLog("진단", escapeHtml(`${diag} · KOSPI=${KOSPI_STATE.loaded ? '정상' : '실패'} · 온라인=${navigator.onLine} · 주소=${location.protocol}//${location.host || '(파일)'}`), "#fb7185");
+      }
+    }
+
+    // '내 종목'을 나중에 열었을 때: 종목 전용 뉴스가 없거나 10분 넘게 지났으면 뒤에서 보충 수집
+    async function ensureHoldingNews() {
+      if (NEWS_POOL.directLoading) return;
+      if (NEWS_POOL.directAt && Date.now() - NEWS_POOL.directAt < 10 * 60 * 1000) return;
+      NEWS_POOL.directLoading = true;
+      appendTerminalLog("SYSTEM", "내 보유종목 전용 뉴스 검색을 시작합니다(종목명 제목 일치 기준).", "#94a3b8");
+      try { await fetchHoldingNews(); } catch (_) {}
+      NEWS_POOL.directLoading = false;
+      appendTerminalLog("ELENA (취합·정리)", `보유종목 직접 뉴스 ${getDirectPool().length}건 정리 완료 · 종목 전용 검색 ${NEWS_POOL.directOk}/${MY_HOLDINGS.length}`, "#6ee7b7");
+      if (hasRunOnce) { updateBoardStats(); updateBriefingDisplay(); }
+    }
+
+    function generateDynamicSummary(items, mode) {
+      const feedsDead = LAST_FEED_STATUS.total && LAST_FEED_STATUS.ok === 0;
+      if (feedsDead && (!items || items.length === 0) && KOSPI_STATE.tried && !KOSPI_STATE.loaded) {
+        return "뉴스뿐 아니라 KOSPI 시세 연결도 실패했습니다. 이 화면에서 외부 연결 자체가 막혀 있을 가능성이 큽니다(앱 내 미리보기 등). 파일을 Chrome 같은 브라우저에서 직접 열어 다시 시도해 주세요.";
+      }
+      if (feedsDead && (!items || items.length === 0)) {
+        return "뉴스 피드 연결에 모두 실패했습니다(CORS 프록시 응답 없음). 잠시 후 [8인 업무 가동]을 다시 눌러주세요.";
+      }
+      if (mode === 'HOLDINGS' && NEWS_POOL.directLoading && (!items || items.length === 0)) {
+        return "내 보유종목 전용 뉴스를 검색하는 중입니다. 잠시만 기다려 주세요.";
       }
       if (!items || items.length === 0) {
-        return "해당 세부 섹터에 수신된 최신 뉴스가 없습니다. 상단 [전체 (All)] 탭을 선택하거나 [8인 업무 가동]을 눌러주세요.";
+        return mode === 'HOLDINGS'
+          ? "선택한 범위에서 종목명이 제목에 들어간 최신 기사를 찾지 못했습니다. 다른 섹터를 고르거나 [8인 업무 가동]을 다시 눌러주세요."
+          : "해당 세부 섹터에 수신된 최신 뉴스가 없습니다. 상단 [전체 (All)] 탭을 선택하거나 [8인 업무 가동]을 눌러주세요.";
       }
       const pos = items.filter(i => i.sentiment === 'POSITIVE').length;
       const neg = items.filter(i => i.sentiment === 'NEGATIVE').length;
       const neu = items.length - pos - neg;
       const headlines = items.slice(0, 3).map(i => i.title.replace(/\[.*?\]/g, '').trim()).join(' / ');
-
       const sectorTitle = currentSectorFilter === 'ALL'
         ? '6대 섹터 + 시장·거시'
         : `${SECTOR_META[currentSectorFilter]?.agentName} 전담 (${SECTOR_META[currentSectorFilter]?.label})`;
 
+      if (mode === 'HOLDINGS') {
+        const direct = items.filter(i => i.holdingCode && !i.isRef);
+        const refs = items.length - direct.length;
+        const names = [...new Set(direct.map(i => i.holdingName))];
+        return `[내 보유종목 직접 뉴스 · ${currentSectorFilter === 'ALL' ? '전체' : sectorTitle}] 직접 ${direct.length}건(${names.length}종목)` +
+          (refs ? ` + 섹터 참고 ${refs}건` : '') + ` · 긍정 ${pos} / 중립 ${neu} / 부정 ${neg}. 주요 헤드라인: '${headlines}'. ` +
+          `※ 제목에 종목명이 들어간 기사를 우선하며, 분류·긍부정은 키워드 규칙 기반 자동 판정입니다(기사 내용 검증 아님).`;
+      }
       return `[${sectorTitle}] 총 ${items.length}건 · 긍정 ${pos} / 중립 ${neu} / 부정 ${neg}. 최신 헤드라인: '${headlines}'. ※ 분류와 긍·부정은 키워드 규칙 기반 자동 판정이며, 기사 내용을 검증한 결과는 아닙니다.`;
     }
 
@@ -2049,7 +3553,8 @@
         renderPortfolioRows();
         renderSummaryStats();
         fetchStockDataWithSilentFailover();
-        if (hasRunOnce) updateBriefingDisplay();
+        // 가동 이후에 열었다면 종목 전용 뉴스를 뒤에서 보충 수집하고, 화면은 즉시 '내 종목' 기준으로 전환
+        if (hasRunOnce) { ensureHoldingNews(); updateBoardStats(); updateBriefingDisplay(); }
       } else {
         container.style.display = 'none';
         btn.classList.remove('btn-active');
@@ -2057,7 +3562,7 @@
         modeTag.textContent = "전체 시장 모드";
         modeTag.classList.remove('holdings');
         renderSummaryStats();
-        if (hasRunOnce) updateBriefingDisplay();
+        if (hasRunOnce) { updateBoardStats(); updateBriefingDisplay(); }
       }
     }
 
@@ -2122,19 +3627,48 @@
 
     function updateBriefingDisplay() {
       renderKospiBanner();
-      const filteredNews = currentSectorFilter === 'ALL'
-        ? CURRENT_NEWS_ITEMS
-        : CURRENT_NEWS_ITEMS.filter(item => item.sectorKey === currentSectorFilter);
+      // 표시 모드는 '지금' 내 종목이 열려 있는지로 결정 (가동 이후에 열어도 즉시 종목 직접 뉴스로 전환)
+      const mode = isPortfolioOpen ? 'HOLDINGS' : 'MARKET';
+      if (mode !== 'HOLDINGS') currentHoldingFilter = null;
+      const list = buildBriefingList(mode);
+      CURRENT_NEWS_ITEMS = list;
 
       const summaryCard = document.getElementById('period-summary');
       summaryCard.style.display = 'block';
-      document.getElementById('summary-content').textContent = generateDynamicSummary(filteredNews);
+      document.getElementById('summary-content').textContent = generateDynamicSummary(list, mode);
+      document.getElementById('summary-badge-title').textContent = mode === 'HOLDINGS'
+        ? '내 종목 직접 뉴스 브리핑 (엘레나 취합 · 아서 승인)'
+        : '엘레나 취합 · 아서 승인 브리핑 (자동 분류)';
 
       const subtitle = document.getElementById('briefing-subtitle');
       const secLabel = currentSectorFilter === 'ALL' ? '6대 섹터 통합' : SECTOR_META[currentSectorFilter]?.label;
-      subtitle.textContent = `${secLabel} 브리핑 · ${filteredNews.length}건 (엘레나 취합 · 아서 승인)`;
+      subtitle.textContent = mode === 'HOLDINGS'
+        ? `${secLabel} · 내 종목 직접 뉴스 ${list.filter(i => !i.isRef).length}건` + (NEWS_POOL.directLoading ? ' · 종목 검색 중…' : '')
+        : `${secLabel} 브리핑 · ${list.length}건 (엘레나 취합 · 아서 승인)`;
 
-      renderNewsCards(filteredNews);
+      renderHoldingCoverage(mode);
+      renderNewsCards(list);
+    }
+
+    // 종목별 직접 뉴스 건수 칩 — 누르면 그 종목 기사만 깊게 보기
+    function renderHoldingCoverage(mode) {
+      const box = document.getElementById('holding-coverage');
+      if (!box) return;
+      if (mode !== 'HOLDINGS') { box.style.display = 'none'; box.innerHTML = ''; return; }
+      const counts = {};
+      getDirectPool().forEach(i => { counts[i.holdingCode] = (counts[i.holdingCode] || 0) + 1; });
+      const holdings = MY_HOLDINGS.filter(h => currentSectorFilter === 'ALL' || h.sectorKey === currentSectorFilter);
+      box.innerHTML = holdings.map(h => {
+        const n = counts[h.code] || 0;
+        const cls = `cov-chip${n ? '' : ' zero'}${currentHoldingFilter === h.code ? ' active' : ''}`;
+        return `<button type="button" class="${cls}" onclick="setHoldingFilter('${h.code}')">${escapeHtml(h.name)}<b>${n}</b></button>`;
+      }).join('');
+      box.style.display = 'flex';
+    }
+
+    function setHoldingFilter(code) {
+      currentHoldingFilter = currentHoldingFilter === code ? null : code;
+      updateBriefingDisplay();
     }
 
     function renderNewsCards(items) {
@@ -2144,9 +3678,12 @@
       newsList.style.display = 'flex';
 
       if (!items || items.length === 0) {
-        newsList.innerHTML = (LAST_FEED_STATUS.total && LAST_FEED_STATUS.ok === 0)
-          ? `<div class="news-empty">뉴스 피드에 연결하지 못했습니다. 네트워크 또는 프록시 상태를 확인한 뒤 다시 시도해 주세요.</div>`
-          : `<div class="news-empty">선택하신 세부 섹터의 뉴스가 없습니다. [전체 (All)] 탭을 눌러보세요.</div>`;
+        const feedsDead = LAST_FEED_STATUS.total && LAST_FEED_STATUS.ok === 0;
+        newsList.innerHTML = (isPortfolioOpen && NEWS_POOL.directLoading)
+          ? `<div class="news-empty">내 보유종목 전용 뉴스를 검색하는 중입니다…</div>`
+          : feedsDead
+            ? `<div class="news-empty">뉴스 피드에 연결하지 못했습니다. 네트워크 또는 프록시 상태를 확인한 뒤 다시 시도해 주세요.</div>`
+            : `<div class="news-empty">선택하신 범위의 뉴스가 없습니다. [전체 (All)] 탭을 눌러보세요.</div>`;
         return;
       }
 
@@ -2156,17 +3693,24 @@
         const sentimentCls = { POSITIVE: 'pos', NEGATIVE: 'neg', NEUTRAL: 'neu' }[item.sentiment] || 'neu';
         const sentimentText = { POSITIVE: '긍정', NEGATIVE: '부정', NEUTRAL: '중립' }[item.sentiment] || '중립';
         const sectorColor = /^#[0-9a-f]{6}$/i.test(item.sectorColor || '') ? item.sectorColor : 'currentColor';
+        card.style.setProperty('--sc', sectorColor);
+
+        const showDirect = isPortfolioOpen && item.holdingCode && !item.isRef;
+        const tag = showDirect
+          ? `<span class="tag-direct">${item.directLevel === 'title' ? '내 종목 직접' : '내 종목 관련'}</span>`
+          : (item.isRef ? `<span class="tag-ref">섹터 참고</span>` : '');
+        const summaryHtml = item.summary ? `<p>${escapeHtml(item.summary)}</p>` : '';
 
         // 외부 뉴스 텍스트는 모두 escapeHtml을 거쳐 삽입 (XSS 방지)
         card.innerHTML = `
           <div class="news-head">
-            <span class="news-sector" style="--sc:${sectorColor};">[${escapeHtml(item.stockName)}]</span>
+            <span class="news-tags">${tag}<span class="news-sector" style="--sc:${sectorColor};">[${escapeHtml(item.stockName)}]</span></span>
             <span class="sentiment ${sentimentCls}">${sentimentText}</span>
           </div>
           <a href="${escapeHtml(safeHttpUrl(item.url))}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)} ↗</a>
-          <p>${escapeHtml(item.summary)}</p>
+          ${summaryHtml}
           <div class="news-meta">
-            <span class="src">${escapeHtml(item.source)}</span> · <span>${escapeHtml(item.publishedAt)}</span>
+            <span class="src">${escapeHtml(item.source)}</span> · <span>${escapeHtml(item.publishedAt)}</span>${item.cached ? ' · <span>이전 수집분</span>' : ''}
           </div>
         `;
         newsList.appendChild(card);
@@ -2185,8 +3729,17 @@
         ? MY_HOLDINGS
         : MY_HOLDINGS.filter(h => h.sectorKey === currentSectorFilter);
 
+      // 비중은 필터와 무관하게 '전체 포트폴리오' 대비로 계산
+      const isLoaded = s => s.loaded && Number.isFinite(s.prevClose) && Number.isFinite(s.currentPrice);
+      const portfolioTotal = MY_HOLDINGS.filter(isLoaded).reduce((n, h) => n + h.shares * h.currentPrice, 0);
+      const weightCell = (amount, color) => {
+        if (!Number.isFinite(amount) || !(portfolioTotal > 0)) return `<span class="num-none">-</span>`;
+        const w = amount / portfolioTotal * 100;
+        return `<span class="wcell"><span class="wbar"><i style="width:${Math.min(100, w).toFixed(1)}%;--sc:${color};"></i></span>${w.toFixed(1)}%</span>`;
+      };
+
       targetHoldings.forEach(stock => {
-        const loaded = stock.loaded && Number.isFinite(stock.prevClose) && Number.isFinite(stock.currentPrice);
+        const loaded = isLoaded(stock);
         const prevAmount = loaded ? stock.shares * stock.prevClose : null;
         const currAmount = loaded ? stock.shares * stock.currentPrice : null;
 
@@ -2205,16 +3758,18 @@
         const naverTotalUrl = `https://m.stock.naver.com/domestic/stock/${stock.code}/total?domesticStockExchange=KRX`;
         const priceText = value => Number.isFinite(value) ? value.toLocaleString() : "-";
         const signedNumber = value => Number.isFinite(value) ? `${value > 0 ? "+" : ""}${value.toLocaleString()}` : "-";
+        const sectorColor = SECTOR_META[stock.sectorKey]?.color || '#94a3b8';
 
         const changePriceText = loaded
-          ? `${arrow} ${signedNumber(priceDiff)} <span class="rate">(${priceRate >= 0 ? "+" : ""}${priceRate.toFixed(2)}%)</span>`
+          ? `<span class="chg-pill ${diffCls}">${arrow} ${signedNumber(priceDiff)} <span class="rate">(${priceRate >= 0 ? "+" : ""}${(priceRate ?? 0).toFixed(2)}%)</span></span>`
           : "-";
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td style="text-align: left;">
             <a href="${naverTotalUrl}" target="_blank" rel="noopener noreferrer" class="stock-link">
-              <span>${stock.name}</span>
+              <span class="sector-dot" style="--sc:${sectorColor};"></span>
+              <span class="stock-name">${stock.name}</span>
               <span class="sector-mini-tag">${stock.sectorLabel}</span>
             </a>
           </td>
@@ -2225,6 +3780,7 @@
           <td class="${diffCls}">${priceText(currAmount)}</td>
           <td class="${diffCls}">${changePriceText}</td>
           <td class="${diffCls}">${loaded ? signedNumber(amountDiff) : "-"}</td>
+          <td>${weightCell(currAmount, sectorColor)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -2245,8 +3801,9 @@
         <td class="${totalCls}">${allLoaded ? totalPrevAmount.toLocaleString() : "-"}</td>
         <td class="dim">-</td>
         <td class="${totalCls}">${allLoaded ? totalCurrAmount.toLocaleString() : "-"}</td>
-        <td class="${totalCls}">${allLoaded ? `${totalArrow} ${totalSign}${totalDiff.toLocaleString()} <span class="rate">(${totalRate >= 0 ? "+" : ""}${totalRate.toFixed(2)}%)</span>` : "-"}</td>
+        <td class="${totalCls}">${allLoaded ? `<span class="chg-pill ${totalCls}">${totalArrow} ${totalSign}${totalDiff.toLocaleString()} <span class="rate">(${(totalRate ?? 0) >= 0 ? "+" : ""}${(totalRate ?? 0).toFixed(2)}%)</span></span>` : "-"}</td>
         <td class="${totalCls}">${allLoaded ? `${totalSign}${totalDiff.toLocaleString()}` : "-"}</td>
+        <td>${allLoaded ? weightCell(totalCurrAmount, '#6366f1') : '<span class="num-none">-</span>'}</td>
       `;
       tbody.appendChild(totalTr);
     }
@@ -2262,8 +3819,14 @@
         labelDiv.style.borderColor = isWorking ? '#38bdf8' : 'rgba(56, 189, 248, 0.45)';
         labelDiv.style.boxShadow = isWorking ? '0 0 14px rgba(56, 189, 248, 0.85)' : '0 3px 10px rgba(0,0,0,0.6)';
       }
-      if (agent3DObjects[agentId]) {
-        agent3DObjects[agentId].isWorking = isWorking;
+      const obj = agent3DObjects[agentId];
+      if (obj) {
+        obj.isWorking = isWorking;
+        if (obj.life) {
+          obj.life.badgeKey = 'pipeline';       // 오피스 라이프 배지가 파이프라인 상태를 덮어쓰지 않도록 표시
+          obj.life.badgeText = stateText;
+          if (isWorking && !obj.life.seated) sendAgentHome(obj, true);   // 자리를 비웠다면 뛰어서 복귀
+        }
       }
     }
 
@@ -2283,50 +3846,63 @@
       btnRun.disabled = true;
       btnRun.style.opacity = "0.5";
 
-      resetAllAgentsToWaiting();
-      appendTerminalLog("SYSTEM", `[${CURRENT_BRAND_NAME}] 8인(6대 섹터 + 취합 + 승인) 파이프라인 가동 시작.`, "#94a3b8");
-      await delay(250);
+      try {
+        // 커피·토론 중이던 인원 포함 전원 자리로 호출
+        try { recallAllAgents(); } catch (_) {}
+        resetAllAgentsToWaiting();
+        appendTerminalLog("SYSTEM", `[${CURRENT_BRAND_NAME}] 8인(6대 섹터 + 취합 + 승인) 파이프라인 가동 시작.`, "#94a3b8");
+        await delay(250);
 
-      appendTerminalLog("ARTHUR", "맥스·레오·미아·루시·카이·클로이! 6대 전담 섹터 뉴스 및 시세 수집을 개시하세요.");
-      setAgentState('scout-const', '건설기계 수집중', '#ea580c', true);
-      setAgentState('scout-ship',  '조선/지주 수집중', '#059669', true);
-      setAgentState('scout-tech',  'AI/반도체 수집중', '#7c3aed', true);
-      setAgentState('scout-def',   '방산/비철 수집중', '#d97706', true);
-      setAgentState('scout-fin',   '금융/지수 수집중', '#0284c7', true);
-      setAgentState('scout-bio',   '바이오 수집중',    '#db2777', true);
+        appendTerminalLog("ARTHUR", "맥스·레오·미아·루시·카이·클로이! 6대 전담 섹터 뉴스 및 시세 수집을 개시하세요.");
+        setAgentState('scout-const', '건설기계 수집중', '#ea580c', true);
+        setAgentState('scout-ship',  '조선/지주 수집중', '#059669', true);
+        setAgentState('scout-tech',  'AI/반도체 수집중', '#7c3aed', true);
+        setAgentState('scout-def',   '방산/비철 수집중', '#d97706', true);
+        setAgentState('scout-fin',   '금융/지수 수집중', '#0284c7', true);
+        setAgentState('scout-bio',   '바이오 수집중',    '#db2777', true);
 
-      const mode = isPortfolioOpen ? 'HOLDINGS' : 'MARKET';
-      const [newsItems] = await Promise.all([
-        fetchSixSectorNewsPipeline(mode),
-        fetchKospiIndexWithSilentFailover()
-      ]);
-      CURRENT_NEWS_ITEMS = newsItems;
+        const mode = isPortfolioOpen ? 'HOLDINGS' : 'MARKET';
+        if (mode === 'HOLDINGS') appendTerminalLog("ARTHUR", "내 보유 10종목은 종목명으로 직접 검색해 제목에 종목이 들어간 기사 위주로 올리세요.");
+        await Promise.all([
+          collectNewsForPipeline(mode).catch(() => {}),
+          fetchKospiIndexWithSilentFailover().catch(() => {})
+        ]);
 
-      setAgentState('scout-const', '수집 완료', '#064e3b', false);
-      setAgentState('scout-ship',  '수집 완료', '#064e3b', false);
-      setAgentState('scout-tech',  '수집 완료', '#064e3b', false);
-      setAgentState('scout-def',   '수집 완료', '#064e3b', false);
-      setAgentState('scout-fin',   '수집 완료', '#064e3b', false);
-      setAgentState('scout-bio',   '수집 완료', '#064e3b', false);
+        ['scout-const', 'scout-ship', 'scout-tech', 'scout-def', 'scout-fin', 'scout-bio'].forEach(id => setAgentState(id, '수집 완료', '#064e3b', false));
 
-      appendTerminalLog("ARTHUR", "엘레나 에디터, 6인의 섹터 스카우트가 올린 데이터를 취합하고 핵심 브리핑으로 정리하세요.");
-      setAgentState('editor', '취합·정리중', '#0d9488', true);
-      await delay(550);
-      setAgentState('editor', '정리 완료', '#064e3b', false);
-      appendTerminalLog("ELENA (취합·정리)", `6대 섹터 총 ${CURRENT_NEWS_ITEMS.length}건 기사 감성 분류 및 통합 요약본 작성 완료.`, "#6ee7b7");
+        appendTerminalLog("ARTHUR", "엘레나 에디터, 6인의 섹터 스카우트가 올린 데이터를 취합하고 핵심 브리핑으로 정리하세요.");
+        setAgentState('editor', '취합·정리중', '#0d9488', true);
+        await delay(900);
+        setAgentState('editor', '정리 완료', '#064e3b', false);
+        const briefingCount = buildBriefingList(mode).length;
+        appendTerminalLog("ELENA (취합·정리)", `중복 제거·감성 분류 후 ${briefingCount}건을 ${mode === 'HOLDINGS' ? '내 종목 직접 뉴스 중심 ' : ''}브리핑으로 정리 완료.`, "#6ee7b7");
 
-      appendTerminalLog("ELENA", "아서 매니저님, 6대 섹터 통합 브리핑 정리가 완료되었습니다. 최종 승인을 요청합니다.");
-      setAgentState('manager', '최종 검수중', '#b45309', true);
-      await delay(450);
-      setAgentState('manager', '최종 승인!', '#064e3b', false);
-      appendTerminalLog("ARTHUR (최종승인)", "8인 데스크 리포트 검수 완료: [최종 PASS 승인]. 브리핑을 즉시 발행합니다!", "#fcd34d");
+        appendTerminalLog("ELENA", "아서 매니저님, 6대 섹터 통합 브리핑 정리가 완료되었습니다. 최종 승인을 요청합니다.");
+        setAgentState('manager', '최종 검수중', '#b45309', true);
+        await delay(800);
+        setAgentState('manager', '최종 승인!', '#064e3b', false);
+        appendTerminalLog("ARTHUR (최종승인)", "8인 데스크 리포트 검수 완료: [최종 PASS 승인]. 브리핑을 즉시 발행합니다!", "#fcd34d");
 
-      hasRunOnce = true;
-      updateBriefingDisplay();
+        hasRunOnce = true;
+        updateBriefingDisplay();
 
-      isPipelineRunning = false;
-      btnRun.disabled = false;
-      btnRun.style.opacity = "1";
+        // 발행 직후: 승인 배지를 잠시 유지한 뒤, 엘레나·아서·스카우트 1명이 화이트보드 앞에서 결과 리뷰
+        const scouts = ['scout-const', 'scout-ship', 'scout-tech', 'scout-def', 'scout-fin', 'scout-bio'];
+        officeLife.badgeHoldUntil = officeLife.t + 5;
+        officeLife.forced = ['editor', 'manager', scouts[Math.floor(Math.random() * scouts.length)]];
+        officeLife.nextPlanAt = officeLife.t + 3;
+        Object.values(agent3DObjects).forEach(o => { if (o.life) o.life.restUntil = officeLife.t + 6 + Math.random() * 12; });
+      } catch (err) {
+        appendTerminalLog("SYSTEM", "브리핑 처리 중 예기치 못한 문제가 발생했습니다. 다시 시도해 주세요.", "#fb7185");
+      } finally {
+        // 어떤 경우에도 버튼과 상태는 반드시 복구
+        ['scout-const', 'scout-ship', 'scout-tech', 'scout-def', 'scout-fin', 'scout-bio', 'editor', 'manager'].forEach(id => {
+          if (agent3DObjects[id]) agent3DObjects[id].isWorking = false;
+        });
+        isPipelineRunning = false;
+        btnRun.disabled = false;
+        btnRun.style.opacity = "1";
+      }
     }
 
     // 3D 오피스 접기/펼치기 (상태 저장)
